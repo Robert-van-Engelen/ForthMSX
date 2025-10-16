@@ -27,7 +27,7 @@ With the full version `forth.bin` you can extend Forth by loading Forth source c
 
 The [examples](examples) directory of this project includes a prime number sieve.  Import `PRIMES.FTH` to disk.  Type `require primes.fth` and `1000 sieve`:
 
-![ForthMSX](img/forthmsx3.png)
+![ForthMSX](img/forthmsx4.png)
 
 To delete all definitions loaded from a file, such as `PRIMES.FTH`, type `~primes.fth` (like a C++ destructor uses `~`).
 
