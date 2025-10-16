@@ -36,3 +36,8 @@ The [examples](examples) directory of this project includes a prime number sieve
 To delete all definitions loaded from a file, such as `PRIMES.FTH`, type `~primes.fth` (like a C++ destructor uses `~`).
 
 If a Forth source file is changed, then reload it with `anew primes.fth` to delete all its definitions first and compile it again.
+
+Enter `bye` in Forth to exit back to BASIC.  You can return to Forth where you left off in Forth from BASIC with:
+
+    defusr0=&h8400:?usr0(0)
+
