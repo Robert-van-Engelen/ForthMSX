@@ -20,3 +20,15 @@ Once you've been greeted by the Forth system, type `80 width` and ENTER to switc
 The Forth screen editor is the same as the BASIC screen editor.  So you can use the same key combinations and ways to enter Forth commands, edit them, and rerun them as desired.
 
 ForthMSX uses the available 32K BASIC RAM without additional RAM slots.  This supports all 64K MSX systems.  In the future, it makes perhaps more sense to release a version that runs Forth in certain RAM slots concurrently to BASIC/MSX-DOS/Nextor.
+
+With the full version `forth.bin` you can extend Forth by loading Forth source code and try some examples.  Locate the `FILES.FTH` source [`src/FILES.FTH`](src/FILES.FTH) and import this file to disk in WebMSX.  Then type `require files.fth` in ForthMSX to load and compile Forth files definitions (takes about a second).  Then type `files`:
+
+![ForthMSX](img/forthmsx3.png)
+
+The [examples](examples) directory of this project includes a prime number sieve.  Type `require primes.fth` and `1000 sieve`:
+
+![ForthMSX](img/forthmsx3.png)
+
+To delete all definitions loaded from a file, such as `PRIMES.FTH`, type `~primes.fth` (like a C++ destructor uses `~`).
+
+If a Forth source file is changed, then reload it with `anew primes.fth` to delete all its definitions first and compile it again.
