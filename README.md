@@ -25,7 +25,7 @@ The Forth screen editor is the same as the BASIC screen editor you're probably f
 
 ForthMSX uses the available 32K BASIC RAM without using other RAM slots.  This supports all 64K MSX systems.  In the future, it makes perhaps sense to release a version that runs Forth in certain RAM slots concurrently to BASIC/MSX-DOS/Nextor.
 
-With the current full version `forth.bin` you can extend Forth by loading Forth source code and try some examples.  Locate the `FILE.FTH` source [`src/FILE.FTH`](src/FILE.FTH) and import this file to disk in WebMSX.  Then type `require files.fth` in ForthMSX to load and compile Forth files definitions (takes about a second).  Then type `files`:
+With the current full version `forth.bin` you can extend Forth by loading Forth source code and try some examples.  Locate the `FILE.FTH` source [`src/FILE.FTH`](src/FILE.FTH) and import this file to disk in WebMSX.  Then type `require file.fth` in ForthMSX to load and compile Forth files definitions (takes about a second).  Then type `files`:
 
 ![ForthMSX](img/forthmsx3.png)
 
