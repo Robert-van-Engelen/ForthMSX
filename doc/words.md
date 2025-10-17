@@ -4,8 +4,8 @@ Forth words
 For an overview see the [alphabetic list of words](#alphabetic-list-of-words)
 
 Forth words operate on the parameter stack, the return stack, and may parse
-Forth words or delimited sequences of characters from the input buffer.
-Parameter stack changes by a word such as `ROT` are indicated by a `--`:
+delimited sequences of characters from the input buffer.  The parameter stack
+updates performed by a word are indicated by _before_ `--` _after_:
 
 **ROT**
 <br>
