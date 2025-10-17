@@ -17,8 +17,15 @@ single-cell values that are returned by ROT, replacing the input values on the
 stack in a rotated order with _x1_ the new TOS, _x3_ the second-on-stack (2OS)
 and _x2_ the third-on-stack (3OS).
 
-Return stack changes are indicated by an _R_, for example _x -- ; R: -- x_
-moves _x_ from the parameter stack to the return stack.
+Return stack changes are indicated by an _R_.  For example _x -- ; R: -- x_
+moves _x_ from the parameter stack to the return stack.  Beware that moving
+values from and to the return stack requires care, since the return stack is
+primarily used to return control from word definitions.  When manipulating the
+return stack in the body of your word definition, you can add values to the
+return stack as long as you remove them before the word returns.  Also DO-LOOP
+uses the return stack for loop parameters, which means that moving values
+from/to the return stack is possible exclusively outside or inside a DO-LOOP,
+not across DO and LOOP control structure.
 
 Different types of values are abbreviated as followes:
 
@@ -128,14 +135,14 @@ ___
 _-- c-addr_
 
 leave address of the PAD;
-the PAD is a free buffer space of at least 256 bytes not used by Forth
+the PAD is a free buffer space of 256 bytes not used by Forth
 
 ___
 ### TIB
 _-- c-addr u_
 
 leave c-addr of the terminal input buffer (TIB) and buffer size u;
-the terminal input buffer used by Forth of at least 256 bytes
+the terminal input buffer of 256 bytes is used by Forth;
 
 ___
 ### TMP
