@@ -1649,7 +1649,7 @@ leaves FALSE when the end of input (end of file) is reached
 
 ___
 ### SKIP
-_char &lt;chars&gt;" --_
+_char "&lt;chars&gt;" --_
 
 skip chars in input when present, 0x20 (BL) skips 0x00 to 0x20 (white space and control)
 
@@ -1657,7 +1657,7 @@ skip chars in input when present, 0x20 (BL) skips 0x00 to 0x20 (white space and 
 
 ___
 ### PARSE
-_char "ccc<char>" -- c-addr u_
+_char "ccc&lt;char&gt;" -- c-addr u_
 
 parse "ccc" up to char when present
 
@@ -1665,7 +1665,7 @@ parse "ccc" up to char when present
 
 ___
 ### PARSE-WORD
-_char &lt;chars&gt;ccc<char>" -- c-addr u_
+_char "&lt;chars&gt;ccc&lt;char&gt;" -- c-addr u_
 
 parse char-delimited word;
 may throw -18 "parsed string overflow"
@@ -1676,7 +1676,7 @@ may throw -18 "parsed string overflow"
 
 ___
 ### WORD
-_char &lt;chars&gt;ccc<char>" -- c-addr_
+_char "&lt;chars&gt;ccc&lt;char&gt;" -- c-addr_
 
 parse word as a counted string
 
@@ -1697,7 +1697,7 @@ may throw -19 "definition name too long"
 
 ___
 ### PARSE-NAME
-_&lt;spaces&gt;name<space>" -- c-addr u_
+_"&lt;spaces&gt;name&lt;space&gt;" -- c-addr u_
 
 parse space-delimited name;
 check if name length is valid
@@ -1706,7 +1706,7 @@ check if name length is valid
 
 ___
 ### CHAR
-_&lt;spaces&gt;name<space>" -- char_
+_"&lt;spaces&gt;name&lt;space&gt;" -- char_
 
 parse char
 
@@ -1803,7 +1803,7 @@ leaves c-addr and 0 when not found
 
 ___
 ### '
-_&lt;spaces&gt;name<space>" -- xt_
+_"&lt;spaces&gt;name&lt;space&gt;" -- xt_
 
 parse name and search the dictionary to leave its execution token;
 may throw -13 "undefined word"
@@ -1889,7 +1889,7 @@ switch state to compiling
 
 ___
 ### [']
-_&lt;spaces&gt;name<space>" -- ; -- xt_
+_"&lt;spaces&gt;name&lt;space&gt;" -- ; -- xt_
 
 compile xt of name as literal;
 may throw -14 "interpreting a compile-only word"
@@ -1898,7 +1898,7 @@ may throw -14 "interpreting a compile-only word"
 
 ___
 ### [CHAR]
-_&lt;spaces&gt;char" -- ; -- char_
+_"&lt;spaces&gt;char" -- ; -- char_
 
 compile char as literal;
 note that the syntax 'char is preferred instead of this legacy word;
@@ -1908,7 +1908,7 @@ may throw -14 "interpreting a compile-only word"
 
 ___
 ### [COMPILE]
-_&lt;space&gt;name<space>" -- ; ... -- ..._
+_"&lt;space&gt;name&lt;space&gt;" -- ; ... -- ..._
 
 compile name;
 note that POSTPONE is preferred instead of this legacy word;
@@ -2008,7 +2008,7 @@ may throw -8 "dictionary overflow"
 
 ___
 ### CODE
-_&lt;spaces&gt;name<space>" --_
+_"&lt;spaces&gt;name&lt;space&gt;" --_
 
 parse name and append dictionary entry with name;
 to start compiling code into the dictionary;
@@ -2054,7 +2054,7 @@ leaves -1 (TRUE) meaning X is a VALUE which calls runtime (VAL)
 
 ___
 ### POSTPONE
-_&lt;spaces&gt;name<space>" --_
+_"&lt;spaces&gt;name&lt;space&gt;" --_
 
 postpone compile action of name;
 if name is immediate, then compile name instead of executing it;
@@ -2065,7 +2065,7 @@ may throw -14 "interpreting a compile-only word"
 
 ___
 ### BUFFER:
-_n &lt;spaces&gt;name<space>" -- ; -- addr_
+_n "&lt;spaces&gt;name&lt;space&gt;" -- ; -- addr_
 
 define buffer with n bytes;
 executing name leaves address of n bytes
@@ -2081,7 +2081,7 @@ leaves execution token of definition to be used or saved
 
 ___
 ### :
-_-- ; C: &lt;spaces&gt;name<space>" -- addr colon_sys_
+_-- ; C: "&lt;spaces&gt;name&lt;space&gt;" -- addr colon_sys_
 
 define name and start compiling
 
@@ -2108,7 +2108,7 @@ to EXIT the definition from within a DO-LOOP, first call UNLOOP
 
 ___
 ### CREATE
-_&lt;spaces&gt;name<space>" -- ; -- addr_
+_"&lt;spaces&gt;name&lt;space&gt;" -- ; -- addr_
 
 create name;
 executing name leaves address (HERE address after CREATE)
@@ -2125,7 +2125,7 @@ change CREATE name behavior to execute code after DOES>
 
 ___
 ### VARIABLE
-_&lt;spaces&gt;name<space>" -- ; -- addr_
+_"&lt;spaces&gt;name&lt;space&gt;" -- ; -- addr_
 
 define a variable;
 executing name leaves address of value (initialized to zero)
@@ -2134,7 +2134,7 @@ executing name leaves address of value (initialized to zero)
 
 ___
 ### 2VARIABLE
-_&lt;spaces&gt;name<space>" -- ; -- addr_
+_"&lt;spaces&gt;name&lt;space&gt;" -- ; -- addr_
 
 define a double variable;
 executing name leaves address of double value (initialized to zero)
@@ -2143,7 +2143,7 @@ executing name leaves address of double value (initialized to zero)
 
 ___
 ### CONSTANT
-_x &lt;spaces&gt;name<space>" -- ; -- x_
+_x "&lt;spaces&gt;name&lt;space&gt;" -- ; -- x_
 
 define a constant;
 executing name leaves x
@@ -2153,7 +2153,7 @@ executing name leaves x
 
 ___
 ### 2CONSTANT
-_x1 x2 &lt;spaces&gt;name<space>" -- ; -- x1 x2_
+_x1 x2 "&lt;spaces&gt;name&lt;space&gt;" -- ; -- x1 x2_
 
 define a double constant;
 executing name leaves x1 x2
@@ -2163,7 +2163,7 @@ executing name leaves x1 x2
 
 ___
 ### VALUE
-_x &lt;spaces&gt;name<space>" -- ; -- x_
+_x "&lt;spaces&gt;name&lt;space&gt;" -- ; -- x_
 
 define a value;
 executing name leaves x
@@ -2172,7 +2172,7 @@ executing name leaves x
 
 ___
 ### 2VALUE
-_dx &lt;spaces&gt;name<space>" -- ; -- dx_
+_dx "&lt;spaces&gt;name&lt;space&gt;" -- ; -- dx_
 
 define a double value;
 executing name leaves dx
@@ -2181,7 +2181,7 @@ executing name leaves dx
 
 ___
 ### TO
-_&lt;spaces&gt;name<space>" -- ; x --_
+_"&lt;spaces&gt;name&lt;space&gt;" -- ; x --_
 
 assign value name;
 may throw -32 "invalid name argument"
@@ -2212,7 +2212,7 @@ may throw -32 "invalid name argument"
 
 ___
 ### +TO
-_&lt;spaces&gt;name<space>" -- ; n --_
+_"&lt;spaces&gt;name&lt;space&gt;" -- ; n --_
 
 increment value name;
 may throw -32 "invalid name argument"
@@ -2242,7 +2242,7 @@ may throw -32 "invalid name argument"
 
 ___
 ### DEFER
-_&lt;spaces&gt;name<space>" -- ; ... -- ..._
+_"&lt;spaces&gt;name&lt;space&gt;" -- ; ... -- ..._
 
 define a deferred name
 
@@ -2266,7 +2266,7 @@ fetch execution token from deferred xt1
 
 ___
 ### IS
-_xt &lt;spaces&gt;name<space>" --_
+_xt "&lt;spaces&gt;name&lt;space&gt;" --_
 
 assign execution token to deferred name;
 may throw -32 "invalid name argument"
@@ -2286,7 +2286,7 @@ may throw -32 "invalid name argument"
 
 ___
 ### ACTION-OF
-_&lt;spaces&gt;name<space>" -- xt_
+_"&lt;spaces&gt;name&lt;space&gt;" -- xt_
 
 fetch execution token of deferred name;
 may throw -32 "invalid name argument"
@@ -2336,7 +2336,7 @@ max literal string length is 255
 
 ___
 ### ."
-_"ccc<quote>" -- ; --_
+_"ccc&lt;quote&gt;" -- ; --_
 
 type "ccc" (compiled, not interpreted)
 
@@ -2344,7 +2344,7 @@ type "ccc" (compiled, not interpreted)
 
 ___
 ### C"
-_"ccc<quote>" -- ; -- c-addr_
+_"ccc&lt;quote&gt;" -- ; -- c-addr_
 
 leave counted string "ccc" (compiled, not interpreted);
 may throw -18 "parsed string overflow"
@@ -2353,7 +2353,7 @@ may throw -18 "parsed string overflow"
 
 ___
 ### S"
-_"ccc<quote>" -- ; -- c-addr u_
+_"ccc&lt;quote&gt;" -- ; -- c-addr u_
 
 leave string "ccc" (compiled and interpreted);
 truncates string to 255 characters long when excessive
@@ -2362,7 +2362,7 @@ truncates string to 255 characters long when excessive
 
 ___
 ### S\"
-_"ccc<quote>" -- ; -- c-addr u_
+_"ccc&lt;quote&gt;" -- ; -- c-addr u_
 
 leave string "ccc" (compiled and interpreted);
 truncates string to 255 characters long when excessive
@@ -2747,7 +2747,7 @@ clears the parameter stack unless caught with CATCH
 
 ___
 ### ABORT"
-_... flag -- ; C: "ccc<quote>" -- ; R: ... --_
+_... flag -- ; C: "ccc&lt;quote&gt;" -- ; R: ... --_
 
 if flag then abort with string message unless an active catch is present;
 throw -2 "ABORT"";
@@ -2764,7 +2764,7 @@ return to BASIC
 
 ___
 ### (
-_"ccc<paren>" --_
+_"ccc&lt;paren&gt;" --_
 
 start a comment block;
 parse and skip input up to the closing )
@@ -2786,7 +2786,7 @@ parse and skip input up to the closing )
 
 ___
 ### \
-_"ccc<eol>" --_
+_"ccc&lt;eol&gt;" --_
 
 start a comment line;
 parse and skip input up to the end of line
@@ -2795,7 +2795,7 @@ parse and skip input up to the end of line
 
 ___
 ### OK
-_"ccc<eol>" --_
+_"ccc&lt;eol&gt;" --_
 
 start a comment line;
 parse and skip input up to the end of line;
@@ -2806,7 +2806,7 @@ so that screen editing of Forth output before OK is made possible
 
 ___
 ### .(
-_"ccc<paren>" --_
+_"ccc&lt;paren&gt;" --_
 
 emit CR then type "ccc" up to the closing )
 
@@ -2918,7 +2918,7 @@ read-evaluate-print loop
 
 ___
 ### MARKER
-_&lt;spaces&gt;name<space>" -- ; --_
+_"&lt;spaces&gt;name&lt;space&gt;" -- ; --_
 
 define a dictionary marker;
 executing the name deletes marker and all definitions made after;
@@ -2949,7 +2949,7 @@ only permit FORGET past the dictionary FENCE address
 
 ___
 ### FORGET
-_&lt;spaces&gt;name<space>" --_
+_"&lt;spaces&gt;name&lt;space&gt;" --_
 
 delete name and all following definitions;
 may throw -15 "invalid FORGET";
@@ -2982,7 +2982,7 @@ make CURRENT the CONTEXT vocabulary
 
 ___
 ### VOCABULARY
-_&lt;spaces&gt;name<space>" --_
+_"&lt;spaces&gt;name&lt;space&gt;" --_
 
 define a new vocabulary
 
@@ -3255,7 +3255,7 @@ read and interpret Forth source code from the file named by the string c-addr u
 
 ___
 ### INCLUDE
-_... &lt;spaces&gt;name" -- ..._
+_... "&lt;spaces&gt;name" -- ..._
 
 read and interpret Forth source code from file "name"
 
@@ -3284,7 +3284,7 @@ beware of vocabulary definitions crossings
 
 ___
 ### REQUIRE
-_... &lt;spaces&gt;name" -- ..._
+_... "&lt;spaces&gt;name" -- ..._
 
 read and interpret Forth source code from file "name",
 if the file was not already included;
@@ -3296,7 +3296,7 @@ beware of vocabulary definitions crossings
 
 ___
 ### ANEW
-_... &lt;spaces&gt;name" -- ..._
+_... "&lt;spaces&gt;name" -- ..._
 
 read and interpret Forth source code from file "name",
 same as REQUIRE,
@@ -4301,13 +4301,13 @@ word | stack
 [`#IN`](##IN)	|		-- n
 [`#S`](##S)	|		ud -- 0 0
 [`#`](##)	|		ud1 -- ud2
-[`'`](#')	|		&lt;spaces&gt;name<space>" -- xt
+[`'`](#')	|		"&lt;spaces&gt;name&lt;space&gt;" -- xt
 [`*/MOD`](#*/MOD)	|		n1 n2 n3 -- n4 n5
 [`*/`](#*/)	|		n1 n2 n3 -- n4
 [`*`](#*)	|		n1|u1 n2|u2 -- n3|u3
 [`+!`](#+!)	|		n addr --
 [`+LOOP`](#+LOOP)	|		n|u -- ; C: addr do_sys --
-[`+TO`](#+TO)	|		&lt;spaces&gt;name<space>" -- ; n --
+[`+TO`](#+TO)	|		"&lt;spaces&gt;name&lt;space&gt;" -- ; n --
 [`+`](#+)	|		n1 n2 -- n3
 [`,`](#,)	|		x --
 [`-1`](#-1)	|		-- -1
@@ -4315,8 +4315,8 @@ word | stack
 [`-TRAILING`](#-TRAILING)	|	c-addr u1 -- c-addr u2
 [`-TRIM`](#-TRIM)	|		c-addr u1 char -- c-addr u2
 [`-`](#-)	|		n1 n2 -- n3
-[`."`](#.")	|		"ccc<quote>" -- ; --
-[`.(`](#.()	|		"ccc<paren>" --
+[`."`](#.")	|		"ccc&lt;quote&gt;" -- ; --
+[`.(`](#.()	|		"ccc&lt;paren&gt;" --
 [`.R`](#.R)	|		n +n --
 [`.S`](#.S)	|		--
 [`.`](#.)	|		n --
@@ -4337,7 +4337,7 @@ word | stack
 [`2/`](#2/)	|		n1 -- n2
 [`2>R`](#2>R)	|		x1 x2 -- ; R: -- x1 x2
 [`2@`](#2@)	|		addr -- x1 x2
-[`2CONSTANT`](#2CONSTANT)	|	x1 x2 &lt;spaces&gt;name<space>" -- ; -- x1 x2
+[`2CONSTANT`](#2CONSTANT)	|	x1 x2 "&lt;spaces&gt;name&lt;space&gt;" -- ; -- x1 x2
 [`2DROP`](#2DROP)	|		xd1 xd2 -- xd1
 [`2DUP`](#2DUP)	|		xd -- xd xd
 [`2LITERAL`](#2LITERAL)	|	x1 x2 -- ; -- x1 x2
@@ -4346,12 +4346,12 @@ word | stack
 [`2R@`](#2R@)	|		R: x1 x2 -- x1 x2 ; -- x1 x2
 [`2ROT`](#2ROT)	|		xd1 xd2 xd3 -- xd2 xd3 xd1
 [`2SWAP`](#2SWAP)	|		xd1 xd2 -- xd2 xd1
-[`2VALUE`](#2VALUE)	|	dx &lt;spaces&gt;name<space>" -- ; -- dx
-[`2VARIABLE`](#2VARIABLE)	|	&lt;spaces&gt;name<space>" -- ; -- addr
+[`2VALUE`](#2VALUE)	|	dx "&lt;spaces&gt;name&lt;space&gt;" -- ; -- dx
+[`2VARIABLE`](#2VARIABLE)	|	"&lt;spaces&gt;name&lt;space&gt;" -- ; -- addr
 [`2`](#2)	|		-- 2
 [`3`](#3)	|		-- 3
 [`:NONAME`](#:NONAME)	|	-- xt
-[`:`](#:)	|		-- ; C: &lt;spaces&gt;name<space>" -- addr colon_sys
+[`:`](#:)	|		-- ; C: "&lt;spaces&gt;name&lt;space&gt;" -- addr colon_sys
 [`;`](#;)	|		-- ; C: addr colon_sys --
 [`<#`](#<#)	|		--
 [`<>`](#<>)	|		x1 x2 -- flag
@@ -4374,11 +4374,11 @@ word | stack
 [`?SYS`](#?SYS)	|		-- ; C: x --
 [`?`](#?)	|		addr --
 [`@`](#@)	|		addr -- x
-[`ABORT"`](#ABORT")	|	... flag -- ; C: "ccc<quote>" -- ; R: ... --
+[`ABORT"`](#ABORT")	|	... flag -- ; C: "ccc&lt;quote&gt;" -- ; R: ... --
 [`ABORT`](#ABORT)	|		... -- ; R: ... --
 [`ABS`](#ABS)	|		n1 -- n2
 [`ACCEPT`](#ACCEPT)	|	c-addr +n1 -- +n2
-[`ACTION-OF`](#ACTION-OF)	|	&lt;spaces&gt;name<space>" -- xt
+[`ACTION-OF`](#ACTION-OF)	|	"&lt;spaces&gt;name&lt;space&gt;" -- xt
 [`AGAIN`](#AGAIN)	|		-- ; C: addr dest --
 [`AHEAD`](#AHEAD)	|		-- ; C: -- addr orig
 [`ALLOT`](#ALLOT)	|		n --
@@ -4388,10 +4388,10 @@ word | stack
 [`BEGIN`](#BEGIN)	|		-- ; C: -- addr dest
 [`BLANK`](#BLANK)	|		c-addr u --
 [`BL`](#BL)	|		-- 32
-[`BUFFER:`](#BUFFER:)	|	n &lt;spaces&gt;name<space>" -- ; -- addr
+[`BUFFER:`](#BUFFER:)	|	n "&lt;spaces&gt;name&lt;space&gt;" -- ; -- addr
 [`BYE`](#BYE)	|		--
 [`C!`](#C!)	|		char c-addr --
-[`C"`](#C")	|		"ccc<quote>" -- ; -- c-addr
+[`C"`](#C")	|		"ccc&lt;quote&gt;" -- ; -- c-addr
 [`C,`](#C,)	|		char --
 [`C@`](#C@)	|		c-addr -- char
 [`CASE`](#CASE)	|		x -- ; C: -- 0
@@ -4403,19 +4403,19 @@ word | stack
 [`CFA=`](#CFA=)	|		xt1 xt2 -- flag
 [`CHAR+`](#CHAR+)	|		n1 -- n1
 [`CHARS`](#CHARS)	|		n1 -- n2
-[`CHAR`](#CHAR)	|		&lt;spaces&gt;name<space>" -- char
+[`CHAR`](#CHAR)	|		"&lt;spaces&gt;name&lt;space&gt;" -- char
 [`CHECK-NAME`](#CHECK-NAME)	|	c-addr u -- c-addr u
 [`CHOP`](#CHOP)	|		c-addr u1 char -- c-addr u2
 [`CLEAR`](#CLEAR)	|		... --
 [`CMOVE>`](#CMOVE>)	|	c-addr1 c-addr2 u --
 [`CMOVE`](#CMOVE)	|		c-addr1 c-addr2 u --
-[`CODE`](#CODE)	|		&lt;spaces&gt;name<space>" --
+[`CODE`](#CODE)	|		"&lt;spaces&gt;name&lt;space&gt;" --
 [`COMPARE`](#COMPARE)	|	c-addr1 u1 c-addr2 u2 -- -1|0|1
 [`COMPILE,`](#COMPILE,)	|	xt --
-[`CONSTANT`](#CONSTANT)	|	x &lt;spaces&gt;name<space>" -- ; -- x
+[`CONSTANT`](#CONSTANT)	|	x "&lt;spaces&gt;name&lt;space&gt;" -- ; -- x
 [`CONTEXT`](#CONTEXT)	|	-- addr
 [`COUNT`](#COUNT)	|		c-addr1 -- c-addr2 u
-[`CREATE`](#CREATE)	|	&lt;spaces&gt;name<space>" -- ; -- addr
+[`CREATE`](#CREATE)	|	"&lt;spaces&gt;name&lt;space&gt;" -- ; -- addr
 [`CR`](#CR)	|		--
 [`CUR-XY`](#CUR-XY)	|	-- u1 u2
 [`CURRENT`](#CURRENT)	|	-- addr
@@ -4440,7 +4440,7 @@ word | stack
 [`DECIMAL`](#DECIMAL)	|	--
 [`DEFER!`](#DEFER!)	|	xt1 xt2 --
 [`DEFER@`](#DEFER@)	|	xt1 -- xt2
-[`DEFER`](#DEFER)	|		&lt;spaces&gt;name<space>" -- ; ... -- ...
+[`DEFER`](#DEFER)	|		"&lt;spaces&gt;name&lt;space&gt;" -- ; ... -- ...
 [`DEFINITIONS`](#DEFINITIONS)	|	--
 [`DEPTH`](#DEPTH)	|		-- u
 [`DMAX`](#DMAX)	|		d1 d2 -- d3
@@ -4499,7 +4499,7 @@ word | stack
 [`FMAX`](#FMAX)	|		r1 r2 -- r3
 [`FMIN`](#FMIN)	|		r1 r2 -- r3
 [`FNEGATE`](#FNEGATE)	|	r1 -- r2
-[`FORGET`](#FORGET)	|	&lt;spaces&gt;name<space>" --
+[`FORGET`](#FORGET)	|	"&lt;spaces&gt;name&lt;space&gt;" --
 [`FORTH`](#FORTH)	|		--
 [`FRAND`](#FRAND)	|	r1 -- r2
 [`FS.`](#FS.)	|		r --
@@ -4522,7 +4522,7 @@ word | stack
 [`INP`](#INP)	|		u1 -- u2
 [`INTERPRET`](#INTERPRET)	|	--
 [`INVERT`](#INVERT)	|	x1 -- x2
-[`IS`](#IS)	|		xt &lt;spaces&gt;name<space>" --
+[`IS`](#IS)	|		xt "&lt;spaces&gt;name&lt;space&gt;" --
 [`I`](#I)	|		-- n
 [`J`](#J)	|		-- n
 [`KEY-CLEAR`](#KEY-CLEAR)	|	--
@@ -4538,7 +4538,7 @@ word | stack
 [`M*/`](#M*/)	|		d1 n1 n2 -- d2
 [`M*`](#M*)	|		n1 n2 -- d
 [`M+`](#M+)	|		d1 n -- d2
-[`MARKER`](#MARKER)	|	&lt;spaces&gt;name<space>" -- ; --
+[`MARKER`](#MARKER)	|	"&lt;spaces&gt;name&lt;space&gt;" -- ; --
 [`MAX-XY`](#MAX-XY)	|	-- u1 u2
 [`MAX`](#MAX)	|		n1 n2 -- n3
 [`MD*`](#MD*)	|		d1 n -- d2
@@ -4556,7 +4556,7 @@ word | stack
 [`NUMBER`](#NUMBER)	|	c-addr u -- n|u|d|ud|r
 [`OFF`](#OFF)	|		addr --
 [`OF`](#OF)	|		x1 x2 -- x1 or x1 x2 -- ; C: n1 -- orig n2
-[`OK`](#OK)	|		"ccc<eol>" --
+[`OK`](#OK)	|		"ccc&lt;eol&gt;" --
 [`ON`](#ON)	|		addr --
 [`OR`](#OR)	|		x1 x2 -- x1|x2
 [`OUTPUT-ID`](#OUTPUT-ID)	|	-- 0|fileid
@@ -4564,13 +4564,13 @@ word | stack
 [`OVER`](#OVER)	|		x1 x2 -- x1 x2 x1
 [`PAD`](#PAD)	|		-- c-addr
 [`PAGE`](#PAGE)	|		--
-[`PARSE-NAME`](#PARSE-NAME)	|	&lt;spaces&gt;name<space>" -- c-addr u
-[`PARSE-WORD`](#PARSE-WORD)	|	char &lt;chars&gt;ccc<char>" -- c-addr u
-[`PARSE`](#PARSE)	|		char "ccc<char>" -- c-addr u
+[`PARSE-NAME`](#PARSE-NAME)	|	"&lt;spaces&gt;name&lt;space&gt;" -- c-addr u
+[`PARSE-WORD`](#PARSE-WORD)	|	char "&lt;chars&gt;ccc&lt;char&gt;" -- c-addr u
+[`PARSE`](#PARSE)	|		char "ccc&lt;char&gt;" -- c-addr u
 [`PI/2`](#PI/2)	|		-- r
 [`PICK`](#PICK)	|		xu ... x0 u -- xu ... x0 xu
 [`PI`](#PI)	|		-- r
-[`POSTPONE`](#POSTPONE)	|	&lt;spaces&gt;name<space>" --
+[`POSTPONE`](#POSTPONE)	|	"&lt;spaces&gt;name&lt;space&gt;" --
 [`PRECISION`](#PRECISION)	|	-- +n
 [`QUIT`](#QUIT)	|		... -- ; R: ... --
 [`R>`](#R>)	|		R: x -- ; -- x
@@ -4588,14 +4588,14 @@ word | stack
 [`RP!`](#RP!)	|		addr --
 [`RP@`](#RP@)	|		-- addr
 [`RSHIFT`](#RSHIFT)	|	x1 u -- x2
-[`S"`](#S")	|		"ccc<quote>" -- ; -- c-addr u
+[`S"`](#S")	|		"ccc&lt;quote&gt;" -- ; -- c-addr u
 [`S>D`](#S>D)	|		n -- d
 [`S>F`](#S>F)	|		n -- r
 [`SAVE-INPUT`](#SAVE-INPUT)	|	-- ... n
 [`SDUP`](#SDUP)	|		c-addr1 u -- c-addr2 u
 [`SEARCH`](#SEARCH)	|	c-addr1 u1 c-addr2 u2 -- c-addr3 u3 flag
 [`SIGN`](#SIGN)	|		n --
-[`SKIP`](#SKIP)	|		char &lt;chars&gt;" --
+[`SKIP`](#SKIP)	|		char "&lt;chars&gt;" --
 [`SLITERAL`](#SLITERAL)	|	c-addr u -- ; -- c-addr u
 [`SM/REM`](#SM/REM)	|	d1 n1 -- n2 n3
 [`SOURCE-ID`](#SOURCE-ID)	|	-- 0|-1|fileid
@@ -4606,13 +4606,13 @@ word | stack
 [`SPACE`](#SPACE)	|		--
 [`STATE`](#STATE)	|		-- addr
 [`SWAP`](#SWAP)	|		x1 x2 -- x2 x1
-[`S\"`](#S\")	|		"ccc<quote>" -- ; -- c-addr u
+[`S\"`](#S\")	|		"ccc&lt;quote&gt;" -- ; -- c-addr u
 [`S\>S`](#S\>S)	|		c-addr u -- c-addr u
 [`THEN`](#THEN)	|		-- ; C: addr orig --
 [`THROW`](#THROW)	|		0 -- or ... n -- ... n
 [`TIB`](#TIB)	|		-- c-addr u
 [`TMP`](#TMP)	|		-- c-addr
-[`TO`](#TO)	|		&lt;spaces&gt;name<space>" -- ; x --
+[`TO`](#TO)	|		"&lt;spaces&gt;name&lt;space&gt;" -- ; x --
 [`TRIM`](#TRIM)	|		c-addr1 u1 char -- c-addr2 u2
 [`TRUE`](#TRUE)	|		-- -1
 [`TUCK`](#TUCK)	|		x1 x2 -- x2 x1 x2
@@ -4632,18 +4632,18 @@ word | stack
 [`UNLOOP`](#UNLOOP)	|	--
 [`UNTIL`](#UNTIL)	|		x -- ; C: addr dest --
 [`UNUSED`](#UNUSED)	|	-- u
-[`VALUE`](#VALUE)	|		x &lt;spaces&gt;name<space>" -- ; -- x
-[`VARIABLE`](#VARIABLE)	|	&lt;spaces&gt;name<space>" -- ; -- addr
-[`VOCABULARY`](#VOCABULARY)	|	&lt;spaces&gt;name<space>" --
+[`VALUE`](#VALUE)	|		x "&lt;spaces&gt;name&lt;space&gt;" -- ; -- x
+[`VARIABLE`](#VARIABLE)	|	"&lt;spaces&gt;name&lt;space&gt;" -- ; -- addr
+[`VOCABULARY`](#VOCABULARY)	|	"&lt;spaces&gt;name&lt;space&gt;" --
 [`WHILE`](#WHILE)	|		x -- ; C: addr sys -- addr orig addr sys
 [`WIDTH`](#WIDTH)	|		u --
 [`WITHIN`](#WITHIN)	|	x1 x2 x3 -- flag
 [`WORDS`](#WORDS)	|		--
-[`WORD`](#WORD)	|		char &lt;chars&gt;ccc<char>" -- c-addr
+[`WORD`](#WORD)	|		char "&lt;chars&gt;ccc&lt;char&gt;" -- c-addr
 [`XOR`](#XOR)	|		x1 x2 -- x1^x2
-[`[']`](#['])	|		&lt;spaces&gt;name<space>" -- ; -- xt
-[`[CHAR]`](#[CHAR])	|	&lt;spaces&gt;char" -- ; -- char
-[`[COMPILE]`](#[COMPILE])	|	&lt;space&gt;name<space>" -- ; ... -- ...
+[`[']`](#['])	|		"&lt;spaces&gt;name&lt;space&gt;" -- ; -- xt
+[`[CHAR]`](#[CHAR])	|	"&lt;spaces&gt;char" -- ; -- char
+[`[COMPILE]`](#[COMPILE])	|	"&lt;space&gt;name&lt;space&gt;" -- ; ... -- ...
 [`[`](#[)	|		--
-[`\`](#\)	|		"ccc<eol>" --
+[`\`](#\)	|		"ccc&lt;eol&gt;" --
 [`]`](#])	|		--
