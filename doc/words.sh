@@ -14,10 +14,11 @@ Parameter stack changes by a word such as `ROT` are indicated by a `--`:
 <br>
 _x1 x2 x3 -- x2 x3 x1_
 
-On the left side, three single-cell values are on the parameter stack with _x3_
-the top-of-stack (TOS) value.  On the right side three single-cell values are
-returned in a rotated order with _x1_ the new TOS, _x3_ the second-on-stack
-(2OS) and _x2_ the third-on-stack (3OS).
+On the left side of `--` we have three single-cell values are on the parameter
+stack with _x3_ the top-of-stack (TOS) value.  On the right side we have three
+single-cell values that are returned by ROT, replacing the input values on the
+stack in a rotated order with _x1_ the new TOS, _x3_ the second-on-stack (2OS)
+and _x2_ the third-on-stack (3OS).
 
 Return stack changes are indicated by an _R_, for example _x -- ; R: -- x_
 moves _x_ from the parameter stack to the return stack.
@@ -62,8 +63,6 @@ echo
 awk '/^;\+? [^ ]+\t/,/^$/ { print }' forth.asm \
       | sed -E 's/^;    /    /' \
       | sed -E 's/^;(\+? |		)//' \
-      | sed -E 's/</\&lt;/' \
-      | sed -E 's/>/\&gt;/' \
       | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n<br>/' \
       | sed -E 's/^;//'
 #echo
@@ -83,8 +82,6 @@ echo
 awk '/^;\/ [^ ]+\t/,/^$/ { print }' forth.asm \
       | sed -E 's/^;    /    /' \
       | sed -E 's/^;(\/ |		)//' \
-      | sed -E 's/</\&lt;/' \
-      | sed -E 's/>/\&gt;/' \
       | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n<br>/' \
       | sed -E 's/^;//'
 echo
@@ -109,8 +106,6 @@ echo
 awk '/^;\. [^ ]+\t/,/^$/ { print }' forth.asm \
       | sed -E 's/^;    /    /' \
       | sed -E 's/^;(\. |		)//' \
-      | sed -E 's/</\&lt;/' \
-      | sed -E 's/>/\&gt;/' \
       | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n<br>/' \
       | sed -E 's/^;//'
 echo
@@ -131,8 +126,6 @@ echo
 awk '/^;= [^ ]+\t/,/^$/ { print }' forth.asm \
       | sed -E 's/^;    /    /' \
       | sed -E 's/^;(= |		)//' \
-      | sed -E 's/</\&lt;/' \
-      | sed -E 's/>/\&gt;/' \
       | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n<br>/' \
       | sed -E 's/^;//'
 
@@ -145,7 +138,5 @@ echo 'word | stack'
 echo '---- | -----'
 awk '/^;[+.]? [^ ]+\t/ { print }' forth.asm \
       | sed -E 's/^;[+.]? //' \
-      | sed -E 's/</\&lt;/' \
-      | sed -E 's/>/\&gt;/' \
       | sed -E 's/^[^	]+/[`&`](#&)\t|/' \
       | sort -u
