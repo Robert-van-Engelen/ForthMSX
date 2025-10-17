@@ -60,7 +60,7 @@
 
 - add `OUTPUT-ID` word (a `VALUE` word) to redirect all output to a file or to a device (counter part of `SOURCE-ID`); update `EMIT` and `TYPE` to redirect output so that all output-related words are covered
 
-- add `FILES.FTH` source file with Forth File-Access Extension and `FILES` to list files with size
+- add `FILE.FTH` source file with Forth File-Access Extension and `FILES` to list files with size
 
 - add `FACILITY.FTH` source file with Forth Facility words
 

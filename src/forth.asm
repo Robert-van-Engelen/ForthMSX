@@ -20,7 +20,7 @@
 ;     - Double-Numbers & Double-Numbers-Ext (complete, built-in)
 ;     - Exception & Exception-Ext (complete, built-in)
 ;     - Facility & Facility-Ext (complete except K-*, requires FACILITY.FTH)
-;     - File-Access & File-Access-Ext (complete, requires FILES.FTH)
+;     - File-Access & File-Access-Ext (complete, requires FILE.FTH)
 ;     - Programming-Tools & Programming-Tools-Ext (partial, requires TOOLS.FTH)
 ;     - Floating-Point & Floating-Point-Ext (complete, requires FLOAT.FTH)
 ;     - String & String-Ext (complate except REPLACE SUBSTITUTE ESCAPE)
@@ -39,7 +39,7 @@
 ;     - vocabulary: VOCABULARY CURRENT CONTEXT
 ;     - dictionary: LASTXT HIDE REVEAL L>NAME >NAME NAME> FIND-WORD
 ;     - files: ANEW CLOSE-FILES
-;     - quit: BYE
+;     - other: OK BYE
 ;
 ; Author:
 ;   Dr. Robert van Engelen, Copyright 2025
@@ -1405,7 +1405,8 @@ true_next	.equ mone_next		; alias
 .if SAFR
 
 ; ?RP		--
-;		check return stack pointer for under- and overflow;
+;		check return stack pointer for under- and overflow,
+;		available only when assembled with the SAVR assembly flag;
 ;		may throw -5 "return stack overflow" or -6 "return stack underflow"
 
 		CODE ?RP,qrp
@@ -1910,7 +1911,7 @@ store_a_hl:	ld (hl),a		;
 
 ; UM*/MOD	ud1 u1 u2 -- u3 ud2
 ;		unsigned double product and quotient ud1*u1/u2 with single remainder u3,
-;               with intermediate tripple-cell product;
+;		with intermediate triple-cell product;
 ;		the result is undefined when u2 = 0
 ;
 ;    \ assume d = dh.dl     = hi.lo parts
@@ -1946,7 +1947,7 @@ store_a_hl:	ld (hl),a		;
 
 ; M*/		d1 n1 n2 -- d2
 ;		double product with quotient d1*n1/n2,
-;               with intermediate tripple-cell product;
+;		with intermediate triple-cell product;
 ;		the result is undefined when n2 = 0
 ;
 ;    : M*/
@@ -5601,7 +5602,7 @@ chput_a_next:	call CHPUT		; MSX CHPUT a to the console
 
 .if DUMP
 
-;+ DUMP		c-addr u --
+;- DUMP		c-addr u --
 ;		dump memory in hex
 ;
 ;    : DUMP
@@ -5830,7 +5831,7 @@ set_base:	ld (base+3),hl		; 10 -> [base]
 
 .if DUMP
 
-;+ D.RB		d n1+ n2+ --
+;- D.RB		d n1+ n2+ --
 ;		output signed double d right-aligned in field of +n1 chars wide in base n2+
 ;
 ;    : D.RB BASE @ >R BASE ! D.R R> BASE ! ;
@@ -5839,7 +5840,7 @@ set_base:	ld (base+3),hl		; 10 -> [base]
 		.dw base,fetch,tor,base,store,ddotr,rfrom,base,store
 		.dw doret
 
-;+ U.RB		u n1+ n2+ --
+;- U.RB		u n1+ n2+ --
 ;		output unsigned u right-aligned in field of +n1 chars wide in base n2+
 ;
 ;    : U.RB BASE @ >R BASE ! U.R R> BASE ! ;
@@ -6788,7 +6789,8 @@ store_state:	ld (state+3),hl		; hl -> STATE
 
 ; ALLOT		n --
 ;		allocate n bytes starting from HERE in the dictionary;
-;		undo the last ALLOT with negative n to reclaim memory (but beware, don't do this when new words are defined);
+;		undo the last ALLOT with negative n to reclaim memory,
+;		but beware: don't use negative n when new words were defined;
 ;		may throw -8 "dictionary overflow"
 
 		CODE ALLOT,allot
@@ -6907,8 +6909,8 @@ comma_de:	ld (hl),e		;
 ;		VALUE (VAL), 2VALUE (2VAL),
 ;		CONSTANT (CON), 2CONSTANT (2CON),
 ;		DEFER (DEF), for example:
-;		  3 VALUE X
-;		  ' X ' (VAL) CFA=
+;		    3 VALUE X
+;		    ' X ' (VAL) CFA=
 ;		leaves -1 (TRUE) meaning X is a VALUE which calls runtime (VAL)
 ;
 ;    : CFA= OVER C@ $CD = -ROT SWAP 1+ @ = AND ;
@@ -8365,17 +8367,6 @@ bios_throw_e:	; restore ix and iy when changed by BIOS/BDOS call that causes an 
 		.dw dountil,1$
 		.dw doret
 
-; OK		"ccc<eol>" --
-;		start a comment line;
-;		parse and skip input up to the end of line;
-;		like \ but not immediate;
-;		so that screen editing of Forth output before OK is made possible
-;
-;    : OK POSTPONE \ ;
-
-		CODE OK,ok
-		jr backslash
-
 ; \		"ccc<eol>" --
 ;		start a comment line;
 ;		parse and skip input up to the end of line
@@ -8397,6 +8388,17 @@ backslash:	call docol			; expand macro manually
 		.dw dolit,'\n,parse
 		.dw twodrop
 		.dw doret
+
+; OK		"ccc<eol>" --
+;		start a comment line;
+;		parse and skip input up to the end of line;
+;		same as \ but not immediate,
+;		so that screen editing of Forth output before OK is made possible
+;
+;    : OK POSTPONE \ ;
+
+		CODE OK,ok
+		jr backslash
 
 ; .(		"ccc<paren>" --
 ;		emit CR then type "ccc" up to the closing )
@@ -8442,7 +8444,7 @@ backslash:	call docol			; expand macro manually
 ;      THEN
 ;      -13 THROW ;
 
-.if IEEE | MATH
+.if IEEE|MATH
 
 		COLON NUMBER,number
 		.dw twodup

@@ -25,7 +25,7 @@ The Forth screen editor is the same as the BASIC screen editor you're probably f
 
 ForthMSX uses the available 32K BASIC RAM without using other RAM slots.  This supports all 64K MSX systems.  In the future, it makes perhaps sense to release a version that runs Forth in certain RAM slots concurrently to BASIC/MSX-DOS/Nextor.
 
-With the current full version `forth.bin` you can extend Forth by loading Forth source code and try some examples.  Locate the `FILES.FTH` source [`src/FILES.FTH`](src/FILES.FTH) and import this file to disk in WebMSX.  Then type `require files.fth` in ForthMSX to load and compile Forth files definitions (takes about a second).  Then type `files`:
+With the current full version `forth.bin` you can extend Forth by loading Forth source code and try some examples.  Locate the `FILE.FTH` source [`src/FILE.FTH`](src/FILE.FTH) and import this file to disk in WebMSX.  Then type `require files.fth` in ForthMSX to load and compile Forth files definitions (takes about a second).  Then type `files`:
 
 ![ForthMSX](img/forthmsx3.png)
 
@@ -48,7 +48,7 @@ Enter `bye` in Forth to exit back to BASIC.  You can return to Forth where you l
 - Double-Numbers and Double-Numbers-Ext (complete, built-in)
 - Exception and Exception-Ext (complete, built-in)
 - Facility and Facility-Ext (complete except for `K-*` words, requires FACILITY.FTH)
-- File-Access and File-Access-Ext (complete, requires FILES.FTH)
+- File-Access and File-Access-Ext (complete, requires FILE.FTH)
 - Floating-Point and Floating-Point-Ext (complete, requires FLOAT.FTH)
 - Locals (none, will not be implemented)
 - Memory-Allocation (none, under consideration)
