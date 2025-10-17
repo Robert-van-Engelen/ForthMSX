@@ -3255,7 +3255,7 @@ read and interpret Forth source code from the file named by the string c-addr u
 
 ___
 ### INCLUDE
-_... "&lt;spaces&gt;name" -- ..._
+_... "&lt;spaces&gt;name&lt;space&gt;" -- ..._
 
 read and interpret Forth source code from file "name"
 
@@ -3284,7 +3284,7 @@ beware of vocabulary definitions crossings
 
 ___
 ### REQUIRE
-_... "&lt;spaces&gt;name" -- ..._
+_... "&lt;spaces&gt;name&lt;space&gt;" -- ..._
 
 read and interpret Forth source code from file "name",
 if the file was not already included;
@@ -3296,7 +3296,7 @@ beware of vocabulary definitions crossings
 
 ___
 ### ANEW
-_... "&lt;spaces&gt;name" -- ..._
+_... "&lt;spaces&gt;name&lt;space&gt;" -- ..._
 
 read and interpret Forth source code from file "name",
 same as REQUIRE,
