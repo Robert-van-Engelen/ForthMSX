@@ -37,6 +37,8 @@ To delete all definitions loaded from a file, such as `PRIMES.FTH`, type `~prime
 
 If a Forth source file is changed, then reload it with `anew primes.fth` to delete all its definitions first and compile it again.
 
+Important: if you're importing updated files to disk in WebMSX, then you need to delete your old file `name.fth` first in Forth by executing `s" name.fth" delete-file .`, otherwise the file is added with a new name with a tilde `~` and does not overwrite the old file.
+
 Enter `bye` in Forth to exit back to BASIC.  You can return to Forth where you left off in Forth from BASIC with:
 
     defusr0=&h8400:?usr0(0)
