@@ -1,6 +1,6 @@
 # ForthMSX - a Forth 2012 standard system for MSX
 
-The goal of this ongoing project is to implement a "wicked fast" and complete Forth 2012 standard system for MSX.
+The goal of this ongoing project is to implement a "wicked fast" [Forth 2012 standard](https://forth-standard.org/standard/words) system for MSX.
 
 This repo will also include a complete Forth manual in the near future, similar to the Forth manual I wrote for [Forth500](https://github.com/Robert-van-Engelen/Forth500).
 
@@ -40,6 +40,21 @@ If a Forth source file is changed, then reload it with `anew primes.fth` to dele
 Enter `bye` in Forth to exit back to BASIC.  You can return to Forth where you left off in Forth from BASIC with:
 
     defusr0=&h8400:?usr0(0)
+
+## Forth 2012 standard compliance and coverage
+
+- Core and Core-Ext (complete, built-in)
+- Block (none, block buffer parsing will not be implemented)
+- Double-Numbers and Double-Numbers-Ext (complete, built-in)
+- Exception and Exception-Ext (complete, built-in)
+- Facility and Facility-Ext (complete except for `K-*` words, requires FACILITY.FTH)
+- File-Access and File-Access-Ext (complete, requires FILES.FTH)
+- Floating-Point and Floating-Point-Ext (complete, requires FLOAT.FTH)
+- Locals (none, will not be implemented)
+- Memory-Allocation (none, under consideration)
+- Programming-Tools and Programming-Tools-Ext (mostly complete, requires TOOLS.FTH)
+- String and String-Ext (complate except for `REPLACE` `SUBSTITUTE` `ESCAPE`)
+- Extended-Character (none, MSX does not support variable-width character encodings)
 
 ## Work in progress
 
