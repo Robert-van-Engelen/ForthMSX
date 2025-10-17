@@ -3288,7 +3288,7 @@ _... "<spaces>name" -- ..._
 
 read and interpret Forth source code from file "name",
 if the file was not already included;
-this also adds file name with a leading space to the dictionary to assert inclusion;
+this also adds file name with a leading '~' to the dictionary to assert inclusion;
 beware of vocabulary definitions crossings
 (other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
 
@@ -3434,10 +3434,7 @@ arc sine of float, in radian
       2DUP F0= IF EXIT THEN
       2DUP FABS 1E0 F= IF                           \ if |x|=1 then
         PI/2 2SWAP F0< IF FNEGATE THEN              \ sign(x)*pi/2
-___
-### ;
-_ EXIT_
-
+        EXIT
       THEN
       2DUP 2DUP F* 1E0 2SWAP F- FSQRT FATAN2 ;      \ arctan(x/sqrt(1-x^2)) = atan2(x,sqrt(1-x*x))
 

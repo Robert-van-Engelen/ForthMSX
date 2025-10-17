@@ -3772,7 +3772,7 @@ fop_csng:	call FRCSNG		; convert MSX DAC to single precision when applicable
 ;      2DUP F0= IF EXIT THEN
 ;      2DUP FABS 1E0 F= IF                           \ if |x|=1 then
 ;        PI/2 2SWAP F0< IF FNEGATE THEN              \ sign(x)*pi/2
-;	 EXIT
+;        EXIT
 ;      THEN
 ;      2DUP 2DUP F* 1E0 2SWAP F- FSQRT FATAN2 ;      \ arctan(x/sqrt(1-x^2)) = atan2(x,sqrt(1-x*x))
 
@@ -4774,7 +4774,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 ;/ REQUIRE	... "<spaces>name" -- ...
 ;		read and interpret Forth source code from file "name",
 ;		if the file was not already included;
-;		this also adds file name with a leading space to the dictionary to assert inclusion;
+;		this also adds file name with a leading '~' to the dictionary to assert inclusion;
 ;		beware of vocabulary definitions crossings
 ;		(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
 ;
