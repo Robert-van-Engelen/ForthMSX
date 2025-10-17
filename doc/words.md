@@ -1,6 +1,9 @@
 Forth words
 -----------
 
+To search this document for Forth words, use the GitHub "outline" icon above
+to enter (part of) the word to search its meaning.
+
 For an overview see the [alphabetic list of words](#alphabetic-list-of-words)
 
 Forth words operate on the parameter stack, the return stack, and may parse
