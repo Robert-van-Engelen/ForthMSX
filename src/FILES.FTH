@@ -1,4 +1,4 @@
-\ Additional Forth 2012 standard File Access Extension words and more
+\ Additional Forth 2012 standard File-Access Extension words and more
 
 DECIMAL
 
@@ -33,9 +33,9 @@ DECIMAL
   DUP FILE-POSITION DROP ROT FILE-SIZE DROP D=
 ;
 
-\ get the size of a file specified by the filename or leave ior = -203
+\ check if a file with the specified filename exists (ior = 0 exists or ior = 255 does not) and get the size of that file
 
-: FILE-SIZE	( c-addr u -- du ior )
+: FILE-STATUS	( c-addr u -- du ior )
   S>FCB
   DUP 0 $23 (DOSX) NIP	\ MSX BDOS get file size
   IF
@@ -45,14 +45,6 @@ DECIMAL
   THEN
   DUP OFF
   FILE-POSITION DROP 255 AND 128 MD* 0
-;
-
-\ check if a file with the specified filename exists (ior = 0 exists or ior = 255 does not)
-
-: FILE-STATUS	( c-addr u -- x ior )
-  S>FCB
-  DUP 0 $23 (DOSX)	\ MSX BDOS get file size
-  ROT OFF
 ;
 
 \ flush file (flushes all files)
