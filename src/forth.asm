@@ -4042,10 +4042,10 @@ fop_csng:	call FRCSNG		; convert MSX DAC to single precision when applicable
 ;      DUP 10 > IF
 ;        -11 THROW
 ;      THEN
-;      '- HERE C!	\ place '-' in here
-;      OVER -		\ sign exp-sign
-;      SWAP HERE 1+ +	\ exp-sign here+1+sign
-;      SWAP		\ here+1+sign exp-sign
+;      '- HERE C!       \ place '-' in here
+;      OVER -           \ sign exp-sign
+;      SWAP HERE 1+ +   \ exp-sign here+1+sign
+;      SWAP             \ here+1+sign exp-sign
 ;      >DOUBLE 0= IF
 ;        -11 THROW
 ;      THEN ;
@@ -4308,7 +4308,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		VALUE DRV,drv
 		.dw 'A
 
-;/ FCX		-- fcb-addr
+;/ FCX		-- addr
 ;		array of FCB+FIB per open file
 ;
 ;    CREATE FCX 37 FCBN * ALLOT
@@ -4316,7 +4316,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		VARIABLE FCX,fcx
 		.ds (37+fib_size)*FCBN	; reserve one FCB+FIB per open file
 
-;/ (FCB)	-- fcb-addr
+;/ (FCB)	-- addr
 ;		allocate a new FCB;
 ;		may throw -204 "bad file number" when max files are in use
 
@@ -4338,7 +4338,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		ex de,hl		;
 		JP_NEXT			; continue
 
-;/ S>FCB	c-addr u -- fcb-addr
+;/ S>FCB	c-addr u -- addr
 ;		store the filename string of the form [D:]FILENAME[.EXT] in a new FCB;
 ;		wildcard '?' matches any character when used in FILENAME and EXT;
 ;		wildcard '*' matches any sequence of characters, at most one '*' may be used in FILENAME and in EXT;
@@ -4451,7 +4451,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		ld d,0			; set new TOS to A
 		JP_NEXT			; continue
 
-;/ {DOSX}	addr u1 n -- u2 ior
+;/ (DOSX)	addr u1 n -- u2 ior
 ;		execute CP/M style MSX-DOS command C=n with DE=addr and HL=u1;
 ;		leaves u2=HL returned and 0 (success) or nz (failure);
 ;		catches BDOS exceptions and then leaves ior = 1 (failure)
@@ -4517,7 +4517,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 1$:		.dw doret
 
 ;/ CLOSE-FILE	fileid -- ior
-;		close file with	fileid (a fcb-addr);
+;		close file with fileid (a fcb-addr);
 ;		leaves ior 0 (success) or -197 (failure)
 
 		COLON CLOSE-FILE,closefile
@@ -6482,7 +6482,7 @@ addr'name:	.dw 0
 3$:		ld a,-24		;
 		jp throw_a		; throw -24 "invalid numeric argument"
 
-; >BODY		xt -- pfa
+; >BODY		xt -- addr
 ;		convert execution token to parameter field address (pfa)
 
 		CODE >BODY,tobody
