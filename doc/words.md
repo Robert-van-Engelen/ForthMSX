@@ -8,7 +8,7 @@ Forth words or delimited sequences of characters from the input buffer.
 Parameter stack changes by a word such as `ROT` are indicated by a `--`:
 
 **ROT**
-
+<br>
 _x1 x2 x3 -- x2 x3 x1_
 
 On the left side of `--` we have three single-cell values are on the parameter
@@ -41,7 +41,7 @@ _flag_       | a single-cell 16-bit flag (zero means false, nonzero means true)
 _fileid_     | a single-cell 16-bit file-handle identifier
 _ior_        | a single-cell 16-bit I/O return (zero is success, nonzero is an error code)
 
-Note that a "string" in Forth consists of a _c-addr u_ pair on the paramater
+Note that a so-called string in Forth consists of a _c-addr u_ pair on the paramater
 stack with character string address _c-addr_ and length _u_.
 
 Parsed input is represented as _"parsed-input"_ on the left side of `--` with
@@ -58,104 +58,6 @@ _&lt;paren&gt;_  | a delimiting right parenthesis
 _&lt;eol&gt;_    | an implied delimiter marking the end of a line
 _ccc_            | a parsed sequence of arbitrary characters, excluding the delimiter character
 _name_           | a token delimited by space, equivalent to _ccc&lt;space&gt;_ or _ccc&lt;eol&gt;_
-
-___
-### (:)
-_-- ; R: -- ip_
-
-call colon definition;
-runtime of the : compile-only word
-
-___
-### (;)
-_-- ; R: ip --_
-
-return to caller from colon definition;
-runtime of the ; compile-only word
-
-___
-### (EXIT)
-_-- ; R: ip --_
-
-return to caller from colon definition;
-runtime of the EXIT compile-only word
-
-___
-### (;DOES)
-_-- ; R: ip --_
-
-set LASTXT cfa to ip and return from colon definition;
-a runtime word compiled by the DOES> compile-only word
-
-___
-### (DOES)
-_addr -- addr ; R: -- ip_
-
-calls the DOES> definition with pfa addr;
-runtime word compiled by the DOES> compile-only word coded as call dodoes
-
-___
-### (VAR)
-_-- addr_
-
-leave parameter field address (pfa) of variable;
-runtime word of a VARIABLE coded as call dovar
-
-___
-### (VAL)
-_-- x_
-
-fetch value;
-runtime word of a VALUE coded as call doval
-
-___
-### (2VAL)
-_-- dx_
-
-fetch double value;
-runtime word of a 2VALUE coded as call dotwoval
-
-___
-### (CON)
-_-- x_
-
-fetch constant;
-runtime word of a CONSTANT coded as call docon
-
-___
-### (2CON)
-_-- x_
-
-fetch double constant;
-runtime word of a 2CONSTANT coded as call dotwocon
-
-___
-### (DEF)
-_--_
-
-execute deferred word;
-runtime word of a DEFER coded as call dodef
-
-___
-### (LIT)
-_-- x_
-
-fetch literal;
-runtime word compiled by EVALUATE, INTERPRET and NUMBER
-
-___
-### (2LIT)
-_-- x1 x2_
-
-fetch double literal;
-runtime word compiled by EVALUATE, INTERPRET and NUMBER
-
-___
-### (SLIT)
-_-- c-addr u_
-
-fetch literal string;
-runtime word compiled by S" and ."
 
 ___
 ### 0
@@ -528,20 +430,6 @@ store in double cell
     : 2! TUCK ! CELL+ ! ;
 
 ___
-### (TO)
-_x --_
-
-store in value;
-runtime of the TO compile-only word
-
-___
-### (2TO)
-_dx --_
-
-store in double value;
-runtime of the TO compile-only word
-
-___
 ### +!
 _n addr --_
 
@@ -552,20 +440,6 @@ ___
 _d addr --_
 
 increment double cell
-
-___
-### (+TO)
-_n --_
-
-increment value;
-runtime of the +TO compile-only word
-
-___
-### (D+TO)
-_d --_
-
-increment double value;
-runtime of the +TO compile-only word
 
 ___
 ### ON
@@ -1674,35 +1548,6 @@ non-editable left margin n3;
 leaves c-addr and length +n4 (MSX INLIN strips first n3 characters)
 
 ___
-### (INLIN)
-_-- c-addr u_
-
-MSX INLIN input a logical line of screen text;
-leaves TIB c-addr and text input length u
-
-key          | effect
------------- | -------------------------------------------------
-cursor LEFT  | CTRL-] move cursor down
-cursor RIGHT | CTRL-\ move cursor down
-cursor UP    | CTRL-^ move cursor up
-cursor DOWN  | CTRL-_ move cursor down
-RETURN       | CTRL-M enter the logical line the cursor is on
-HOME         | CTRL-K move cursor to the top left corner
-SHIFT-HOME   | CTRL-L clear screen
-INS          | CTRL-R toggle insert/overwrite mode
-DEL          | delete character under the cursor
-BS           | CTRL-H delete character to the left of the cursor
-TAB          | CTRL-I insert TAB spacing
-CTRL-A       | insert graphic header, follow by A to Z [ \ ] ^ _
-CTRL-B       | move cursor backward to the previous word
-CTRL-F       | move cursor forward to the next word
-CTRL-J       | move cursor down (line feed, scrolls)
-CTRL-N       | move cursor to the end of the logical line
-CTRL-E       | delete from cursor to the end of the logical line
-CTRL-U       | delete the entire logical line the cursor is on
-(CTRL-)STOP  | program break
-
-___
 ### ACCEPT
 _c-addr +n1 -- +n2_
 
@@ -2564,92 +2409,6 @@ truncates the copy to 255 characters long when excessive
       2R> ;
 
 ___
-### (UNTIL)
-_x --_
-
-branch if x = 0;
-runtime of the UNTIL compile-only word
-
-___
-### (IF)
-_x --_
-
-branch if x = 0;
-runtime of the IF and WHILE compile-only words
-
-___
-### (AGAIN)
-_--_
-
-branch;
-runtime of the AGAIN and REPEAT compile-only words
-
-___
-### (AHEAD)
-_--_
-
-branch;
-runtime of the AHEAD, ELSE and ENDOF compile-only words
-
-___
-### (OF)
-_x1 x2 -- x1 or x1 x2 --_
-
-branch if x1 <> x2;
-runtime of the OF compile-only word
-
-___
-### (+LOOP)
-_n --_
-
-increment loop counter by n and repeat loop unless counter crosses the limit;
-runtime of the +LOOP compile-only word
-
-___
-### (LOOP)
-_--_
-
-increment loop counter by 1 and repeat loop unless loop counter crosses the limit;
-runtime of the LOOP compile-only word
-
-___
-### (?DO)
-_n1|u1 n2|u2 --_
-
-begin loop with limit n1|u1 and initial value n2|u2;
-skip loop when zero trip loop;
-runtime of the ?DO compile-only word
-
-___
-### (DO)
-_n1|u1 n2|u2 --_
-
-begin loop with limit n1|u1 and initial value n2|u2;
-loop at least once;
-runtime of the DO compile-only word
-
-___
-### (UNLOOP)
-_R: ... --_
-
-remove loop parameters;
-runtime of the UNLOOP compile-only word
-
-___
-### (?LEAVE)
-_x --_
-
-if x is nonzero (not FALSE) then discard the loop parameters and exit the innermost do-loop;
-runtime of the ?LEAVE compile-only word
-
-___
-### (LEAVE)
-_--_
-
-discard the loop parameters and exit the innermost do-loop;
-runtime of the LEAVE compile-only word
-
-___
 ### I
 _-- n_
 
@@ -2980,25 +2739,6 @@ clears the parameter stack unless caught with CATCH
     : ABORT -1 THROW ;
 
 ___
-### (ABORT")
-_... flag c-addr u -- ; R: ... --_
-
-if flag then abort with string message unless an active catch is present;
-runtime of the ABORT" compile-only word;
-throw -2 "ABORT""
-
-    : (ABORT")
-      ROT IF
-        HANDLER @ IF
-          2DROP
-        ELSE
-          TYPE
-        THEN
-        -2 THROW
-      THEN
-      2DROP ;
-
-___
 ### ABORT"
 _... flag -- ; C: "ccc<quote>" -- ; R: ... --_
 
@@ -3269,13 +3009,6 @@ array of FCB+FIB per open file
     CREATE FCX 37 FCBN * ALLOT
 
 ___
-### (FCB)
-_-- addr_
-
-allocate a new FCB;
-may throw -204 "bad file number" when max files are in use
-
-___
 ### S>FCB
 _c-addr u -- addr_
 
@@ -3330,21 +3063,6 @@ _fileid -- c-addr u_
 
 the file input buffer of size u associated with fileid;
 used by INCLUDE-FILE, INCLUDE, INCLUDED, otherwise free to use
-
-___
-### (BDOS)
-_addr u1 n -- u2 u3 0|1..255_
-
-execute CP/M style MSX-DOS command C=n with DE=addr and HL=u1;
-leaves u2=HL and u3=DE returned and register A for 0 (success) or 1 to 255 (failure)
-
-___
-### (DOSX)
-_addr u1 n -- u2 ior_
-
-execute CP/M style MSX-DOS command C=n with DE=addr and HL=u1;
-leaves u2=HL returned and 0 (success) or nz (failure);
-catches BDOS exceptions and then leaves ior = 1 (failure)
 
 ___
 ### BIN
@@ -4580,39 +4298,6 @@ word | stack
 [`#S`](##S)	|		ud -- 0 0
 [`#`](##)	|		ud1 -- ud2
 [`'`](#')	|		"<spaces>name<space>" -- xt
-[`(+LOOP)`](#(+LOOP))	|	n --
-[`(+TO)`](#(+TO))	|		n --
-[`(2CON)`](#(2CON))	|	-- x
-[`(2LIT)`](#(2LIT))	|	-- x1 x2
-[`(2TO)`](#(2TO))	|		dx --
-[`(2VAL)`](#(2VAL))	|	-- dx
-[`(:)`](#(:))	|		-- ; R: -- ip
-[`(;)`](#(;))	|		-- ; R: ip --
-[`(;DOES)`](#(;DOES))	|	-- ; R: ip --
-[`(?DO)`](#(?DO))	|		n1|u1 n2|u2 --
-[`(?LEAVE)`](#(?LEAVE))	|	x --
-[`(ABORT")`](#(ABORT"))	|	... flag c-addr u -- ; R: ... --
-[`(AGAIN)`](#(AGAIN))	|	--
-[`(AHEAD)`](#(AHEAD))	|	--
-[`(CON)`](#(CON))	|		-- x
-[`(D+TO)`](#(D+TO))	|	d --
-[`(DEF)`](#(DEF))	|		--
-[`(DO)`](#(DO))	|		n1|u1 n2|u2 --
-[`(DOES)`](#(DOES))	|	addr -- addr ; R: -- ip
-[`(EXIT)`](#(EXIT))	|	-- ; R: ip --
-[`(IF)`](#(IF))	|		x --
-[`(INLIN)`](#(INLIN))	|	-- c-addr u
-[`(LEAVE)`](#(LEAVE))	|	--
-[`(LIT)`](#(LIT))	|		-- x
-[`(LOOP)`](#(LOOP))	|	--
-[`(OF)`](#(OF))	|		x1 x2 -- x1 or x1 x2 --
-[`(SLIT)`](#(SLIT))	|	-- c-addr u
-[`(TO)`](#(TO))	|		x --
-[`(UNLOOP)`](#(UNLOOP))	|	R: ... --
-[`(UNTIL)`](#(UNTIL))	|	x --
-[`(VAL)`](#(VAL))	|		-- x
-[`(VAR)`](#(VAR))	|		-- addr
-[`(`](#()	|		"ccc<paren>" --
 [`*/MOD`](#*/MOD)	|		n1 n2 n3 -- n4 n5
 [`*/`](#*/)	|		n1 n2 n3 -- n4
 [`*`](#*)	|		n1|u1 n2|u2 -- n3|u3
