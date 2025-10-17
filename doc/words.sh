@@ -138,7 +138,7 @@ echo 'word | stack'
 echo '---- | -----'
 awk '/^;[+.]? [^ ]+\t/ { print }' forth.asm \
       | sed -E 's/^;[+.]? //' \
-      | sed -E 's/</&lt;/g' \
-      | sed -E 's/>/&gt;/g' \
+      | sed -E 's/</\&lt;/g' \
+      | sed -E 's/>/\&gt;/g' \
       | sed -E 's/^[^	]+/[**&**](#&)\t|/' \
       | sort -u
