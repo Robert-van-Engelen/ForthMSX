@@ -923,7 +923,7 @@ true_next	.equ mone_next		; alias
 
 ; PAD		-- c-addr
 ;		leave address of the PAD;
-;		the PAD is a free buffer space of at least 256 bytes not used by Forth
+;		the PAD is a free buffer space of 256 bytes not used by Forth
 
 		CODE PAD,pad
 		push de			; save TOS
@@ -932,7 +932,7 @@ true_next	.equ mone_next		; alias
 
 ; TIB		-- c-addr u
 ;		leave c-addr of the terminal input buffer (TIB) and buffer size u;
-;		the terminal input buffer used by Forth of at least 256 bytes
+;		the terminal input buffer of 256 bytes is used by Forth;
 
 		CODE TIB,tib
 		push de			; save TOS
@@ -4488,7 +4488,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		.dw 0
 
 ;/ CREATE-FILE	c-addr u fam -- fileid ior
-;		create a new file given by the string filename, where fam is R/W, R/O or W/O;
+;		create a new file given by the filename string c-addr u, where fam is R/W, R/O or W/O;
 ;		if the file already exists, then it is truncated to zero length;
 ;		leaves fileid (a fcb-addr) and ior 0 (success) or -203 (failure)
 
@@ -4502,10 +4502,10 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 1$:		.dw doret
 
 ;/ OPEN-FILE	c-addr u fam -- fileid ior
-;		open a file given by the string filename, where fam is R/W, R/O or W/O;
+;		open a file or device given by the filename string c-addr u, where fam is R/W, R/O or W/O;
 ;		leaves fileid (a fcb-addr) and ior 0 (success) or -203 (failure);
-;		filename format: [D:]FILENAME[.EXT] where drive D: becomes the default drive when specified;
-;		device names: AUX CON LST NUL PRN
+;		filename format: [D:]FILENAME[.EXT] where D: becomes the default drive when specified;
+;		device names are AUX, CON, LST, NUL, and PRN without a drive specified
 
 		COLON OPEN-FILE,openfile
 		.dw mrot,stofcb
@@ -4544,7 +4544,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 
 ;/ READ-FILE	c-addr u1 fileid -- u2 ior
 ;		read into buffer c-addr of size u1 from fileid (a fcb-addr);
-;		leaves number u2 of bytes read into the buffer and ior 0 (success) or 1 (u2 is zero and eof) or may throw an MSX error
+;		leaves number u2 of bytes read into the buffer and ior 0 (success) or 1 (u2 is zero and eof) or nz (other failure)
 ;		to read a single character to a cell on the stack: 0 SP@ 1 fileid READ-FILE -- char 0|1 ior
 ;
 
@@ -4600,7 +4600,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 
 ;/ WRITE-FILE	c-addr u1 fileid -- ior
 ;		write buffer c-addr of size u1 to fileid (a fcb-addr);
-;		leaves ior 0 (success) or 1 (disk full) or may throw an MSX error
+;		leaves ior 0 (success) or 1 (disk full) or nz (other failure)
 
 		COLON WRITE-FILE,writefile
 		.dw over,doif,1$			; if u1 != 0 then
@@ -4651,7 +4651,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 
 ;/ RESIZE-FILE	ud fileid -- ior
 ;		the fileid (a fcb-addr);
-;		leaves ior 0 (success) or 1 (disk full) or may throw an MSX error
+;		leaves ior 0 (success) or 1 (disk full) or nz (other failure)
 
 		COLON RESIZE-FILE,resizefile
 		.dw duptor,repositionfile,drop
@@ -4660,7 +4660,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 
 ;/ DELETE-FILE	c-addr u -- ior
 ;		delete the file with the name specified by the string c-addr u;
-;		leaves ior 0 (success) or 255 (failure) or may throw an MSX error
+;		leaves ior 0 (success) or nz (failure)
 
 		COLON DELETE-FILE,deletefile
 		.dw stofcb
@@ -4669,8 +4669,8 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		.dw doret
 
 ;/ RENAME-FILE	c-addr1 u1 c-addr2 u2 -- ior
-;		rename the file with the name specified by the string c-addr1 u1 to the name c-addr2 u2
-;		leaves ior 0 (success) or 255 (failure) or may throw an MSX error
+;		rename the file with the name specified by the string c-addr1 u1 to the name c-addr2 u2;
+;		leaves ior 0 (success) or nz (failure)
 
 		COLON RENAME-FILE,renamefile
 		.dw stofcb
