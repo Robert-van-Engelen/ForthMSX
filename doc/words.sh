@@ -63,7 +63,7 @@ echo
 awk '/^;\+? [^ ]+\t/,/^$/ { print }' forth.asm \
       | sed -E 's/^;    /    /' \
       | sed -E 's/^;(\+? |		)//' \
-      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n\n/' \
+      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n/' \
       | sed -E 's/^;//'
 #echo
 #echo 'Non-standard extra words'
@@ -82,7 +82,7 @@ echo
 awk '/^;\/ [^ ]+\t/,/^$/ { print }' forth.asm \
       | sed -E 's/^;    /    /' \
       | sed -E 's/^;(\/ |		)//' \
-      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n\n/' \
+      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n/' \
       | sed -E 's/^;//'
 echo
 echo
@@ -106,7 +106,7 @@ echo
 awk '/^;\. [^ ]+\t/,/^$/ { print }' forth.asm \
       | sed -E 's/^;    /    /' \
       | sed -E 's/^;(\. |		)//' \
-      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n\n/' \
+      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n/' \
       | sed -E 's/^;//'
 echo
 echo
@@ -126,7 +126,7 @@ echo
 awk '/^;= [^ ]+\t/,/^$/ { print }' forth.asm \
       | sed -E 's/^;    /    /' \
       | sed -E 's/^;(= |		)//' \
-      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n\n/' \
+      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n/' \
       | sed -E 's/^;//'
 
 echo
@@ -138,5 +138,7 @@ echo 'word | stack'
 echo '---- | -----'
 awk '/^;[+.]? [^ ]+\t/ { print }' forth.asm \
       | sed -E 's/^;[+.]? //' \
+      | sed -E 's/</&lt;/g' \
+      | sed -E 's/>/&gt;/g' \
       | sed -E 's/^[^	]+/[**&**](#&)\t|/' \
       | sort -u
