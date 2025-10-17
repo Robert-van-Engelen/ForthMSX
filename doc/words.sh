@@ -11,7 +11,7 @@ Forth words or delimited sequences of characters from the input buffer.
 Parameter stack changes by a word such as `ROT` are indicated by a `--`:
 
 **ROT**
-<br>
+
 _x1 x2 x3 -- x2 x3 x1_
 
 On the left side of `--` we have three single-cell values are on the parameter
@@ -63,7 +63,7 @@ echo
 awk '/^;\+? [^ ]+\t/,/^$/ { print }' forth.asm \
       | sed -E 's/^;    /    /' \
       | sed -E 's/^;(\+? |		)//' \
-      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n<br>/' \
+      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n\n/' \
       | sed -E 's/^;//'
 #echo
 #echo 'Non-standard extra words'
@@ -72,7 +72,7 @@ awk '/^;\+? [^ ]+\t/,/^$/ { print }' forth.asm \
 #awk '/^;\+ [^ ]+\t/,/^$/ { print }' forth.asm \
 #      | sed -E 's/^;    /    /' \
 #      | sed -E 's/^;(\+ |		)//' \
-#      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n<br>/' \
+#      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n\n/' \
 #      | sed -E 's/^;//'
 echo
 echo
@@ -82,7 +82,7 @@ echo
 awk '/^;\/ [^ ]+\t/,/^$/ { print }' forth.asm \
       | sed -E 's/^;    /    /' \
       | sed -E 's/^;(\/ |		)//' \
-      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n<br>/' \
+      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n\n/' \
       | sed -E 's/^;//'
 echo
 echo
@@ -106,7 +106,7 @@ echo
 awk '/^;\. [^ ]+\t/,/^$/ { print }' forth.asm \
       | sed -E 's/^;    /    /' \
       | sed -E 's/^;(\. |		)//' \
-      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n<br>/' \
+      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n\n/' \
       | sed -E 's/^;//'
 echo
 echo
@@ -126,7 +126,7 @@ echo
 awk '/^;= [^ ]+\t/,/^$/ { print }' forth.asm \
       | sed -E 's/^;    /    /' \
       | sed -E 's/^;(= |		)//' \
-      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n<br>/' \
+      | sed -E 's/^([^	]+)[	]+(.*)/___\n### \1\n_\2_\n\n/' \
       | sed -E 's/^;//'
 
 echo
@@ -138,5 +138,5 @@ echo 'word | stack'
 echo '---- | -----'
 awk '/^;[+.]? [^ ]+\t/ { print }' forth.asm \
       | sed -E 's/^;[+.]? //' \
-      | sed -E 's/^[^	]+/[`&`](#&)\t|/' \
+      | sed -E 's/^[^	]+/[**&**](#&)\t|/' \
       | sort -u
