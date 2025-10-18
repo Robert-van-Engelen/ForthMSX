@@ -78,6 +78,8 @@
 
 - fix `M*/` word to be standard compliant, using new `UM*/MOD` with triple cell intermediate result
 
+- add `PORT.FTH` with `>PORT` and `PORT>` words for Z80 I/O port output and input, respectively; Remove `OUT` and `INP` from built-in words
+
 ### v1.0
 
 ## TODO

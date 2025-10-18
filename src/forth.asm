@@ -123,7 +123,7 @@ MATH = 1	; include floating-point single precision MSX MATH-PACK words
 IEEE = 0	; include floating-point IEEE 754 single precision words
 FUNC = 0	; include floating-point IEEE 754 sqrt, log, exp, trig functions
 FCBN = 2	; include MSX-DOS file-access words, FCBN = max open files
-PORT = 0	; include additional Z80 I/O port words INP OUT
+PORT = 0        ; include additional Z80 I/O port words >PORT PORT> >VDP
 DUMP = 0	; include additional words DUMP DB.R UB.R
 MAIN = 0	; include main.asm
 
@@ -4690,15 +4690,11 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 ;    : INCLUDE-FILE
 ;      SAVE-INPUT N>R
 ;      TO SOURCE-ID
-;      BEGIN
-;        0
-;        REFILL
-;      WHILE
+;      BEGIN 0 REFILL WHILE
 ;        DROP
 ;        ['] INTERPRET CATCH
-;        ?DUP 0=
-;      WHILE
-;      REPEAT
+;        ?DUP 0= WHILE
+;      REPEAT THEN
 ;      SOURCE-ID CLOSE-FILE DROP
 ;      DUP ERROR
 ;      NR> RESTORE-INPUT DROP
@@ -4707,13 +4703,10 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		COLON INCLUDE-FILE,includefile
 		.dw saveinput,ntor
 		.dw doto,sourceid+3
-1$:		.dw   zero
-		.dw   refill
-		.dw doif,2$
+1$:		.dw zero,refill,doif,2$
 		.dw   drop
 		.dw   dolit,interpret,catch
-		.dw   qdup,zeroequal
-		.dw doif,2$
+		.dw   qdup,zeroequal,doif,2$
 		.dw doagain,1$
 2$:		.dw sourceid,closefile,drop
 		.dw dup,error
@@ -4733,7 +4726,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		.dw includefile
 		.dw doret
 
-;/ INCLUDE	... "<spaces>name" -- ...
+;/ INCLUDE	... "<spaces>name<space>" -- ...
 ;		read and interpret Forth source code from file "name"
 ;
 ;    : INCLUDE PARSE-NAME INCLUDED ;
@@ -4771,7 +4764,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		.dw one,slashstring,included
 		.dw doret
 
-;/ REQUIRE	... "<spaces>name" -- ...
+;/ REQUIRE	... "<spaces>name<space>" -- ...
 ;		read and interpret Forth source code from file "name",
 ;		if the file was not already included;
 ;		this also adds file name with a leading '~' to the dictionary to assert inclusion;
@@ -4784,7 +4777,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		.dw parsename,required
 		.dw doret
 
-;/ ANEW		... "<spaces>name" -- ...
+;/ ANEW		... "<spaces>name<space>" -- ...
 ;		read and interpret Forth source code from file "name",
 ;		same as REQUIRE,
 ;		but anew by deleting all previously included definitions from the dictionary first
@@ -5522,7 +5515,7 @@ chput_a_next:	call CHPUT		; MSX CHPUT a to the console
 ; CR		--
 ;		emit carriage return and line feed
 ;
-;    : CR $D EMIT $A EMIT ;
+;    : CR 13 EMIT 10 EMIT ;
 
 		COLON CR,cr
 		.dw dolit,13,emit
@@ -5853,16 +5846,16 @@ set_base:	ld (base+3),hl		; 10 -> [base]
 
 ;-------------------------------------------------------------------------------
 ;
-;		PORT I/O
+;		PORT I/O AND MSX VDP/VRAM CONTROL
 ;
 ;-------------------------------------------------------------------------------
 
 .if PORT
 
-;+ OUT		u1 u2 --
-;		output byte u1 to Z80 port u2
+;- >PORT	u1 u2 --
+;		send byte u1 to Z80 port u2
 
-		CODE OUT,out
+		CODE >PORT,toport
 		ld a,e			; u2 -> a port
 		pop de			; pop u1 -> de
 		push bc			; save bc with ip
@@ -5872,15 +5865,88 @@ set_base:	ld (base+3),hl		; 10 -> [base]
 		pop de			; set new TOS
 		JP_NEXT			; continue
 
-;+ INP		u1 -- u2
-;		input from Z80 port u1
+;- PORT>	u1 -- u2
+;		receive a byte from Z80 port u1
 
-		CODE INP,inp
+		CODE PORT>,portfrom
 		push bc			; save bc with ip
 		ld c,e			; u1 -> c
 		in e,(c)		; in(u1) -> e
 		ld d,0			; 0 -> d
 		pop bc			; restore bc with ip
+		JP_NEXT			; continue
+
+;- VRAM		addr --
+;		set VRAM address for writing, add $4000 to addr to read
+
+		CODE VRAM,vram
+		ld a,e			; addr lsb -> a
+		di			; disable interrupts (interrupts access the VDP)
+		out (0x99),a		; VDP data port address register lsb
+		ld a,0x40		;
+		or d			; addr msb | 0x40 -> a
+		out (0x99),a		; VDP data port address register msb
+		ei			; enable interrupts
+		pop de			; set new TOS
+		JP_NEXT			; continue
+
+;- >VRAM	c-addr u --
+;		block write u data bytes at c-addr to VRAM at its current address, auto-increments its address
+;		VRAM address must be set for writing
+
+		CODE >VRAM,tovram
+		pop hl			; pop hl with c-addr
+		ld a,e			;
+		or d			;
+		jr z,2$			; if u != 0 then
+		push bc			;   save bc with ip
+		ld c,0x98		;   VDP VRAM data port is IO port c = 0x98
+		ld b,e			;   u -> ab
+		xor a			;   0 -> a
+		cp b			;   set cf if b > 0
+		adc d			;   if b > 0 then d+1 -> a else d -> a (is nonzero since u != 0)
+1$:		otir			;   [hl++] -> out(0x98) until --b = 0
+		dec a			;
+		jr nz,1$		; until --a = 0
+		pop bc			; restore bc with ip
+2$:		pop de			; pop new TOS
+		JP_NEXT			; continue
+
+;- VRAM>	c-addr u --
+;		block read u data bytes at c-addr from VRAM at its current address, auto-increments its address;
+;		VRAM address must be set for reading
+
+		CODE VRAM>,vramfrom
+		pop hl			; pop hl with c-addr
+		ld a,e			;
+		or d			;
+		jr z,2$			; if u != 0 then
+		push bc			;   save bc with ip
+		ld c,0x98		;   VDP VRAM data port is IO port c = 0x98
+		ld b,e			;   u -> ab
+		xor a			;   0 -> a
+		cp b			;   set cf if b > 0
+		adc d			;   if b > 0 then d+1 -> a else d -> a (is nonzero since u != 0)
+1$:		inir			;   in(0x98) -> [hl]++ until --b = 0
+		dec a			;
+		jr nz,1$		; until --a = 0
+		pop bc			; restore bc with ip
+2$:		pop de			; pop new TOS
+		JP_NEXT			; continue
+
+;- >VDP		u1 u2 --
+;		send data byte u1 to VDP mode register u2
+
+		CODE >VDP,tovdp
+		pop hl			; pop u1 -> hl
+		ld a,l			; u2 -> a
+		di			; disable interrupts (interrupts access the VDP)
+		out (0x99),a		; write data byte u1 -> out(0x99)
+		ld a,e			;
+		or 0x80			; u2 | 0x80 -> a
+		out (0x99),a		; select register 10000RRR -> out(0x99)
+		ei			; enable interrupts
+		pop de			; set new TOS
 		JP_NEXT			; continue
 
 .endif;PORT
@@ -6962,6 +7028,8 @@ comma_de:	ld (hl),e		;
 ; :NONAME	-- xt
 ;		colon definition without name;
 ;		leaves execution token of definition to be used or saved
+;
+;    : :NONAME HERE DUP TO LASTXT CFA: ;
 
 		COLON ^|:NONAME|,colonnoname
 		.dw here,dup,doto,lastxt+3
