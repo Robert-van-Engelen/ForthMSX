@@ -64,11 +64,13 @@ A double-cell integer literal _d_ is a number between -2147483648. and
 include the point `.` character somewhere in the string of digits as in classic
 Forth
 
-The base of a literal number can be specific with a leading `#` for decimal or
-leading `$` for hexadecimal or a `%` for binary.  For example, `%1010` is the
-single-cell integer 10 given in binary and `$CAFE.BABE` is a double-cell 32 bit
-integer given in hex (take note of the point).  Otherwise, the default base is
-`BASE` which is changed to decimal with `DECIMAL` and to hex with `HEX`.
+A special feature of ForthMSX is that the base of a literal number can be
+specified with a leading `#` for decimal or a leading `$` for hexadecimal or a
+`%` for binary.  For example, `%1010` is the single-cell integer 10 given in
+binary and `$CAFE.BABE` is a double-cell 32 bit integer given in hex (take note
+of the point).  Otherwise, the default base is `BASE` which is changed to
+decimal with `DECIMAL` and to hex with `HEX`, which also changes the base to
+output and display integers.
 
 a floating-point literal _r_ is specified in scientific notation with an
 exponent, even when the exponent is zero.  For example, `1E0` is floating-point
