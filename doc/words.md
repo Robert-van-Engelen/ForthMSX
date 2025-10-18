@@ -6,11 +6,9 @@ to enter (part of) the word to search its meaning.
 
 For an overview see the [alphabetic list of words](#alphabetic-list-of-words)
 
-ForthMSX words are case insensitive.  So `ROT` or `rot` is the same word.
-
 Forth words operate on the parameter stack, the return stack, and may parse
 delimited sequences of characters from the input buffer.  The parameter stack
-updates that are performed by a word are indicated by _before_ `--` _after_:
+updates performed by a word are indicated by _before_ `--` _after_:
 
 **ROT**
 <br>
@@ -60,17 +58,14 @@ A single-cell integer literal is a number _n_ between -32768 and 32767 or
 unsigned _u_ between 0 and 65535.
 
 A double-cell integer literal _d_ is a number between -2147483648. and
-2147483647. or unsigned _ud_ between 0 and 4294967295., where the literal must
-include the point `.` character somewhere in the string of digits as in classic
-Forth
+2147483647.  or unsigned _ud_ between 0 and 4294967295., where the literal must
+include the point `.` character somewhere in the string of digits, which is
+classic Forth
 
-A special feature of ForthMSX is that the base of a literal number can be
-specified with a leading `#` for decimal or a leading `$` for hexadecimal or a
-`%` for binary.  For example, `%1010` is the single-cell integer 10 given in
-binary and `$CAFE.BABE` is a double-cell 32 bit integer given in hex (take note
-of the point).  Otherwise, the default base is `BASE` which is changed to
-decimal with `DECIMAL` and to hex with `HEX`, which also changes the base to
-output and display integers.
+The base of a literal number can be specific with a leading `#` for decimal or
+leading `$` for hexadecimal or a `%` for binary.  For example, `%1010` is 10 in
+decimal.  Otherwise, the default base is `BASE` which is changed to decimal
+with `DECIMAL` and to hex with `HEX`.
 
 a floating-point literal _r_ is specified in scientific notation with an
 exponent, even when the exponent is zero.  For example, `1E0` is floating-point
@@ -1539,18 +1534,6 @@ output signed cell stored at addr
     : ? @ . ;
 
 ___
-### OUT
-_u1 u2 --_
-
-output byte u1 to Z80 port u2
-
-___
-### INP
-_u1 -- u2_
-
-input from Z80 port u1
-
-___
 ### INKEY
 _-- x_
 
@@ -2111,6 +2094,8 @@ _-- xt_
 
 colon definition without name;
 leaves execution token of definition to be used or saved
+
+    : :NONAME HERE DUP TO LASTXT CFA: ;
 
 ___
 ### :
@@ -3262,15 +3247,11 @@ fileid is closed afterwards
     : INCLUDE-FILE
       SAVE-INPUT N>R
       TO SOURCE-ID
-      BEGIN
-        0
-        REFILL
-      WHILE
+      BEGIN 0 REFILL WHILE
         DROP
         ['] INTERPRET CATCH
-        ?DUP 0=
-      WHILE
-      REPEAT
+        ?DUP 0= WHILE
+      REPEAT THEN
       SOURCE-ID CLOSE-FILE DROP
       DUP ERROR
       NR> RESTORE-INPUT DROP
@@ -4552,7 +4533,6 @@ word | stack
 [`IF`](#IF)	|		x -- ; C: -- addr orig
 [`IMMEDIATE`](#IMMEDIATE)	|	--
 [`INKEY`](#INKEY)	|	-- x
-[`INP`](#INP)	|		u1 -- u2
 [`INTERPRET`](#INTERPRET)	|	--
 [`INVERT`](#INVERT)	|	x1 -- x2
 [`IS`](#IS)	|		xt "&lt;spaces&gt;name&lt;space&gt;" --
@@ -4593,7 +4573,6 @@ word | stack
 [`ON`](#ON)	|		addr --
 [`OR`](#OR)	|		x1 x2 -- x1|x2
 [`OUTPUT-ID`](#OUTPUT-ID)	|	-- 0|fileid
-[`OUT`](#OUT)	|		u1 u2 --
 [`OVER`](#OVER)	|		x1 x2 -- x1 x2 x1
 [`PAD`](#PAD)	|		-- c-addr
 [`PAGE`](#PAGE)	|		--
