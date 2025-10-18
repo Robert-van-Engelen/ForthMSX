@@ -6,9 +6,11 @@ to enter (part of) the word to search its meaning.
 
 For an overview see the [alphabetic list of words](#alphabetic-list-of-words)
 
+ForthMSX words are case insensitive.  So `ROT` or `rot` is the same word.
+
 Forth words operate on the parameter stack, the return stack, and may parse
 delimited sequences of characters from the input buffer.  The parameter stack
-updates performed by a word are indicated by _before_ `--` _after_:
+updates that are performed by a word are indicated by _before_ `--` _after_:
 
 **ROT**
 <br>
@@ -58,14 +60,15 @@ A single-cell integer literal is a number _n_ between -32768 and 32767 or
 unsigned _u_ between 0 and 65535.
 
 A double-cell integer literal _d_ is a number between -2147483648. and
-2147483647.  or unsigned _ud_ between 0 and 4294967295., where the literal must
-include the point `.` character somewhere in the string of digits, which is
-classic Forth
+2147483647. or unsigned _ud_ between 0 and 4294967295., where the literal must
+include the point `.` character somewhere in the string of digits as in classic
+Forth
 
 The base of a literal number can be specific with a leading `#` for decimal or
-leading `$` for hexadecimal or a `%` for binary.  For example, `%1010` is 10 in
-decimal.  Otherwise, the default base is `BASE` which is changed to decimal
-with `DECIMAL` and to hex with `HEX`.
+leading `$` for hexadecimal or a `%` for binary.  For example, `%1010` is the
+single-cell integer 10 given in binary and `$CAFE.BABE` is a double-cell 32 bit
+integer given in hex (take note of the point).  Otherwise, the default base is
+`BASE` which is changed to decimal with `DECIMAL` and to hex with `HEX`.
 
 a floating-point literal _r_ is specified in scientific notation with an
 exponent, even when the exponent is zero.  For example, `1E0` is floating-point
