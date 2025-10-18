@@ -2,7 +2,7 @@
 
 The goal of this ongoing project is to implement a "wicked fast" [Forth 2012 standard](https://forth-standard.org/standard/words) system for MSX.
 
-This repo will also include a complete Forth manual in the near future, similar to the Forth manual I wrote for [Forth500](https://github.com/Robert-van-Engelen/Forth500).  In the meantime, see the overview of [ForthMSX words](doc/words.md) with an [alphabetic list of words](doc/words.md#alphabetic-list-of-words).
+This repo will also include a complete Forth manual in the near future, similar to the Forth manual I wrote for [Forth500](https://github.com/Robert-van-Engelen/Forth500).  In the meantime, see the overview of [ForthMSX words](doc/words.md).
 
 If you don't have an MSX machine or just want to try out ForthMSX, then visit [WebMSX](http://webmsx.org).  To run ForthMSX in WebMSX, click the WebMSX floppy drive icon on the bottom-left, then "Import Files to Disk":
 
@@ -37,7 +37,7 @@ To delete all definitions loaded from a file, such as `PRIMES.FTH`, type `~prime
 
 If a Forth source file is changed, then reload it with `anew primes.fth` to delete all its definitions first and compile it again.
 
-Important: if you're importing updated files to disk in WebMSX, then you need to delete your old file `name.fth` first in Forth by executing `s" name.fth" delete-file .`, otherwise the file is added with a new name with a tilde `~` and does not overwrite the old file.
+Important: if you're importing updated files to disk in WebMSX, then you need to delete your old file `name.fth` first in Forth by executing `s" name.fth" delete-file .`, otherwise WebMSX adds the file to the disk with a new name with a tilde `~` and does not overwrite the old file.
 
 Enter `bye` in Forth to exit back to BASIC.  You can return to Forth where you left off in Forth from BASIC with:
 
