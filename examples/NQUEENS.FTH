@@ -1,6 +1,6 @@
 \ NQUEENS.FTH n-queens calculator benchmark
 
-.( Loading nqueens.fth...)
+.( Loading NQUEENS...)
 
 8 CONSTANT RR
 0 VALUE SS
