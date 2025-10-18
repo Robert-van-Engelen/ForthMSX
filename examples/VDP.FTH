@@ -1,6 +1,8 @@
 \ MSX VDP and VRAM access control
 \ The "MSX Red Book" has info on MSX VDP IO ports
 
+.( Loading VDP...)
+
 \ VRAM		addr --
 \ set VRAM address for writing, add $4000 to addr to read
 \

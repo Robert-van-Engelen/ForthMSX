@@ -3,6 +3,8 @@
 
 .( Loading RAND...)
 
+DECIMAL
+
 0. 2VALUE seed
 
 : rand		( -- n ) seed 1103515245. D* 12345. D+ TUCK TO seed 32767 AND ;

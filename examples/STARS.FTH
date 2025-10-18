@@ -57,6 +57,7 @@ CREATE star
   %00100000 C,
   %00000000 C,
 
+\ twinkle bitmapped stars
 : twinkle
   40 WIDTH
   $F1 7 >VDP	\ white $F on black $1
@@ -71,7 +72,7 @@ CREATE star
   LOOP
   0
   BEGIN
-    1+		\ tinkle counter
+    1+		\ twinkle counter
     4 0 DO			\ cycle through 4 bitmaps
       $0808 I 8 * + VRAM
       DUP I + 3 AND
