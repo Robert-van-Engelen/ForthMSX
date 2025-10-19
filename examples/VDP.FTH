@@ -4,7 +4,7 @@
 .( Loading VDP...)
 
 \ VRAM		addr --
-\ set VRAM address for writing, add $4000 to addr to read
+\ set VRAM address for writing, to read you must add $4000 to addr
 \
 \ 		CODE VRAM,vram
 \ 7B		ld a,e			; addr lsb -> a
@@ -20,7 +20,7 @@
 CODE VRAM $7B C, $F3 C, $D3 C, $99 C, $3E C, $40 C, $B2 C, $D3 C, $99 C, $FB C, $D1 C, $FD C, $E9 C,
 
 \ >VRAM	c-addr u --
-\ block write u data bytes at c-addr to VRAM at its current address, auto-increments its address
+\ "to VRAM" block write u data bytes at c-addr to VRAM at its current address, auto-increments its address
 \ VRAM address must be set for writing
 \
 \ 		CODE >VRAM,tovram
@@ -44,7 +44,7 @@ CODE VRAM $7B C, $F3 C, $D3 C, $99 C, $3E C, $40 C, $B2 C, $D3 C, $99 C, $FB C, 
 CODE >VRAM $E1 C, $7B C, $B2 C, $28 C, $0D C, $C5 C, $0E C, $98 C, $43 C, $AF C, $B8 C, $8A C, $ED C, $B3 C, $3D C, $20 C, $FB C, $C1 C, $D1 C, $FD C, $E9 C,
 
 \ VRAM>	c-addr u --
-\ block read u data bytes at c-addr from VRAM at its current address, auto-increments its address;
+\ "VRAM from" block read u data bytes at c-addr from VRAM at its current address, auto-increments its address;
 \ VRAM address must be set for reading
 \
 \ 		CODE VRAM>,vramfrom
@@ -68,7 +68,7 @@ CODE >VRAM $E1 C, $7B C, $B2 C, $28 C, $0D C, $C5 C, $0E C, $98 C, $43 C, $AF C,
 CODE VRAM> $E1 C, $7B C, $B2 C, $28 C, $0D C, $C5 C, $0E C, $98 C, $43 C, $AF C, $B8 C, $8A C, $ED C, $B2 C, $3D C, $20 C, $FB C, $C1 C, $D1 C, $FD C, $E9 C,
 
 \ >VDP		u1 u2 --
-\ send data byte u1 to VDP mode register u2
+\ "to VDP" send data byte u1 to VDP mode register u2 (0 to 7), does not update the register copies in memory saved by BASIC
 \
 \ 		CODE >VDP,tovdp
 \ E1		pop hl			; pop u1 -> hl
@@ -83,3 +83,6 @@ CODE VRAM> $E1 C, $7B C, $B2 C, $28 C, $0D C, $C5 C, $0E C, $98 C, $43 C, $AF C,
 \ FD E9		JP_NEXT			; continue
 
 CODE >VDP $E1 C, $7D C, $F3 C, $D3 C, $99 C, $7B C, $F6 C, $80 C, $D3 C, $99 C, $FB C, $D1 C, $FD C, $E9 C,
+
+\ "VDP from" read VDP register u1 (0 to 7) from memory saved by BASIC
+: VDP>          ( u1 -- u2 ) $f3df + C@ ;
