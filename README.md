@@ -45,17 +45,17 @@ Enter `bye` in Forth to exit back to BASIC.  You can return to Forth where you l
 
 ## Forth 2012 standard compliance and coverage
 
-- Core and Core-Ext (complete, built-in)
+- Core and Core-Ext (built-in, complete coverage)
 - Block (none, block buffer parsing will not be implemented)
-- Double-Numbers and Double-Numbers-Ext (complete, built-in)
-- Exception and Exception-Ext (complete, built-in)
-- Facility and Facility-Ext (complete except for `K-*` words, requires FACILITY.FTH)
-- File-Access and File-Access-Ext (complete, requires FILE.FTH)
-- Floating-Point and Floating-Point-Ext (complete, requires FLOAT.FTH)
+- Double-Numbers and Double-Numbers-Ext (built-in, complete coverage)
+- Exception and Exception-Ext (built-in, complete coverage)
+- Facility and Facility-Ext (built-in, except for `K-*` words, require FACILITY.FTH for complete coverage)
+- File-Access and File-Access-Ext (built-in, require FILE.FTH for complete coverage)
+- Floating-Point and Floating-Point-Ext (built-in, require FLOAT.FTH for complete coverage)
 - Locals (none, will not be implemented)
-- Memory-Allocation (none, under consideration)
-- Programming-Tools and Programming-Tools-Ext (mostly complete, requires TOOLS.FTH)
-- String and String-Ext (complate except for `REPLACE` `SUBSTITUTE` `ESCAPE`)
+- Memory-Allocation (under consideration)
+- Programming-Tools and Programming-Tools-Ext (built-in, require TOOLS.FTH and SEE.FTH)
+- String and String-Ext (built-in, complete except for `REPLACE` `SUBSTITUTE` `ESCAPE`)
 - Extended-Character (none, MSX does not support variable-width character encodings)
 
 ## Work in progress

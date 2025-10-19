@@ -2026,8 +2026,8 @@ ___
 ### CODE
 _"&lt;spaces&gt;name&lt;space&gt;" --_
 
-parse name and append dictionary entry with name;
-to start compiling code into the dictionary;
+parse name and append dictionary entry with name to execute machine code;
+machine code should be appended to CODE definitions;
 set LASTXT to HERE;
 may throw -8 "dictionary overflow"
 
@@ -2041,15 +2041,15 @@ append cfa call addr to dictionary;
 may throw -8 "dictionary overflow"
 
 ___
-### CFA:
+### :CFA
 _-- addr colon_sys_
 
-append cfa colon definition to dictionary;
+append cfa colon definition with cfa call addr to dictionary;
 make CONTEXT the CURRENT vocabulary;
-start compiling;
+start compiling and leave HERE and colon_sys to end compiling with the ; word;
 may throw -8 "dictionary overflow"
 
-    : CFA: ] HERE colon_sys ['] (:) CFA, CURRENT TO CONTEXT ;
+    : :CFA ] HERE colon_sys ['] (:) CFA, CURRENT TO CONTEXT ;
 
 ___
 ### CFA=
@@ -2093,9 +2093,9 @@ ___
 _-- xt_
 
 colon definition without name;
-leaves execution token of definition to be used or saved
+leaves the execution token of the definition to be used or saved
 
-    : :NONAME HERE DUP TO LASTXT CFA: ;
+    : :NONAME HERE DUP TO LASTXT :CFA ;
 
 ___
 ### :
@@ -2103,7 +2103,7 @@ _-- ; C: "&lt;spaces&gt;name&lt;space&gt;" -- addr colon_sys_
 
 define name and start compiling
 
-    : : CODE HIDE CFA: ;
+    : : CODE HIDE :CFA ;
 
 ___
 ### ;
@@ -4364,6 +4364,7 @@ word | stack
 [`2VARIABLE`](#2VARIABLE)	|	"&lt;spaces&gt;name&lt;space&gt;" -- ; -- addr
 [`2`](#2)	|		-- 2
 [`3`](#3)	|		-- 3
+[`:CFA`](#:CFA)	|		-- addr colon_sys
 [`:NONAME`](#:NONAME)	|	-- xt
 [`:`](#:)	|		-- ; C: "&lt;spaces&gt;name&lt;space&gt;" -- addr colon_sys
 [`;`](#;)	|		-- ; C: addr colon_sys --
@@ -4413,7 +4414,6 @@ word | stack
 [`CELL+`](#CELL+)	|		addr -- addr
 [`CELLS`](#CELLS)	|		n1 -- n2
 [`CFA,`](#CFA,)	|		addr --
-[`CFA:`](#CFA:)	|		-- addr colon_sys
 [`CFA=`](#CFA=)	|		xt1 xt2 -- flag
 [`CHAR+`](#CHAR+)	|		n1 -- n1
 [`CHARS`](#CHARS)	|		n1 -- n2

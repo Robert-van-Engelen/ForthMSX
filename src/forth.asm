@@ -6914,8 +6914,8 @@ comma_de:	ld (hl),e		;
 		.dw doret
 
 ; CODE		"<spaces>name<space>" --
-;		parse name and append dictionary entry with name;
-;		to start compiling code into the dictionary;
+;		parse name and append dictionary entry with name to execute machine code;
+;		machine code should be appended to CODE definitions;
 ;		set LASTXT to HERE;
 ;		may throw -8 "dictionary overflow"
 ;
@@ -6935,15 +6935,15 @@ comma_de:	ld (hl),e		;
 		inc hl			; 0xcd -> [hl++]
 		jr comma_de		; append addr, check and set hl -> HERE
 
-; CFA:		-- addr colon_sys
-;		append cfa colon definition to dictionary;
+; :CFA		-- addr colon_sys
+;		append cfa colon definition with cfa call addr to dictionary;
 ;		make CONTEXT the CURRENT vocabulary;
-;		start compiling;
+;		start compiling and leave HERE and colon_sys to end compiling with the ; word;
 ;		may throw -8 "dictionary overflow"
 ;
-;    : CFA: ] HERE colon_sys ['] (:) CFA, CURRENT TO CONTEXT ;
+;    : :CFA ] HERE colon_sys ['] (:) CFA, CURRENT TO CONTEXT ;
 
-		COLON ^|CFA:|,cfacolon
+		COLON ^|:CFA|,coloncfa
 		.dw rightbracket
 		.dw here
 		.dw dolit,colon_sys
@@ -7011,24 +7011,24 @@ comma_de:	ld (hl),e		;
 
 ; :NONAME	-- xt
 ;		colon definition without name;
-;		leaves execution token of definition to be used or saved
+;		leaves the execution token of the definition to be used or saved
 ;
-;    : :NONAME HERE DUP TO LASTXT CFA: ;
+;    : :NONAME HERE DUP TO LASTXT :CFA ;
 
 		COLON ^|:NONAME|,colonnoname
 		.dw here,dup,doto,lastxt+3
-		.dw cfacolon
+		.dw coloncfa
 		.dw doret
 
 ; :		-- ; C: "<spaces>name<space>" -- addr colon_sys
 ;		define name and start compiling
 ;
-;    : : CODE HIDE CFA: ;
+;    : : CODE HIDE :CFA ;
 
 		COLON ^|:|,colon
 		.dw code
 		.dw hide
-		.dw cfacolon
+		.dw coloncfa
 		.dw doret
 
 ; ;		-- ; C: addr colon_sys --

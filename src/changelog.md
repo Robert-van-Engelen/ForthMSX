@@ -80,6 +80,14 @@
 
 - add `PORT.FTH` with `>PORT` and `PORT>` words for Z80 I/O port output and input, respectively; Remove `OUT` and `INP` from built-in words
 
+- add `TRY.FTH` with gForth-style exception handling
+
+- add `STRING.FTH` for string buffers
+
+- rename `CFA:` to `:CFA` for consistency
+
+- add `VDP.FTH` for direct VDP and VRAM access and control, add small `STARS.FTH` VRP and VRAM demo application
+
 ### v1.0
 
 ## TODO
