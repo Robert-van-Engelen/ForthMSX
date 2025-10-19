@@ -8,16 +8,16 @@ If you don't have an MSX machine or just want to try out ForthMSX, then visit [W
 
 ![ForthMSX](img/forthmsx1.png)
 
-Select the `forth.bin` file (or small `forthx.bin` file) located in your forked copy of this project and import it to the floppy disk.
+Select the `forth.bin` file (or small `forthx.bin` file) located in your forked copy of this project and import it to the floppy disk in drive A.
 
 Run Forth in WebMSX:
 
     clear 100,&h8400
     bload "forth.bin",r
 
-Once you've been greeted by the Forth system, type `80 width` and ENTER to switch to 80 characters per line.
+This full ForthMSX version of standard Forth with MSX floating point math and MSX-DOS1 file access takes a little over 13K to run.
 
-Type `words` and ENTER to list all Forth words, one screenful at a time (press a key to continue).
+Once you've been greeted by the Forth system, type `80 width` and ENTER to switch to 80 characters per line.  Then `words` and ENTER to list all Forth words, one screenful at a time (press a key to continue).
 
 ![ForthMSX](img/forthmsx2.png)
 
