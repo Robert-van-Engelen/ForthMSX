@@ -2415,7 +2415,7 @@ ___
 ### SDUP
 _c-addr1 u -- c-addr2 u_
 
-duplicate string to a TMP buffer or string literal when compiling;
+duplicate string to a TMP buffer or to a string literal when compiling;
 stores the copy of the string as a counted string at c-addr2 - 1;
 truncates the copy to 255 characters long when excessive
 
@@ -3234,7 +3234,7 @@ ___
 ### RENAME-FILE
 _c-addr1 u1 c-addr2 u2 -- ior_
 
-rename the file with the name specified by the string c-addr1 u1 to the name c-addr2 u2;
+rename the file with the name specified by the string c-addr1 u1 to c-addr2 u2;
 leaves ior 0 (success) or nz (failure)
 
 ___

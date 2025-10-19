@@ -81,7 +81,7 @@
 .title		Forth
 .list		(me)
 .area		PROGRAM (ABS)
-.org		0x8400-7                ; subtract 7 header bytes from boot addr
+.org		0x8400-7		; subtract 7 header bytes from boot addr
 
 ;-------------------------------------------------------------------------------
 ;
@@ -123,7 +123,7 @@ MATH = 1	; include floating-point single precision MSX MATH-PACK words
 IEEE = 0	; include floating-point IEEE 754 single precision words
 FUNC = 0	; include floating-point IEEE 754 sqrt, log, exp, trig functions
 FCBN = 2	; include MSX-DOS file-access words, FCBN = max open files
-PORT = 0        ; include additional Z80 I/O port words >PORT PORT> >VDP
+PORT = 0	; include additional Z80 I/O port words >PORT PORT> >VDP
 DUMP = 0	; include additional words DUMP DB.R UB.R
 MAIN = 0	; include main.asm
 
@@ -1414,7 +1414,7 @@ true_next	.equ mone_next		; alias
 .if UPHI
 		ld de,(rp0)	; 16	; [rp0] -> de
 .else
-		ld de,RP0       ; 10	; RP0 -> de
+		ld de,RP0	; 10	; RP0 -> de
 .endif
 .if RPIX
 		push ix		; 15	;
@@ -4669,7 +4669,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		.dw doret
 
 ;/ RENAME-FILE	c-addr1 u1 c-addr2 u2 -- ior
-;		rename the file with the name specified by the string c-addr1 u1 to the name c-addr2 u2;
+;		rename the file with the name specified by the string c-addr1 u1 to c-addr2 u2;
 ;		leaves ior 0 (success) or nz (failure)
 
 		COLON RENAME-FILE,renamefile
@@ -4905,9 +4905,9 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 .endif
 
 ; SEARCH	c-addr1 u1 c-addr2 u2 -- c-addr3 u3 flag
-;		true if the second string is in the first;
-;		leaves matching address, remaining length and true;
-;		or leaves the first string and false
+;		true if the first string contains the second string;
+;		leaves matching address, remaining length, and TRUE;
+;		or leaves the first string and FALSE
 
 		CODE SEARCH,search
 		push de			; save TOS
@@ -4922,21 +4922,22 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		pop iy			; u2 -> iy
 		ld a,c			;
 		or b			;
-		jr z,4$			; if u2 = 0 then found
 		ld c,l			;
-		ld b,h			;
+		ld b,h			; u1 - u2 -> bc
+		jr z,4$			; if u2 = 0 then found
 		inc bc			; u1 - u2 + 1 -> bc correct for cpir
 		pop hl			;
 		push hl			; c-addr1 -> hl, keep c-addr1 on the stack
 		; find char match
-1$:		push de			; loop, save de with c-addr2
+1$:		ld a,c			; loop
+		or b			;
+		jr z,6$			;   if bc = 0 then not found
 		ld a,(de)		;   [de] -> a
 		cpir		; 21/16	;   repeat until a = [hl++] or --bc = 0
 		jr nz,6$		;   if no match then not found
-		pop de			;   restore de with c-addr2
-		push bc			;
-		push de			;
-		push hl			;   save bc,de,hl
+		push bc			;   save bc with remaining u1-k chars to search
+		push de			;   save de with c-addr2
+		push hl			;   save hl with c-addr1+k search position
 		push iy			;
 		pop bc			;   u2 -> bc
 		; compare substrings
@@ -4950,15 +4951,15 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		jr nz,3$	;  7	;       while characters [hl] and [de] are equal
 		inc de		;  6	;       de++
 		jp pe,2$	; 10(46);     until bc = 0
-3$:		pop hl			;
-		pop de			;
-		pop bc			;   restore bc,de,hl
-		jr nz,1$		; repeat
+3$:		pop hl			;   restore hl with c-addr1+k search position
+		pop de			;   restore de with c-addr2
+		pop bc			;   restore bc with remaining u1-k chars to search
+		jr nz,1$		; until substring match
 		; substrings match
 		dec hl			; hl-- to correct cpir overshoot
 		ex (sp),hl		; save hl with c-addr3, discard c-addr1
-		add iy,bc		; compute u3 = u2 + bc
-4$:		push iy			; save iy with u3 as new 2OS
+4$:		add iy,bc		; compute u3 = u2 + bc
+		push iy			; save iy with u3 as new 2OS
 		EXXLDBC			; exx or restore bc with ip
 .if JPIY
 		ld iy,next		; restore iy
@@ -4968,10 +4969,13 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 5$:		add hl,bc		; u1 - u2 + u2 -> hl = u1
 		jr 7$			;
 		; not found
-6$:		pop de			; pop to discard c-addr2
+6$:		push iy			;
+		pop bc			;
+		dec bc			; u2 - 1 -> bc
+		add hl,bc		; c-addr1 + u2 - 1 -> hl
 		pop de			;
 		push de			; c-addr1 -> de, keep c-addr1 as 3OS
-		sbc hl,de		; c-addr1 + u1 - de -> hl = u1, cf = 0 asserted
+		sbc hl,de		; c-addr1 + u1 - de -> hl = u1
 7$:		push hl			; save hl with u1 as 2OS
 		EXXLDBC			; exx or restore bc with ip
 .if JPIY
@@ -7561,7 +7565,7 @@ undef:		push de			; save TOS
 .endif;REPL
 
 ; SDUP		c-addr1 u -- c-addr2 u
-;		duplicate string to a TMP buffer or string literal when compiling;
+;		duplicate string to a TMP buffer or to a string literal when compiling;
 ;		stores the copy of the string as a counted string at c-addr2 - 1;
 ;		truncates the copy to 255 characters long when excessive
 ;
@@ -7639,14 +7643,14 @@ skip_jp_next:	inc bc		;    7	;
 .if UPHI
 		ld hl,(sp1)	; 16	; -1 - [sp0] -> hl
 .else
-		ld hl,SP1       ; 10    ; -1 - SP0 -> hl
+		ld hl,SP1	; 10	; -1 - SP0 -> hl
 .endif
 		add hl,sp	; 11	; test sp > [sp0] with sp-1-[sp0] > 0xffff
 		jr c,1$		;  7	; if sp > [sp0] then throw -4
 .if UPHI
 		ld hl,(sp2)	; 16	; -([sp0] - s_size + 1) -> hl
 .else
-		ld hl,SP2       ; 10    ; -(SP0 - s_size + 1) -> hl
+		ld hl,SP2	; 10	; -(SP0 - s_size + 1) -> hl
 .endif
 		add hl,sp	; 11	; if sp < [sp0] - s_size + 1 then throw -3
 		jp c,cont	; 10(71|59|53); continue with break check

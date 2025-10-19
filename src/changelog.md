@@ -88,6 +88,8 @@
 
 - add `VDP.FTH` for direct VDP and VRAM access and control, add small `STARS.FTH` VRP and VRAM demo application
 
+- fix `SEARCH` word when second string is empty and when substrings do not match but are the same length
+
 ### v1.0
 
 ## TODO
