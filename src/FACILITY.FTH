@@ -1,4 +1,5 @@
 \ Forth 2012 standard Facility words and more
+\ Author: Robert van Engelen
 
 DECIMAL
 

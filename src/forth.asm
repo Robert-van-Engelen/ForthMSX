@@ -196,8 +196,7 @@ HERRO		.equ 0xffb1		; error handler
 ;-------------------------------------------------------------------------------
 
 pad_size	.equ 256		; PAD size (do not change)
-tib_size	.equ 256		; TIB size (do not change)
-fib_size	.equ 256		; FIB size (adjustable >= 256)
+ib_size		.equ 256		; TIB and FIB size (adjustable >= 256)
 b_size		.equ 256		; TMP string buffer size (do not change)
 r_size		.equ 256		; return stack size (adjustable)
 s_size		.equ 256		; parameter stack size (adjustable)
@@ -462,7 +461,7 @@ label:
 		inc ix		;  6(12);
 .endm
 
-.macro		RTOP p,q
+.macro		RTOS p,q
 		ld q,(ix+0)	; 19	;
 		ld p,(ix+1)	; 19(38); load [rp] -> register pair pq
 .endm
@@ -490,7 +489,7 @@ label:
 		ld (rp),hl	; 16(44); rp + 2 -> rp
 .endm
 
-.macro		RTOP p,q
+.macro		RTOS p,q
 		ld hl,(rp)	; 16	; rp -> hl
 		ld q,(hl)	;  7	;
 		inc hl		;  6	;
@@ -682,7 +681,10 @@ cont:		; continue with BREAK check followed by the next routine
 next:		EXEC		; 38	; jp [ip++]
 		; MSX STOP break handling
 .if STOP
-break:		call KILBUF		; MSX KILBUF clear key buffer
+break:		ld a,(OLDKEY+7)		; loop
+		and 0x10		;   check MSX OLDKEY row 7 bit 4 for STOP
+		jr z,break		; until STOP released
+		call KILBUF		; MSX KILBUF clear key buffer
 		ld a,-28		;
 		jp throw_a		; throw -28 "user interrupt (BREAK was pressed)"
 .endif
@@ -930,19 +932,8 @@ true_next	.equ mone_next		; alias
 		ld de,PAD		; set new TOS to PAD
 		JP_NEXT			; continue
 
-; TIB		-- c-addr u
-;		leave c-addr of the terminal input buffer (TIB) and buffer size u;
-;		the terminal input buffer of 256 bytes is used by Forth;
-
-		CODE TIB,tib
-		push de			; save TOS
-		ld de,TIB		; set new 2OS to TIB
-		push de			;
-		ld de,tib_size		; set new TOS to tib_size
-		JP_NEXT			; continue
-
 ; TMP		-- c-addr
-;		leave address of the next temp string buffer;
+;		leave address of the next temporary string buffer;
 ;		switches between two string buffers of 256 free bytes each;
 ;		used by SDUP, WORD and S" to store a string when interpreting
 
@@ -957,6 +948,24 @@ true_next	.equ mone_next		; alias
 		ld d,a			; set [top] + (a << 8) -> de as new TOS
 		JP_NEXT			; continue
 1$:		.db 1			; previous tmp buffer 0 or 1
+
+; TIB		-- c-addr
+;		leave c-addr of the terminal input buffer;
+;		held by SOURCE with input length;
+;		used by the Forth interpreter
+
+		CODE TIB,tib
+		push de			; save TOS
+		ld de,TIB		; set new 2OS to TIB
+		JP_NEXT			; continue
+
+; #IB		-- u
+;		the allocated size of TIB and FIB
+
+		CODE #IB,hashib
+		push de			; save TOS
+		ld de,ib_size		; set new TOS to ib_size
+		JP_NEXT			; continue
 
 ;-------------------------------------------------------------------------------
 ;
@@ -1245,7 +1254,7 @@ true_next	.equ mone_next		; alias
 
 		CODE R@,rfetch
 		push de		; 11	;
-		RTOP d,e	; 36(47);
+		RTOS d,e	; 36(47);
 		NEXT			; continue
 
 ; 2>R		x1 x2 -- ; R: -- x1 x2
@@ -3721,7 +3730,7 @@ fop1:		ld hl,DAC		;
 		ld a,4			; 4 -> a
 		ld (VALTYP),a		; MSX VALTYPE = 4 single precision
 		push bc			; save bc with ip
-		SVIXIY			; save ix and iy when necessary 
+		SVIXIY			; save ix and iy when necessary
 		call jphl		; call (hl) to execute DAC <fop> ARG -> DAC
 fop_csng:	call FRCSNG		; convert MSX DAC to single precision when applicable
 		LDIXIY			; restore ix and iy
@@ -4025,7 +4034,7 @@ fop_csng:	call FRCSNG		; convert MSX DAC to single precision when applicable
 		ld (VALTYP),a		; 2 -> [VALTYP] integer op
 		ld (DAC+2),de		; de -> DAC integer part
 		push bc			; save bc with ip
-		SVIXIY			; save ix and iy when necessary 
+		SVIXIY			; save ix and iy when necessary
 		jp fop_csng		; convert to single precision, pop bc and continue
 
 ;. F>D		r -- d
@@ -4308,13 +4317,13 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		VALUE DRV,drv
 		.dw 'A
 
-;/ FCX		-- addr
+;/ FXB		-- addr
 ;		array of FCB+FIB per open file
 ;
-;    CREATE FCX 37 FCBN * ALLOT
+;    CREATE FXB 37 4 + #IB + FCBN * ALLOT
 
-		VARIABLE FCX,fcx
-		.ds (37+fib_size)*FCBN	; reserve one FCB+FIB per open file
+		VARIABLE FXB,fxb
+		.ds (37+4+ib_size)*FCBN	; alloc FCB+2+FIB per open file, +4 bytes for GET-LINE len pos
 
 ;/ (FCB)	-- addr
 ;		allocate a new FCB;
@@ -4324,12 +4333,12 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		push de			; save TOS
 		push bc			; save bc with ip
 		ld b,FCBN		; number of FCB -> b
-		ld hl,fcx+3		; file control blocks base address -> hl
-		ld de,37+fib_size	; 37 + fib_size -> de
+		ld hl,fxb+3		; file control blocks base address -> hl
+		ld de,37+4+ib_size	; 37 + 4 + ib_size -> de
 		xor a			;
 1$:		cp (hl)			; loop
 		jr z,2$			;   if [hl] == 0 goto 2
-		add hl,de		;   hl + 37 + fib_size -> hl
+		add hl,de		;   hl + 37 + 4 + ib_size -> hl
 		djnz 1$			; until --b == 0
 		pop bc			; restore bc with ip
 		ld a,-204		;
@@ -4352,7 +4361,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 ;      THEN
 ;      (FCB)
 ;      DUP 37 ERASE
-;      DUP 12 BLANK 
+;      DUP 12 BLANK
 ;      \ c-addr u fcb-addr
 ;      \ set drive number
 ;      DRV $1f AND OVER C!
@@ -4417,15 +4426,14 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 9$:		.dw twodrop
 		.dw doret
 
-;/ FIB		fileid -- c-addr u
-;		the file input buffer of size u associated with fileid;
-;		used by INCLUDE-FILE, INCLUDE, INCLUDED, otherwise free to use
+;/ FIB		fileid -- c-addr
+;		the file input buffer associated with fileid;
+;		used by INCLUDE-FILE, INCLUDE, INCLUDED
 
 		CODE FIB,fib
-		ld hl,37		;
-		add hl,de		;
-		push hl			; set new 2OS to fcb-addr + 37
-		ld de,fib_size		; set new TOS to fib_size
+		ld hl,37+4		;
+		add hl,de		; FIB = fileid + 37 + 4
+		ex de,hl		; set new TOS to FIB
 		JP_NEXT			;
 
 ;/ (BDOS)	addr u1 n -- u2 u3 0|1..255
@@ -4536,7 +4544,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 
 		COLON CLOSE-FILES,closefiles
 		.dw dolit,FCBN,zero,dodo,3$
-1$:		.dw   i,dolit,37+fib_size,star,fcx,plus,dup,fetch,doif,2$
+1$:		.dw   i,dolit,37+4+ib_size,star,fxb,plus,dup,fetch,doif,2$
 		.dw     closefile
 2$:		.dw   drop
 		.dw doloop,1$
@@ -4554,48 +4562,103 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		.dw over,zeroequal,and			; (u2 == 0) & ior -> ior
 		.dw doret
 
+;/ GET-LINE	fileid -- c-addr u flag ior
+;		sequentially read next line from fileid data buffered in FIB;
+;		leaves c-addr and length u (without terminating CR/LF) and flag TRUE;
+;		leaves flag FALSE when u is zero and EOF is reached;
+;		ior is nonzero when an error occurred, use GET-LINE 0= AND 0= which is TRUE for EOF or error
+;		does not support REPOSITION-FILE except for position zero to rewind
+;
+;    : GET-LINE
+;      DUP FILE-POSITION DROP D0= IF \ at start of file
+;        DUP FIB 2- DUP OFF 2- OFF \ reset len and pos
+;      THEN
+;      DUP FIB DUP 2- DUP @ SWAP 2- @ SWAP \ -- fileid fib len pos
+;      OVER UMIN /STRING        \ -- fileid fib+pos len-pos
+;      TUCK                     \ -- fileid len-pos fib+pos len-pos
+;      10 CHOP                  \ -- fileid len-pos fib+pos u
+;      ROT                      \ -- fileid fib+pos u len-pos
+;      OVER = IF                \ CHOPed no LF as u=len-pos
+;        2>R DUP FIB R> 2DUP R> -ROT \ -- fileid fib u fib+pos fib u
+;        CMOVE                  \ move fib+pos to fib u bytes
+;        TUCK                   \ -- fileid u fib u
+;        #IB SWAP               \ -- fileid u fib #ib u
+;        /STRING                \ -- fileid u fib+u #ib-u
+;        3 PICK READ-FILE ?DUP IF \ no more data
+;          >R                   \ -- fileid u u2
+;          +                    \ -- fileid u+u2
+;          SWAP FIB SWAP        \ -- fib u+u2
+;          FALSE R>
+;          DUP 2/ 0= IF         \ ior is 0 or 1
+;            2DROP DUP 0= 0= 0  \ -- fib u+u2 flag 0
+;          THEN
+;          EXIT
+;        THEN                   \ -- fileid u u2
+;        +                      \ -- fileid u+u2
+;        OVER FIB               \ --fileid u+u2 fib
+;        2DUP 2- DUP OFF 2- !   \ set len to u+u2 and pos to 0
+;        SWAP                   \ -- fileid fib len
+;        10 CHOP
+;      THEN                     \ -- fileid fib+pos u
+;      ROT FIB                  \ -- fib+pos u fib
+;      OVER 1+ SWAP 2- +!       \ increment pos by u+1 -- fib+pos u
+;      13 -TRIM TRUE 0
+;    ;
+
+		COLON GET-LINE,getline
+		.dw dup,fileposition,drop,dzeroequal,doif,1$
+		.dw   dup,fib,twominus,dup,off,twominus,off
+1$:		.dw dup,fib,dup,twominus,dup,fetch,swap,twominus,fetch,swap
+		.dw over,umin,slashstring
+		.dw tuck
+		.dw dolit,10,chop
+		.dw rot
+		.dw over,equal,doif,4$
+		.dw   twotor,dup,fib,rfrom,twodup,rfrom,mrot
+		.dw   cmove
+		.dw   tuck
+		.dw   hashib,swap
+		.dw   slashstring
+		.dw   three,pick,readfile,qdup,doif,3$
+		.dw     tor
+		.dw     plus
+		.dw     swap,fib,swap
+		.dw     false,rfrom
+		.dw     dup,twoslash,zeroequal,doif,2$
+		.dw       twodrop,dup,zeroequal,zeroequal,zero
+2$:		.dw     doexit
+3$:		.dw   plus
+		.dw   over,fib
+		.dw   twodup,twominus,dup,off,twominus,store
+		.dw   swap
+		.dw   dolit,10,chop
+4$:		.dw rot,fib
+		.dw over,oneplus,swap,twominus,plusstore
+		.dw dolit,13,mtrim,true,zero
+		.dw doret
+
 ;/ READ-LINE	c-addr u1 fileid -- u2 flag ior
-;		read a line into buffer c-addr of size u1 from fileid;
+;		sequentially read a line into buffer c-addr of size u1 from fileid;
 ;		leaves number u2 of bytes read into the buffer (without terminating CR/LF) and flag TRUE;
 ;		leaves flag FALSE when u2 is zero and EOF is reached;
-;		ior is nonzero when an error occurred, use READ-LINE 0= AND 0= which is TRUE for EOF or error
+;		ior is nonzero when an error occurred, use READ-LINE 0= AND 0= which is TRUE for EOF or error;
+;		does not support REPOSITION-FILE except for position zero to rewind
 ;
 ;    : READ-LINE
-;      DUP FILE-POSITION DROP   \ c-addr u1 fileid ud
-;      2>R                      \ c-addr u1 fileid
-;      2>R R@ SWAP DUP 2R>      \ fileid c-addr c-addr u1 fileid
-;      READ-FILE IF             \ fileid c-addr u2 ior
-;        2DROP DROP RDROP RDROP
-;        0 FALSE 0
-;        EXIT
-;      THEN                     \ fileid c-addr u2
-;      10 CHOP                  \ fileid c-addr u3
-;      DUP 1+                   \ fileid c-addr u3 u3+1
-;      2R> ROT M+               \ fileid c-addr u3 ud+u3+1
-;      2>R                      \ fileid c-addr u3
-;      ROT                      \ c-addr u3 fileid
-;      2R> ROT                  \ c-addr u3 ud+u3+1 fileid
-;      REPOSITION-FILE DROP     \ c-addr u3
-;      13 -TRIM                 \ c-addr u4
-;      NIP TRUE 0 ;
+;      GET-LINE 2>R R@ IF
+;        2DROP 2DROP 0
+;      ELSE
+;        2SWAP ROT UMIN DUP>R CMOVE R>
+;      THEN
+;      2R>
+;    ;
 
 		COLON READ-LINE,readline
-		.dw dup,fileposition,drop
-		.dw twotor
-		.dw twotor,rfetch,swap,dup,tworfrom
-		.dw readfile,doif,1$
-		.dw   twodrop,drop,rdrop,rdrop
-		.dw   zero,false,zero
-		.dw   doexit
-1$:		.dw dolit,10,chop
-		.dw dup,oneplus
-		.dw tworfrom,rot,mplus
-		.dw twotor
-		.dw rot
-		.dw tworfrom,rot
-		.dw repositionfile,drop
-		.dw dolit,13,mtrim
-		.dw nip,true,zero
+		.dw getline,twotor,rfetch,doif,1$
+		.dw   twodrop,twodrop,zero
+		.dw doahead,2$
+1$:		.dw   twoswap,rot,umin,duptor,cmove,rfrom
+2$:		.dw tworfrom
 		.dw doret
 
 ;/ WRITE-FILE	c-addr u1 fileid -- ior
@@ -4626,7 +4689,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		.dw doret
 
 ;/ FILE-POSITION	fileid -- ud ior
-;		the fileid (a fcb-addr);
+;		for the open fileid get the current file position
 ;		leaves file position ud and ior (always 0 for success)
 
 		COLON FILE-POSITION,fileposition
@@ -4634,7 +4697,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		.dw doret
 
 ;/ REPOSITION-FILE	ud fileid -- ior
-;		for the open fileid (a fcb-addr) set the file position to ud;
+;		for the open fileid set the file position to ud;
 ;		leaves ior (always 0 for success)
 
 		COLON REPOSITION-FILE,repositionfile
@@ -4642,7 +4705,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		.dw doret
 
 ;/ FILE-SIZE	fileid -- ud ior
-;		the fileid (a fcb-addr);
+;		for the open fileid get the size of the file;
 ;		leaves file size ud and ior (always 0 for success)
 
 		COLON FILE-SIZE,filesize
@@ -4650,7 +4713,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		.dw doret
 
 ;/ RESIZE-FILE	ud fileid -- ior
-;		the fileid (a fcb-addr);
+;		rfor the open fileid esize the file to ud bytes;
 ;		leaves ior 0 (success) or 1 (disk full) or nz (other failure)
 
 		COLON RESIZE-FILE,resizefile
@@ -4659,25 +4722,25 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		.dw doret
 
 ;/ DELETE-FILE	c-addr u -- ior
-;		delete the file with the name specified by the string c-addr u;
+;		delete the file with the name string c-addr u;
 ;		leaves ior 0 (success) or nz (failure)
 
 		COLON DELETE-FILE,deletefile
 		.dw stofcb
-		.dw dup,zero,dolit,0x13,dodosx,nip
+		.dw dup,zero,dolit,0x13,dodosx,nip	; MSX BDOS 13h
 		.dw swap,off
 		.dw doret
 
 ;/ RENAME-FILE	c-addr1 u1 c-addr2 u2 -- ior
-;		rename the file with the name specified by the string c-addr1 u1 to c-addr2 u2;
+;		rename the file with the name string c-addr1 u1 to c-addr2 u2;
 ;		leaves ior 0 (success) or nz (failure)
 
 		COLON RENAME-FILE,renamefile
 		.dw stofcb
-		.dw dup,dup,fib,drop,dolit,12,cmove
+		.dw dup,dup,fib,dolit,12,cmove
 		.dw off
-		.dw stofcb,dup,fib,drop,over,dolit,16,plus,dolit,12,cmove
-		.dw dup,zero,dolit,0x17,dodosx,nip
+		.dw stofcb,dup,fib,over,dolit,16,plus,dolit,12,cmove
+		.dw dup,zero,dolit,0x17,dodosx,nip	; MSX BDOS 17h
 		.dw swap,off
 		.dw doret
 
@@ -5457,23 +5520,23 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 ;		  31 | cursor down (does not scroll)
 ;		 127 | DEL delete character
 ;
-;		ESC code | effect
-;		-------- | -----------------------------------------------------
-;		ESC j    | clear screen and home
-;		ESC E    | clear screen and home
-;		ESC K    | clear to end of line
-;		ESC J    | clear to end of screen
-;		ESC l    | clear line
-;		ESC L    | insert line
-;		ESC M    | delete line
-;		ESC Y    | set cursor coordinates, follow by row column bytes
-;		ESC A    | cursor up, does not scroll
-;		ESC B    | cursor down, does not scroll
-;		ESC C    | cursor right, wraps if the logical line of text wraps
-;		ESC D    | cursor left, does not wrap
-;		ESC H    | cursor home
-;		ESC x    | change cursor, follow by '4' (block) or '5' (disable)
-;		ESC y    | change cursor, follow by '4' (under) or '5' (Enable)
+;		codes | effect
+;		----- | -----------------------------------------------------
+;		ESC j | clear screen and home
+;		ESC E | clear screen and home
+;		ESC K | clear to end of line
+;		ESC J | clear to end of screen
+;		ESC l | clear line
+;		ESC L | insert line
+;		ESC M | delete line
+;		ESC Y | set cursor coordinates, follow by row column bytes
+;		ESC A | cursor up, does not scroll
+;		ESC B | cursor down, does not scroll
+;		ESC C | cursor right, wraps if the logical line of text wraps
+;		ESC D | cursor left, does not wrap
+;		ESC H | cursor home
+;		ESC x | change cursor, follow by '4' (block) or '5' (disable)
+;		ESC y | change cursor, follow by '4' (under) or '5' (enable)
 
 		CODE EMIT,emit
 .if FCBN
@@ -5965,7 +6028,7 @@ set_base:	ld (base+3),hl		; 10 -> [base]
 
 ;+ INKEY	-- x
 ;		check for key press and return the code of the key;
-;		0x00 = no key pressed
+;		0 = no key pressed
 
 		CODE INKEY,inkey
 		push de			; save TOS
@@ -6051,7 +6114,7 @@ addr'name:	.dw 0
 
 ; (INLIN)	-- c-addr u
 ;		MSX INLIN input a logical line of screen text;
-;		leaves TIB c-addr and text input length u
+;		leaves c-addr of TIB and text input length u
 ;
 ;		key          | effect
 ;		------------ | -------------------------------------------------
@@ -6172,9 +6235,9 @@ addr'name:	.dw 0
 		.dw 0
 
 ; SOURCE	-- c-addr u
-;		double value with input source
+;		double value with input source buffer and input length
 ;
-;    TIB DROP 0 2VALUE SOURCE
+;    TIB 0 2VALUE SOURCE
 
 		TWOVALUE SOURCE,source
 		.dw 0			; input length u
@@ -6219,7 +6282,7 @@ addr'name:	.dw 0
 ;
 ;    : REFILL
 ;      SOURCE-ID INVERT DUP IF
-;        TIB OVER SWAP
+;        TIB DUP #IB
 ;        ACCEPT
 ;        TO SOURCE
 ;        >IN OFF
@@ -6228,14 +6291,13 @@ addr'name:	.dw 0
 ;    : REFILL
 ;      SOURCE-ID INVERT DUP IF
 ;        SOURCE-ID ?DUP IF
-;          FIB OVER SWAP SOURCE-ID
-;          READ-LINE 0= AND 0= IF
+;          GET-LINE 0= AND 0= IF
 ;            2DROP DROP FALSE
 ;            EXIT
 ;          THEN
 ;          1 +TO #IN
 ;        ELSE
-;          TIB OVER SWAP
+;          TIB DUP #IB
 ;          ACCEPT
 ;          0 TO #IN
 ;        THEN
@@ -6247,14 +6309,13 @@ addr'name:	.dw 0
 		.dw sourceid,invert,dup,doif,4$
 .if FCBN
 		.dw   sourceid,qdup,doif,2$
-		.dw     fib,over,swap,sourceid
-		.dw     readline,zeroequal,and,zeroequal,doif,1$
+		.dw     getline,zeroequal,and,zeroequal,doif,1$
 		.dw       twodrop,drop,false
 		.dw       doexit
 1$:		.dw     one,doplusto,hashin+3
 		.dw   doahead,3$
 .endif
-2$:		.dw     tib,over,swap
+2$:		.dw     tib,dup,hashib
 		.dw     accept
 .if FCBN
 		.dw     zero,doto,hashin+3
@@ -7052,7 +7113,8 @@ comma_de:	ld (hl),e		;
 
 ; EXIT		--
 ;		exit colon definition;
-;		to EXIT the definition from within a DO-LOOP, first call UNLOOP
+;		to EXIT the definition from within a DO-LOOP,
+;		call UNLOOP first to remove DO-LOOP parameters from the return stack
 ;
 ;    : EXIT ?COMP POSTPONE (EXIT) ; IMMEDIATE
 
@@ -7427,6 +7489,7 @@ undef:		push de			; save TOS
 
 ;+ S\"		"ccc<quote>" -- ; -- c-addr u
 ;		leave string "ccc" (compiled and interpreted);
+;		"ccc" may include \-escape codes translated by the S\>S word;
 ;		truncates string to 255 characters long when excessive
 ;
 ;    : S\" '" PARSE S\>S SDUP ; IMMEDIATE
@@ -7535,7 +7598,7 @@ undef:		push de			; save TOS
 		inc hl			; hl++
 		jr 10$			; goto store translated code in a
 		; get translated code from table
-9$:		cp a,'m			; test if a = 'm' 
+9$:		cp a,'m			; test if a = 'm'
 		ld a,(hl)		; [hl'] -> a with translated code
 		exx			;
 		EINT			;
@@ -8119,33 +8182,33 @@ loop_counter:	ld e,(hl)		;
 ;
 ;		code | error
 ;		---- | ---------------------------------------------------------
-;		-1   | ABORT
-;		-2   | ABORT"
-;		-3   | stack overflow
-;		-4   | stack underflow
-;		-5   | return stack overflow
-;		-6   | return stack underflow
-;		-8   | dictionary overflow
-;		-10  | division by zero
-;		-11  | result out of range
-;		-13  | undefined word
-;		-14  | interpreting a compile-only word
-;		-15  | invalid FORGET
-;		-16  | attempt to use zero-length string as a name
-;		-18  | parsed string overflow
-;		-19  | definition name too long
-;		-22  | control structure mismatch
-;		-24  | invalid numeric argument
-;		-28  | user interrupt (BREAK was pressed)
-;		-32  | invalid name argument (invalid TO name)
-;		-36  | invalid file position
-;		-37  | file I/O exception
-;		-38  | non-existent file
-;		-39  | unexpected end of file
-;		-42  | floating-point divide by zero
-;		-43  | floating-point result out of range
-;		-46  | floating-point invalid argument
-;		-56  | QUIT
+;		  -1 | ABORT
+;		  -2 | ABORT"
+;		  -3 | stack overflow
+;		  -4 | stack underflow
+;		  -5 | return stack overflow
+;		  -6 | return stack underflow
+;		  -8 | dictionary overflow
+;		 -10 | division by zero
+;		 -11 | result out of range
+;		 -13 | undefined word
+;		 -14 | interpreting a compile-only word
+;		 -15 | invalid FORGET
+;		 -16 | attempt to use zero-length string as a name
+;		 -18 | parsed string overflow
+;		 -19 | definition name too long
+;		 -22 | control structure mismatch
+;		 -24 | invalid numeric argument
+;		 -28 | user interrupt (BREAK was pressed)
+;		 -32 | invalid name argument (invalid TO name)
+;		 -36 | invalid file position
+;		 -37 | file I/O exception
+;		 -38 | non-existent file
+;		 -39 | unexpected end of file
+;		 -42 | floating-point divide by zero
+;		 -43 | floating-point result out of range
+;		 -46 | floating-point invalid argument
+;		 -56 | QUIT
 ;		-256 | execution of an uninitialized deferred word
 ;
 ;		code | MSX error = code + 256
@@ -8313,7 +8376,8 @@ loop_counter:	ld e,(hl)		;
 
 		CODE ABORT,abort
 		ld a,-1			;
-throw_a:	ld e,a			;
+throw_a:	push de			; save TOS
+		ld e,a			;
 throw_e:	ld d,-1			; set TOS to negative error code in a
 		jr throw		; THROW
 bios_throw_e:	; restore ix and iy when changed by BIOS/BDOS call that causes an exception

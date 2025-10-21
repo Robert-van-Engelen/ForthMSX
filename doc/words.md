@@ -166,19 +166,26 @@ leave address of the PAD;
 the PAD is a free buffer space of 256 bytes not used by Forth
 
 ___
-### TIB
-_-- c-addr u_
-
-leave c-addr of the terminal input buffer (TIB) and buffer size u;
-the terminal input buffer of 256 bytes is used by Forth;
-
-___
 ### TMP
 _-- c-addr_
 
-leave address of the next temp string buffer;
+leave address of the next temporary string buffer;
 switches between two string buffers of 256 free bytes each;
 used by SDUP, WORD and S" to store a string when interpreting
+
+___
+### TIB
+_-- c-addr_
+
+leave c-addr of the terminal input buffer;
+held by SOURCE with input length;
+used by the Forth interpreter
+
+___
+### #IB
+_-- u_
+
+the allocated size of TIB and FIB
 
 ___
 ### DROP
@@ -1147,9 +1154,9 @@ ___
 ### SEARCH
 _c-addr1 u1 c-addr2 u2 -- c-addr3 u3 flag_
 
-true if the second string is in the first;
-leaves matching address, remaining length and true;
-or leaves the first string and false
+true if the first string contains the second string;
+leaves matching address, remaining length, and TRUE;
+or leaves the first string and FALSE
 
 ___
 ### CMOVE
@@ -1314,23 +1321,23 @@ code | effect
   31 | cursor down (does not scroll)
  127 | DEL delete character
 
-ESC code | effect
--------- | -----------------------------------------------------
-ESC j    | clear screen and home
-ESC E    | clear screen and home
-ESC K    | clear to end of line
-ESC J    | clear to end of screen
-ESC l    | clear line
-ESC L    | insert line
-ESC M    | delete line
-ESC Y    | set cursor coordinates, follow by row column bytes
-ESC A    | cursor up, does not scroll
-ESC B    | cursor down, does not scroll
-ESC C    | cursor right, wraps if the logical line of text wraps
-ESC D    | cursor left, does not wrap
-ESC H    | cursor home
-ESC x    | change cursor, follow by '4' (block) or '5' (disable)
-ESC y    | change cursor, follow by '4' (under) or '5' (Enable)
+codes | effect
+----- | -----------------------------------------------------
+ESC j | clear screen and home
+ESC E | clear screen and home
+ESC K | clear to end of line
+ESC J | clear to end of screen
+ESC l | clear line
+ESC L | insert line
+ESC M | delete line
+ESC Y | set cursor coordinates, follow by row column bytes
+ESC A | cursor up, does not scroll
+ESC B | cursor down, does not scroll
+ESC C | cursor right, wraps if the logical line of text wraps
+ESC D | cursor left, does not wrap
+ESC H | cursor home
+ESC x | change cursor, follow by '4' (block) or '5' (disable)
+ESC y | change cursor, follow by '4' (under) or '5' (enable)
 
 ___
 ### PAGE
@@ -1538,7 +1545,7 @@ ___
 _-- x_
 
 check for key press and return the code of the key;
-0x00 = no key pressed
+0 = no key pressed
 
 ___
 ### KEY-CLEAR
@@ -1607,9 +1614,9 @@ ___
 ### SOURCE
 _-- c-addr u_
 
-double value with input source
+double value with input source buffer and input length
 
-    TIB DROP 0 2VALUE SOURCE
+    TIB 0 2VALUE SOURCE
 
 ___
 ### RESTORE-INPUT
@@ -1639,7 +1646,7 @@ leaves FALSE when the end of input (end of file) is reached
 
     : REFILL
       SOURCE-ID INVERT DUP IF
-        TIB OVER SWAP
+        TIB DUP #IB
         ACCEPT
         TO SOURCE
         >IN OFF
@@ -1648,14 +1655,13 @@ leaves FALSE when the end of input (end of file) is reached
     : REFILL
       SOURCE-ID INVERT DUP IF
         SOURCE-ID ?DUP IF
-          FIB OVER SWAP SOURCE-ID
-          READ-LINE 0= AND 0= IF
+          GET-LINE 0= AND 0= IF
             2DROP DROP FALSE
             EXIT
           THEN
           1 +TO #IN
         ELSE
-          TIB OVER SWAP
+          TIB DUP #IB
           ACCEPT
           0 TO #IN
         THEN
@@ -2120,7 +2126,8 @@ ___
 _--_
 
 exit colon definition;
-to EXIT the definition from within a DO-LOOP, first call UNLOOP
+to EXIT the definition from within a DO-LOOP,
+call UNLOOP first to remove DO-LOOP parameters from the return stack
 
     : EXIT ?COMP POSTPONE (EXIT) ; IMMEDIATE
 
@@ -2383,6 +2390,7 @@ ___
 _"ccc&lt;quote&gt;" -- ; -- c-addr u_
 
 leave string "ccc" (compiled and interpreted);
+"ccc" may include \-escape codes translated by the S\>S word;
 truncates string to 255 characters long when excessive
 
     : S\" '" PARSE S\>S SDUP ; IMMEDIATE
@@ -2620,33 +2628,33 @@ list of Forth errors:
 
 code | error
 ---- | ---------------------------------------------------------
--1   | ABORT
--2   | ABORT"
--3   | stack overflow
--4   | stack underflow
--5   | return stack overflow
--6   | return stack underflow
--8   | dictionary overflow
--10  | division by zero
--11  | result out of range
--13  | undefined word
--14  | interpreting a compile-only word
--15  | invalid FORGET
--16  | attempt to use zero-length string as a name
--18  | parsed string overflow
--19  | definition name too long
--22  | control structure mismatch
--24  | invalid numeric argument
--28  | user interrupt (BREAK was pressed)
--32  | invalid name argument (invalid TO name)
--36  | invalid file position
--37  | file I/O exception
--38  | non-existent file
--39  | unexpected end of file
--42  | floating-point divide by zero
--43  | floating-point result out of range
--46  | floating-point invalid argument
--56  | QUIT
+  -1 | ABORT
+  -2 | ABORT"
+  -3 | stack overflow
+  -4 | stack underflow
+  -5 | return stack overflow
+  -6 | return stack underflow
+  -8 | dictionary overflow
+ -10 | division by zero
+ -11 | result out of range
+ -13 | undefined word
+ -14 | interpreting a compile-only word
+ -15 | invalid FORGET
+ -16 | attempt to use zero-length string as a name
+ -18 | parsed string overflow
+ -19 | definition name too long
+ -22 | control structure mismatch
+ -24 | invalid numeric argument
+ -28 | user interrupt (BREAK was pressed)
+ -32 | invalid name argument (invalid TO name)
+ -36 | invalid file position
+ -37 | file I/O exception
+ -38 | non-existent file
+ -39 | unexpected end of file
+ -42 | floating-point divide by zero
+ -43 | floating-point result out of range
+ -46 | floating-point invalid argument
+ -56 | QUIT
 -256 | execution of an uninitialized deferred word
 
 code | MSX error = code + 256
@@ -3026,12 +3034,12 @@ _-- c-addr_
 last used drive letter, the default drive when none is specified explicitly, initially drive A
 
 ___
-### FCX
+### FXB
 _-- addr_
 
 array of FCB+FIB per open file
 
-    CREATE FCX 37 FCBN * ALLOT
+    CREATE FXB 37 4 + #IB + FCBN * ALLOT
 
 ___
 ### S>FCB
@@ -3050,7 +3058,7 @@ may throw -204 "bad file number" when max files are in use
       THEN
       (FCB)
       DUP 37 ERASE
-      DUP 12 BLANK 
+      DUP 12 BLANK
       \ c-addr u fcb-addr
       \ set drive number
       DRV $1f AND OVER C!
@@ -3084,10 +3092,10 @@ may throw -204 "bad file number" when max files are in use
 
 ___
 ### FIB
-_fileid -- c-addr u_
+_fileid -- c-addr_
 
-the file input buffer of size u associated with fileid;
-used by INCLUDE-FILE, INCLUDE, INCLUDED, otherwise free to use
+the file input buffer associated with fileid;
+used by INCLUDE-FILE, INCLUDE, INCLUDED
 
 ___
 ### BIN
@@ -3154,32 +3162,69 @@ to read a single character to a cell on the stack: 0 SP@ 1 fileid READ-FILE -- c
 
 
 ___
+### GET-LINE
+_fileid -- c-addr u flag ior_
+
+sequentially read next line from fileid data buffered in FIB;
+leaves c-addr and length u (without terminating CR/LF) and flag TRUE;
+leaves flag FALSE when u is zero and EOF is reached;
+ior is nonzero when an error occurred, use GET-LINE 0= AND 0= which is TRUE for EOF or error
+does not support REPOSITION-FILE except for position zero to rewind
+
+    : GET-LINE
+      DUP FILE-POSITION DROP D0= IF \ at start of file
+        DUP FIB 2- DUP OFF 2- OFF \ reset len and pos
+      THEN
+      DUP FIB DUP 2- DUP @ SWAP 2- @ SWAP \ -- fileid fib len pos
+      OVER UMIN /STRING        \ -- fileid fib+pos len-pos
+      TUCK                     \ -- fileid len-pos fib+pos len-pos
+      10 CHOP                  \ -- fileid len-pos fib+pos u
+      ROT                      \ -- fileid fib+pos u len-pos
+      OVER = IF                \ CHOPed no LF as u=len-pos
+        2>R DUP FIB R> 2DUP R> -ROT \ -- fileid fib u fib+pos fib u
+        CMOVE                  \ move fib+pos to fib u bytes
+        TUCK                   \ -- fileid u fib u
+        #IB SWAP               \ -- fileid u fib #ib u
+        /STRING                \ -- fileid u fib+u #ib-u
+        3 PICK READ-FILE ?DUP IF \ no more data
+          >R                   \ -- fileid u u2
+          +                    \ -- fileid u+u2
+          SWAP FIB SWAP        \ -- fib u+u2
+          FALSE R>
+          DUP 2/ 0= IF         \ ior is 0 or 1
+            2DROP DUP 0= 0= 0  \ -- fib u+u2 flag 0
+          THEN
+          EXIT
+        THEN                   \ -- fileid u u2
+        +                      \ -- fileid u+u2
+        OVER FIB               \ --fileid u+u2 fib
+        2DUP 2- DUP OFF 2- !   \ set len to u+u2 and pos to 0
+        SWAP                   \ -- fileid fib len
+        10 CHOP
+      THEN                     \ -- fileid fib+pos u
+      ROT FIB                  \ -- fib+pos u fib
+      OVER 1+ SWAP 2- +!       \ increment pos by u+1 -- fib+pos u
+      13 -TRIM TRUE 0
+    ;
+
+___
 ### READ-LINE
 _c-addr u1 fileid -- u2 flag ior_
 
-read a line into buffer c-addr of size u1 from fileid;
+sequentially read a line into buffer c-addr of size u1 from fileid;
 leaves number u2 of bytes read into the buffer (without terminating CR/LF) and flag TRUE;
 leaves flag FALSE when u2 is zero and EOF is reached;
-ior is nonzero when an error occurred, use READ-LINE 0= AND 0= which is TRUE for EOF or error
+ior is nonzero when an error occurred, use READ-LINE 0= AND 0= which is TRUE for EOF or error;
+does not support REPOSITION-FILE except for position zero to rewind
 
     : READ-LINE
-      DUP FILE-POSITION DROP   \ c-addr u1 fileid ud
-      2>R                      \ c-addr u1 fileid
-      2>R R@ SWAP DUP 2R>      \ fileid c-addr c-addr u1 fileid
-      READ-FILE IF             \ fileid c-addr u2 ior
-        2DROP DROP RDROP RDROP
-        0 FALSE 0
-        EXIT
-      THEN                     \ fileid c-addr u2
-      10 CHOP                  \ fileid c-addr u3
-      DUP 1+                   \ fileid c-addr u3 u3+1
-      2R> ROT M+               \ fileid c-addr u3 ud+u3+1
-      2>R                      \ fileid c-addr u3
-      ROT                      \ c-addr u3 fileid
-      2R> ROT                  \ c-addr u3 ud+u3+1 fileid
-      REPOSITION-FILE DROP     \ c-addr u3
-      13 -TRIM                 \ c-addr u4
-      NIP TRUE 0 ;
+      GET-LINE 2>R R@ IF
+        2DROP 2DROP 0
+      ELSE
+        2SWAP ROT UMIN DUP>R CMOVE R>
+      THEN
+      2R>
+    ;
 
 ___
 ### WRITE-FILE
@@ -3199,42 +3244,42 @@ ___
 ### FILE-POSITION
 _fileid -- ud ior_
 
-the fileid (a fcb-addr);
+for the open fileid get the current file position
 leaves file position ud and ior (always 0 for success)
 
 ___
 ### REPOSITION-FILE
 _ud fileid -- ior_
 
-for the open fileid (a fcb-addr) set the file position to ud;
+for the open fileid set the file position to ud;
 leaves ior (always 0 for success)
 
 ___
 ### FILE-SIZE
 _fileid -- ud ior_
 
-the fileid (a fcb-addr);
+for the open fileid get the size of the file;
 leaves file size ud and ior (always 0 for success)
 
 ___
 ### RESIZE-FILE
 _ud fileid -- ior_
 
-the fileid (a fcb-addr);
+rfor the open fileid esize the file to ud bytes;
 leaves ior 0 (success) or 1 (disk full) or nz (other failure)
 
 ___
 ### DELETE-FILE
 _c-addr u -- ior_
 
-delete the file with the name specified by the string c-addr u;
+delete the file with the name string c-addr u;
 leaves ior 0 (success) or nz (failure)
 
 ___
 ### RENAME-FILE
 _c-addr1 u1 c-addr2 u2 -- ior_
 
-rename the file with the name specified by the string c-addr1 u1 to c-addr2 u2;
+rename the file with the name string c-addr1 u1 to c-addr2 u2;
 leaves ior 0 (success) or nz (failure)
 
 ___
@@ -4312,6 +4357,7 @@ word | stack
 ---- | -----
 [`!`](#!)	|		x addr --
 [`#>`](##>)	|		ud -- c-addr u
+[`#IB`](##IB)	|		-- u
 [`#IN`](##IN)	|		-- n
 [`#S`](##S)	|		ud -- 0 0
 [`#`](##)	|		ud1 -- ud2
@@ -4622,7 +4668,7 @@ word | stack
 [`S\>S`](#S\>S)	|		c-addr u -- c-addr u
 [`THEN`](#THEN)	|		-- ; C: addr orig --
 [`THROW`](#THROW)	|		0 -- or ... n -- ... n
-[`TIB`](#TIB)	|		-- c-addr u
+[`TIB`](#TIB)	|		-- c-addr
 [`TMP`](#TMP)	|		-- c-addr
 [`TO`](#TO)	|		"&lt;spaces&gt;name&lt;space&gt;" -- ; x --
 [`TRIM`](#TRIM)	|		c-addr1 u1 char -- c-addr2 u2

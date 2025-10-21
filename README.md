@@ -15,7 +15,7 @@ Run Forth in WebMSX:
     clear 100,&h8400
     bload "forth.bin",r
 
-This full ForthMSX version of standard Forth with MSX floating point math and MSX-DOS1 file access takes a little over 13K to run.
+This full ForthMSX version of standard Forth with MSX floating point math and MSX-DOS1 file access takes a little over 13K to run.  Without math and file access it is about 8K.
 
 Once you've been greeted by the Forth system, type `80 width` and ENTER to switch to 80 characters per line.  Then `words` and ENTER to list all Forth words, one screenful at a time (press a key to continue).
 
@@ -38,6 +38,12 @@ To delete all definitions loaded from a file, such as `PRIMES.FTH`, type `~prime
 If a Forth source file is changed, then reload it with `anew primes.fth` to delete all its definitions first and compile it again.
 
 Important: if you're importing updated files to disk in WebMSX, then you need to delete your old file `name.fth` first in Forth by executing `s" name.fth" delete-file .`, otherwise WebMSX adds the file to the disk with a new name with a tilde `~` and does not overwrite the old file.
+
+Another example is a help facility.  To use it, copy `HELP.FTH` and `HELP.TXT` from the [examples](examples) directory to disk A to `require help.fth`:
+
+![ForthMSX](img/forthmsx5.png)
+
+The `help` command takes (part of) a name to search in the help file to explain.
 
 Enter `bye` in Forth to exit back to BASIC.  You can return to Forth where you left off in Forth from BASIC with:
 

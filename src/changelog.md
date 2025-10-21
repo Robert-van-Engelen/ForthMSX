@@ -90,6 +90,14 @@
 
 - fix `SEARCH` word when second string is empty and when substrings do not match but are the same length
 
+- break with STOP waits until STOP release, required as in Forth500/Forth850
+
+- changed TIB and FIB words, add new #IB word that returns the TIB.FIB input buffer size
+
+- add new `GET-LINE` word that is 5 times faster (!) than old `READ-LINE` to read lines of input from a file, now buffers the input in the FIB (file input buffer) with extra len and pos parameters stored in FCB+FIB per file; updated `READ-LINE` to use `GET-LINE`
+
+- add `HELP.FTH` to get help on Forth words, uses a `HELP.TXT` file with Forth word synopsis generated using help.sh from forth.asm
+
 ### v1.0
 
 ## TODO

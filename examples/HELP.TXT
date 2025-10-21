@@ -1,0 +1,1121 @@
+=0 ( -- 0 )
+leave constant 0
+=1 ( -- 1 )
+leave constant 1
+=2 ( -- 2 )
+leave constant 2
+=3 ( -- 3 )
+leave constant 3
+=-1 ( -- -1 )
+leave constant -1
+=FALSE ( -- 0 )
+leave 0
+=TRUE ( -- -1 )
+leave -1
+=BL ( -- 32 )
+leave constant 32 (space)
+=PAD ( -- c-addr )
+leave address of the PAD;
+the PAD is a free buffer space of 256 bytes not used by Forth
+=TMP ( -- c-addr )
+leave address of the next temporary string buffer;
+switches between two string buffers of 256 free bytes each;
+used by SDUP, WORD and S" to store a string when interpreting
+=TIB ( -- c-addr )
+leave c-addr of the terminal input buffer;
+held by SOURCE with input length;
+used by the Forth interpreter
+=#IB ( -- u )
+the allocated size of TIB and FIB
+=DROP ( x -- )
+drop TOS
+=DUP ( x -- x x )
+duplicate TOS
+=?DUP ( x -- x x or 0 -- 0 )
+duplicate TOS if nonzero
+=SWAP ( x1 x2 -- x2 x1 )
+swap TOS with 2OS
+=OVER ( x1 x2 -- x1 x2 x1 )
+copy 2OS over TOS
+=ROT ( x1 x2 x3 -- x2 x3 x1 )
+rotate cells
+=-ROT ( x1 x2 x3 -- x3 x1 x2 )
+undo (or back, or left) rotate cells, or ROT twice
+=NIP ( x1 x2 -- x2 )
+nip 2OS
+=TUCK ( x1 x2 -- x2 x1 x2 )
+tuck TOS under 2OS
+=2DROP ( xd1 xd2 -- xd1 )
+drop double TOS
+=2DUP ( xd -- xd xd )
+duplicate double TOS
+=2SWAP ( xd1 xd2 -- xd2 xd1 )
+swap double TOS with double 2OS
+=2OVER ( xd1 xd2 -- xd1 xd2 xd1 )
+copy double 2OS over double TOS
+=2ROT ( xd1 xd2 xd3 -- xd2 xd3 xd1 )
+rotate double cells
+=PICK ( xu ... x0 u -- xu ... x0 xu )
+pick u'th cell from the parameter stack;
+0 PICK is the same as DUP;
+1 PICK is the same as OVER
+=ROLL ( xu x(u+1) ... x1 x0 u -- x(u+1) ... x1 x0 xu )
+roll u cells on the parameter stack,
+where u < 128 (u is not checked, using u modulo 128 for safety);
+0 ROLL does nothing;
+1 ROLL is the same as SWAP;
+2 ROLL is the same as ROT
+=DEPTH ( -- u )
+parameter stack depth
+=CLEAR ( ... -- )
+purge parameter stack
+=SP@ ( -- addr )
+fetch stack pointer, leave addr of the TOS cell (the TOS before SP@)
+=SP! ( addr -- )
+store stack pointer
+=.S ( -- )
+display parameter stack
+=>R ( x -- ; R: -- x )
+move TOS to the return stack
+=DUP>R ( x -- x ; R: -- x )
+duplicate TOS to the return stack, a single word for DUP >R
+=R> ( R: x -- ; -- x )
+move cell from the return stack
+=RDROP ( R: x -- ; -- )
+drop cell from the return stack, a single word for R> DROP
+=R@ ( R: x -- x ; -- x )
+fetch cell from the return stack
+=2>R ( x1 x2 -- ; R: -- x1 x2 )
+move double TOS to the return stack, a single word for SWAP >R >R
+=2R> ( R: x1 x2 -- ; -- x1 x2 )
+move double cell from the return stack, a single word for R> R> SWAP
+=2R@ ( R: x1 x2 -- x1 x2 ; -- x1 x2 )
+fetch double cell from the return stack, a single word for R> R@ SWAP DUP R>
+=N>R ( n*x n -- ; R: -- n*x n )
+move n cells to the return stack;
+where n < 127 (u is not checked, using n modulo 128 for safety);
+no stack under/overflow checking
+=NR> ( R: n*x n -- ; -- n*x n )
+move n cells from the return stack;
+where n < 127 (u is not checked, using n modulo 128 for safety);
+no stack under/overflow checking
+=RP@ ( -- addr )
+fetch return stack pointer
+=RP! ( addr -- )
+store return stack pointer
+=?RP ( -- )
+check return stack pointer for under- and overflow,
+available only when assembled with the SAVR assembly flag;
+may throw -5 "return stack overflow" or -6 "return stack underflow"
+=C@ ( c-addr -- char )
+fetch char
+=@ ( addr -- x )
+fetch from cell
+=2@ ( addr -- x1 x2 )
+fetch from double cell
+=C! ( char c-addr -- )
+store char in c-addr
+=! ( x addr -- )
+store in cell
+=2! ( x1 x2 addr -- )
+store in double cell
+=+! ( n addr -- )
+increment cell
+=D+! ( d addr -- )
+increment double cell
+=ON ( addr -- )
+store TRUE (-1) in cell
+=OFF ( addr -- )
+store FALSE (0) in cell
+=+ ( n1 n2 -- n3 )
+sum n1+n2
+=M+ ( d1 n -- d2 )
+double sum d1+n
+=D+ ( d1 d2 -- d3 )
+double sum d1+d2
+=- ( n1 n2 -- n3 )
+difference n1-n2
+=D- ( d1 d2 -- d3 )
+double difference d1-d2
+=UM* ( u1 u2 -- ud )
+unsigned double product u1*u2
+=M* ( n1 n2 -- d )
+signed double product n1*n2
+=* ( n1|u1 n2|u2 -- n3|u3 )
+signed and unsigned product n1*n2
+=UMD* ( ud1 u -- ud2 )
+unsigned double product ud1*u
+=UM/MOD ( ud u1 -- u2 u3 )
+unsigned remainder and quotient ud/u1;
+the result is undefined when u1 = 0
+=SM/REM ( d1 n1 -- n2 n3 )
+symmetric remainder and quotient d1/n1 rounded towards zero;
+the result is undefined when n1 = 0
+=FM/MOD ( d1 n1 -- n2 n3 )
+floored signed modulus and quotient d1/n1 rounded towards negative (floored);
+the result is undefined when n1 = 0
+=/MOD ( n1 n2 -- n3 n4 )
+symmetric remainder and quotient n1/n2;
+the result is undefined when n2 = 0
+=MOD ( n1 n2 -- n3 )
+symmetric remainder of n1/n2;
+the result is undefined when n2 = 0
+=/ ( n1 n2 -- n3 )
+quotient n1/n2;
+the result is undefined when n2 = 0
+=*/MOD ( n1 n2 n3 -- n4 n5 )
+product with symmetric remainder and quotient n1*n2/n3;
+the result is undefined when n3 = 0
+=*/ ( n1 n2 n3 -- n4 )
+product with quotient n1*n2/n3;
+the result is undefined when n3 = 0
+=UM*/MOD ( ud1 u1 u2 -- u3 ud2 )
+unsigned double product and quotient ud1*u1/u2 with single remainder u3,
+with intermediate triple-cell product;
+the result is undefined when u2 = 0
+=M*/ ( d1 n1 n2 -- d2 )
+double product with quotient d1*n1/n2,
+with intermediate triple-cell product;
+the result is undefined when n2 = 0
+=MD* ( d1 n -- d2 )
+signed double product d1*n with a single
+=D* ( d1|ud1 d2|ud2 -- d3|ud3 )
+signed and unsigned double product d1*d2;
+the result overflows when d1 and d2 are too large;
+use MD* for signed double product d*n with a single;
+use UMD* for unsigned double product ud*u with a single;
+=UMD/MOD ( ud1 u1 -- u2 ud2 )
+unsigned remainder and unsigned double quotient ud1/u1;
+the result is undefined when u1 = 0;
+=UD/MOD ( ud1 ud2 -- ud3 ud4 )
+unsigned double remainder and quotient ud1/ud2;
+the result is undefined when ud2 = 0
+=D/MOD ( d1 d2 -- d3 d4 )
+double symmetric remainder and quotient d1/d2;
+the result is undefined when d2 = 0
+=DMOD ( d1 d2 -- d3 )
+double symmetric remainder of d1/d2;
+the result is undefined when d2 = 0
+=D/ ( d1 d2 -- d3 )
+double quotient d1/d2;
+the result is undefined when d2 = 0
+=AND ( x1 x2 -- x1&x2 )
+bitwise and x1 with x2
+=OR ( x1 x2 -- x1|x2 )
+bitwise or x1 with x2
+=XOR ( x1 x2 -- x1^x2 )
+bitwise xor x1 with x2
+== ( x1 x2 -- flag )
+true if x1 = x2
+=<> ( x1 x2 -- flag )
+true if x1 <> x2
+=< ( n1 n2 -- flag )
+true if n1 < n2 signed
+=> ( n1 n2 -- flag )
+true if n1 > n2 signed
+=U< ( u1 u2 -- flag )
+true if u1 < u2 unsigned
+=U> ( u1 u2 -- flag )
+true if u1 > u2 unsigned
+=0= ( x -- flag )
+true if x = 0;
+also serves as a logical NOT
+=0< ( n -- flag )
+true if n < 0
+=D0= ( dx -- flag )
+true if dx = 0
+=D0< ( d -- flag )
+true if d < 0
+=S>D ( n -- d )
+widen single to double
+=D>S ( d -- n )
+narrow double to single;
+may throw -11 "result out of range" valid range is -32768 to 65535
+=D= ( d1 d2 -- flag )
+true if d1 = d2
+=D< ( d1 d2 -- flag )
+true if d1 < d2
+=DU< ( du1 du2 -- flag )
+true if ud1 < ud2
+=MAX ( n1 n2 -- n3 )
+signed max of n1 and n2
+=MIN ( n1 n2 -- n3 )
+signed min of n1 and n2
+=UMAX ( u1 u2 -- u3 )
+unsigned max of u1 and u2
+=UMIN ( u1 u2 -- u3 )
+unsigned min of u1 and u2
+=DMAX ( d1 d2 -- d3 )
+signed double max of d1 and d2
+=DMIN ( d1 d2 -- d3 )
+signed double min of d1 and d2
+=WITHIN ( x1 x2 x3 -- flag )
+true if x1 is within x2 up to x3 exclusive
+=INVERT ( x1 -- x2 )
+one's complement ~x1
+=NEGATE ( n1 -- n2 )
+two's complement -n1
+=ABS ( n1 -- n2 )
+absolute value |n1|
+=DNEGATE ( d1 -- d2 )
+two's complement -d1
+=DABS ( d1 -- d2 )
+absolute value |d1|
+=LSHIFT ( x1 u -- x2 )
+logical shift left x1 << u
+=RSHIFT ( x1 u -- x2 )
+logical shift right x1 >> u
+=1+ ( n1 -- n2 )
+increment n1+1
+=2+ ( n1 -- n2 )
+increment n1+2
+=1- ( n1 -- n2 )
+decrement n1-1
+=2- ( n1 -- n2 )
+decrement n1-2
+=2* ( n1 -- n2 )
+arithmetic shift left n1 << 1
+=2/ ( n1 -- n2 )
+arithmetic shift right n1 >> 1
+=D2* ( d1 -- d2 )
+arithmetic shift left d1 << 1
+=D2/ ( d1 -- d2 )
+arithmetic shift right d1 >> 1
+=CELL+ ( addr -- addr )
+increment to next cell
+=CELLS ( n1 -- n2 )
+convert to cell unit
+=CHAR+ ( n1 -- n1 )
+increment to next char
+=CHARS ( n1 -- n2 )
+convert to char unit (does nothing as chars are bytes)
+=FTRUNC ( r1 -- r2 )
+truncate float towards zero
+=FLOOR ( r1 -- r2 )
+floor float towards negative infinity
+=FNEGATE ( r1 -- r2 )
+negate float
+=FABS ( r1 -- r2 )
+absolute value |r1|
+=FSQRT ( r1 -- r2 )
+take the square root of r1
+=FSIN ( r1 -- r2 )
+sine of float in radian
+=FCOS ( r1 -- r2 )
+cosine of float in radian
+=FTAN ( r1 -- r2 )
+tangent of float in radian
+=FATAN ( r1 -- r2 )
+arc tangent of float, in radian
+=FRAND ( r1 -- r2 )
+if r1 is positive, then leave new random number from 0 to 1 exclusive;
+if r1 is zero, then leave the last random number;
+if r1 is negative, then seed the random number using r1
+=F+ ( r1 r2 -- r3 )
+sum r1+r2
+=F- ( r1 r2 -- r3 )
+difference r1-r2
+=F* ( r1 r2 -- r3 )
+product r1*r2
+=F/ ( r1 r2 -- r3 )
+quotient r1/r2
+=F** ( r1 r2 -- r3 )
+raise r1 to r2
+=FASIN ( r1 -- r2 )
+arc sine of float, in radian
+=FACOS ( r1 -- r2 )
+arc cosine of float, in radian
+=FATAN2 ( r1 r2 -- r3 )
+atan2(r1,r2) = atan(r1/r2) but using a more accurate formulation
+=PI ( -- r )
+floating-point constant pi
+=PI/2 ( -- r )
+floating-point constant pi/2 (half pi)
+=FLN ( r1 -- r2 )
+natural log of float
+=FEXP ( r1 -- r2 )
+natural exponent of float
+=FLOG ( r1 -- r2 )
+base 10 log of float
+=FALOG ( r1 -- r2 )
+base 10 exponent of float
+=FSINH ( r1 -- r2 )
+sine hyperbolicus of float
+=FCOSH ( r1 -- r2 )
+cosine hyperbolicus of float
+=FTANH ( r1 -- r2 )
+tangent hyperbolicus of float
+=FASINH ( r1 -- r2 )
+arc sine hyperbolicus of float
+=FACOSH ( r1 -- r2 )
+arc cosine hyperbolicus of float
+=FATANH ( r1 -- r2 )
+arc tangent hyperbolicus of float
+=F= ( r1 r2 -- flag )
+true if r1 = r2
+=F< ( r1 r2 -- flag )
+true if r1 < r2
+=F0= ( r -- flag )
+true if r = 0.0e0
+=F0< ( r -- flag )
+true if r < 0.0e0
+=FMAX ( r1 r2 -- r3 )
+max of r1 and r2
+=FMIN ( r1 r2 -- r3 )
+min of r1 and r2
+=D>F ( d -- r )
+widen signed double to float;
+this word is much slower than the optimized S>F
+=S>F ( n -- r )
+widen signed single to float
+=F>D ( r -- d )
+narrow float to a signed double;
+may throw -11 "result out of range";
+this word is much slower than the optimized F>S
+=F>S ( r -- n )
+narrow float to a signed single;
+may throw -11 "result out of range" or -250 "numeric overflow"
+=>FLOAT ( c-addr u -- r true | false )
+convert string to float;
+leaves the float and true if string is converted;
+leaves false if string is unconvertable;
+=REPRESENT ( r c-addr u -- n flag true )
+convert float to string;
+store decimal digits of the float in buffer c-addr with size u > 0;
+leaves decimal exponent n+1 and flag = true if negative
+=PRECISION ( -- +n )
+floating-point output precision, the number of decimal digits displayed is 6 by default
+=FS. ( r -- )
+output float in scientific notation with a trailing space
+=F. ( r -- )
+output float with a trailing space;
+output fixed notation when 1e-1 <= |r| < 1e+7, otherwise output scientific notation;
+beware that non-scientific output cannot be copy-pasted back into input,
+as floating-point literals require an exponent
+=DRV ( -- c-addr )
+last used drive letter, the default drive when none is specified explicitly, initially drive A
+=FXB ( -- addr )
+array of FCB+FIB per open file
+=S>FCB ( c-addr u -- addr )
+store the filename string of the form [D:]FILENAME[.EXT] in a new FCB;
+wildcard '?' matches any character when used in FILENAME and EXT;
+wildcard '*' matches any sequence of characters, at most one '*' may be used in FILENAME and in EXT;
+may throw -204 "bad file number" when max files are in use
+=FIB ( fileid -- c-addr )
+the file input buffer associated with fileid;
+used by INCLUDE-FILE, INCLUDE, INCLUDED
+=BIN ( fam -- fam )
+CREATE-FILE and OPEN-FILE mode fam;
+note: files are always treaded as binary
+=W/O ( -- fam )
+CREATE-FILE and OPEN-FILE mode fam
+=R/O ( -- fam )
+CREATE-FILE and OPEN-FILE mode fam
+=R/W ( -- fam )
+CREATE-FILE and OPEN-FILE mode fam
+=CREATE-FILE ( c-addr u fam -- fileid ior )
+create a new file given by the filename string c-addr u, where fam is R/W, R/O or W/O;
+if the file already exists, then it is truncated to zero length;
+leaves fileid (a fcb-addr) and ior 0 (success) or -203 (failure)
+=OPEN-FILE ( c-addr u fam -- fileid ior )
+open a file or device given by the filename string c-addr u, where fam is R/W, R/O or W/O;
+leaves fileid (a fcb-addr) and ior 0 (success) or -203 (failure);
+filename format: [D:]FILENAME[.EXT] where D: becomes the default drive when specified;
+device names are AUX, CON, LST, NUL, and PRN without a drive specified
+=CLOSE-FILE ( fileid -- ior )
+close file with fileid (a fcb-addr);
+leaves ior 0 (success) or -197 (failure)
+=CLOSE-FILES ( -- )
+close all open files
+=READ-FILE ( c-addr u1 fileid -- u2 ior )
+read into buffer c-addr of size u1 from fileid (a fcb-addr);
+leaves number u2 of bytes read into the buffer and ior 0 (success) or 1 (u2 is zero and eof) or nz (other failure)
+to read a single character to a cell on the stack: 0 SP@ 1 fileid READ-FILE -- char 0|1 ior
+=GET-LINE ( fileid -- c-addr u flag ior )
+sequentially read next line from fileid data buffered in FIB;
+leaves c-addr and length u (without terminating CR/LF) and flag TRUE;
+leaves flag FALSE when u is zero and EOF is reached;
+ior is nonzero when an error occurred, use GET-LINE 0= AND 0= which is TRUE for EOF or error
+does not support REPOSITION-FILE except for position zero to rewind
+=READ-LINE ( c-addr u1 fileid -- u2 flag ior )
+sequentially read a line into buffer c-addr of size u1 from fileid;
+leaves number u2 of bytes read into the buffer (without terminating CR/LF) and flag TRUE;
+leaves flag FALSE when u2 is zero and EOF is reached;
+ior is nonzero when an error occurred, use READ-LINE 0= AND 0= which is TRUE for EOF or error;
+does not support REPOSITION-FILE except for position zero to rewind
+=WRITE-FILE ( c-addr u1 fileid -- ior )
+write buffer c-addr of size u1 to fileid (a fcb-addr);
+leaves ior 0 (success) or 1 (disk full) or nz (other failure)
+=WRITE-LINE ( c-addr u1 fileid -- ior )
+write buffer c-addr of size u1 to fileid (a fcb-addr) followed by a CR/LF pair;
+leaves ior 0 (success) or 1 (disk full)
+=FILE-POSITION ( fileid -- ud ior )
+for the open fileid get the current file position
+leaves file position ud and ior (always 0 for success)
+=REPOSITION-FILE ( ud fileid -- ior )
+for the open fileid set the file position to ud;
+leaves ior (always 0 for success)
+=FILE-SIZE ( fileid -- ud ior )
+for the open fileid get the size of the file;
+leaves file size ud and ior (always 0 for success)
+=RESIZE-FILE ( ud fileid -- ior )
+rfor the open fileid esize the file to ud bytes;
+leaves ior 0 (success) or 1 (disk full) or nz (other failure)
+=DELETE-FILE ( c-addr u -- ior )
+delete the file with the name string c-addr u;
+leaves ior 0 (success) or nz (failure)
+=RENAME-FILE ( c-addr1 u1 c-addr2 u2 -- ior )
+rename the file with the name string c-addr1 u1 to c-addr2 u2;
+leaves ior 0 (success) or nz (failure)
+=INCLUDE-FILE ( ... fileid -- ... )
+read and interpret Forth source code from fileid;
+fileid is closed afterwards
+=INCLUDED ( ... c-addr u -- ... )
+read and interpret Forth source code from the file named by the string c-addr u
+=INCLUDE ( ... "<spaces>name<space>" -- ... )
+read and interpret Forth source code from file "name"
+=REQUIRED ( ... c-addr u -- ... )
+read and interpret Forth source code from the file named by the string c-addr u,
+if the file was not already included;
+this also adds file name as a MARKER with a leading '~' to the dictionary;
+beware of vocabulary definitions crossings
+(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
+=REQUIRE ( ... "<spaces>name<space>" -- ... )
+read and interpret Forth source code from file "name",
+if the file was not already included;
+this also adds file name with a leading '~' to the dictionary to assert inclusion;
+beware of vocabulary definitions crossings
+(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
+=ANEW ( ... "<spaces>name<space>" -- ... )
+read and interpret Forth source code from file "name",
+same as REQUIRE,
+but anew by deleting all previously included definitions from the dictionary first
+=COUNT ( c-addr1 -- c-addr2 u )
+convert counted string to string
+=COMPARE ( c-addr1 u1 c-addr2 u2 -- -1|0|1 )
+compare strings, leaves -1 = less or 0 = equal or 1 = greater
+=SEARCH ( c-addr1 u1 c-addr2 u2 -- c-addr3 u3 flag )
+true if the first string contains the second string;
+leaves matching address, remaining length, and TRUE;
+or leaves the first string and FALSE
+=CMOVE ( c-addr1 c-addr2 u -- )
+move u bytes from c-addr1 to c-addr2 (from begin going up)
+=CMOVE> ( c-addr1 c-addr2 u -- )
+move u bytes from c-addr1 to c-addr2 up (from end going down)
+=MOVE ( c-addr1 c-addr2 u -- )
+move u bytes from c-addr1 to c-addr2
+=FILL ( c-addr u char -- )
+fill memory with char
+=ERASE ( c-addr u -- )
+fill memory with zeros
+=BLANK ( c-addr u -- )
+fill memory with 0x20 (BL) chars
+=CHOP ( c-addr u1 char -- c-addr u2 )
+truncate a string up to a matching char;
+leaves the string if char not found;
+char = 0x20 (BL) chops 0x00 to 0x20 (white space and control)
+=TRIM ( c-addr1 u1 char -- c-addr2 u2 )
+trim initial chars from a string;
+char = 0x20 (BL) trims 0x00 to 0x20 (white space and control)
+=-TRIM ( c-addr u1 char -- c-addr u2 )
+trim trailing chars from a string;
+char = 0x20 (BL) trims 0x00 to 0x20 (white space and control)
+=-TRAILING ( c-addr u1 -- c-addr u2 )
+trim trailing white space and control characters from a string
+=/STRING ( c-addr1 u1 n -- c-addr2 u2 )
+slice n characters off the start of a string;
+if n is larger than u1, then u2 underflows,
+which should be avoided with OVER UMIN /STRING
+=NEXT-CHAR ( c-addr1 u1 -- c-addr2 u2 char )
+get next char from a string;
+increments the string address and decrements its length by one
+=WIDTH ( u -- )
+set text mode screen and its window width
+=MAX-XY ( -- u1 u2 )
+leave number of screen columns x as u1 and rows y as u2
+=CUR-XY ( -- u1 u2 )
+fetch cursor column x as u1 >= 0 and row y as u2 >= 0
+=AT-XY ( u1 u2 -- )
+set column x to u1 >= 0 and row y to u2 >= 0
+=OUTPUT-ID ( -- 0|fileid )
+value with 0 = console output, otherwise fileid to redirect output
+=EMIT ( char -- )
+emit char to screen or to OUTPUT-ID when set;
+list of control codes for console output:
+code | effect
+---- | ---------------------------------------------------------
+   1 | MSX graphic character header, follow by 0x40 to 0x5f
+   7 | BELL
+   8 | BS backspace
+   9 | TAB
+  10 | LF line feed
+  11 | HOME cursor home
+  12 | FF CLS clear screen and home
+  13 | CR carriage return
+  27 | ESC escape sequence (see table below)
+  28 | cursor right (wraps but does not scroll)
+  29 | cursor left (wraps but does not scroll)
+  30 | cursor up (does not scroll)
+  31 | cursor down (does not scroll)
+ 127 | DEL delete character
+codes | effect
+----- | -----------------------------------------------------
+ESC j | clear screen and home
+ESC E | clear screen and home
+ESC K | clear to end of line
+ESC J | clear to end of screen
+ESC l | clear line
+ESC L | insert line
+ESC M | delete line
+ESC Y | set cursor coordinates, follow by row column bytes
+ESC A | cursor up, does not scroll
+ESC B | cursor down, does not scroll
+ESC C | cursor right, wraps if the logical line of text wraps
+ESC D | cursor left, does not wrap
+ESC H | cursor home
+ESC x | change cursor, follow by '4' (block) or '5' (disable)
+ESC y | change cursor, follow by '4' (under) or '5' (enable)
+=PAGE ( -- )
+clear console screen
+=CR ( -- )
+emit carriage return and line feed
+=SPACE ( -- )
+emit a space
+=SPACES ( n -- )
+emit n spaces (zero or negative n does nothing)
+=TYPE ( c-addr u -- )
+type string to output or to OUTPUT-ID when set;
+string may contain control codes, see EMIT
+=BASE ( -- addr )
+variable with numeric base for conversion
+=DECIMAL ( -- )
+set BASE to 10
+=HEX ( -- )
+set BASE to 16
+=HP ( -- addr )
+hold pointer
+=<# ( -- )
+begin pictured numeric output
+=HOLD ( char -- )
+hold char for pictured numeric output
+=HOLDS ( c-addr u -- )
+hold string for pictured numeric output;
+the string size should be limited to not exceed the hold space size of 40 bytes
+=# ( ud1 -- ud2 )
+hold digit
+=#S ( ud -- 0 0 )
+hold all remaining digits
+=SIGN ( n -- )
+hold minus sign if n < 0
+=#> ( ud -- c-addr u )
+end pictured numeric output, leave string
+=D.R ( d +n -- )
+output signed double d right-aligned in field of +n chars wide
+=D. ( d -- )
+output signed double d with a trailing space
+=U.R ( u +n -- )
+output unsigned u right-aligned in field of +n chars wide
+=U. ( u -- )
+output unsigned u with a trailing space
+=.R ( n +n -- )
+output signed n right-aligned in field of +n chars wide
+=. ( n -- )
+output signed n with a trailing space
+=? ( addr -- )
+output signed cell stored at addr
+=INKEY ( -- x )
+check for key press and return the code of the key;
+0 = no key pressed
+=KEY-CLEAR ( -- )
+wait until no keys are pressed
+=KEY? ( -- flag )
+true if a key is pressed
+=KEY ( -- char )
+wait and read key from the console
+=EDIT ( c-addr +n1 n2 n3 -- c-addr +n4 )
+edit buffer c-addr;
+buffer size +n1;
+string in buffer has length n2;
+non-editable left margin n3;
+leaves c-addr and length +n4 (MSX INLIN strips first n3 characters)
+=ACCEPT ( c-addr +n1 -- +n2 )
+accept user input into buffer c-addr +n1;
+leaves length +n2
+=#IN ( -- n )
+value with line number of the input file being read from SOURCE-ID
+=>IN ( -- addr )
+variable with offset into the input buffer
+=SOURCE-ID ( -- 0|-1|fileid )
+value with 0 = console input or -1 = string input, otherwise fileid input
+=SOURCE ( -- c-addr u )
+double value with input source buffer and input length
+=RESTORE-INPUT ( ... n -- flag )
+restore input parameters from the stack;
+flag is always FALSE (success)
+=SAVE-INPUT ( -- ... n )
+save input parameters on the stack
+=REFILL ( -- flag )
+attempt to refill the input buffer;
+leaves FALSE when the end of input (end of file) is reached
+=SKIP ( char "<chars>" -- )
+skip chars in input when present, 0x20 (BL) skips 0x00 to 0x20 (white space and control)
+=PARSE ( char "ccc<char>" -- c-addr u )
+parse "ccc" up to char when present
+=PARSE-WORD ( char "<chars>ccc<char>" -- c-addr u )
+parse char-delimited word;
+may throw -18 "parsed string overflow"
+=WORD ( char "<chars>ccc<char>" -- c-addr )
+parse word as a counted string
+=CHECK-NAME ( c-addr u -- c-addr u )
+check if name is valid;
+may throw -16 "attempt to use a zero-length string as a name";
+may throw -19 "definition name too long"
+=PARSE-NAME ( "<spaces>name<space>" -- c-addr u )
+parse space-delimited name;
+check if name length is valid
+=CHAR ( "<spaces>name<space>" -- char )
+parse char
+=>DIGIT ( char -- n )
+convert char digit to numeric digit when within BASE;
+leaves -1 if char is invalid
+=>NUMBER ( ud1 c-addr1 u1 -- ud2 c-addr2 u2 )
+convert string to number;
+updates accumulated double ud1 to ud2;
+leaves string with the remaining unconvertable chars or empty
+=DBL ( -- flag )
+true if >DOUBLE or NUMBER parsed and produced a double
+=>DOUBLE ( c-addr u -- d true | false )
+convert string to signed double;
+prefixed with character $ converts hex;
+prefixed with character # converts decimal;
+prefixed with character % converts binary;
+leaves the double and true if string is converted;
+leaves false if string is unconvertable;
+sets value DBL to -1 when the number is a double;
+otherwise sets value DBL to 0
+=L>NAME ( lfa -- nt )
+convert link field address (lfa) to name token or name field address (nfa)
+=NAME>STRING ( nt -- c-addr u )
+convert name token or name field address (nfa) to string
+=NAME> ( nt -- xt )
+convert name token or name field address (nfa) to execution token or call field address (cfa)
+=>NAME ( xt -- nt )
+convert execution token or call field address (cfa) to name token or name field address (nfa);
+may throw -24 "invalid numeric argument"
+=>BODY ( xt -- addr )
+convert execution token to parameter field address (pfa)
+=FIND-WORD ( c-addr u -- c-addr 0 | xt 1 | xt -1 )
+search dictionary for matching word (case insensitive);
+leaves execution token and 1 = immediate or -1 = not immediate;
+leaves c-addr and 0 when not found
+=' ( "<spaces>name<space>" -- xt )
+parse name and search the dictionary to leave its execution token;
+may throw -13 "undefined word"
+=FIND ( c-addr -- c-addr 0 | xt 1 | xt -1 )
+search dictionary for the counted string to match a word (case insensitive);
+leaves execution token and 1 = immediate or -1 = not immediate;
+leaves c-addr and 0 when not found
+=WORDS ( -- )
+display context vocabulary words one screen full at a time
+=HERE ( -- addr )
+address of free memory after the dictionary;
+new definitions are added here;
+note that numeric output words use HERE for conversion
+=UNUSED ( -- u )
+unused dictionary space
+=LASTXT ( -- xt )
+leaves the last execution token defined
+=RECURSE ( ... -- ... )
+recursively call the currently defined word;
+may throw -14 "interpreting a compile-only word";
+recursion depth should not exceed available return stack space
+=STATE ( -- addr )
+compilation state;
+STATE @ leaves TRUE when compiling;
+STATE @ leaves FALSE when interpreting
+=[ ( -- )
+switch state to interpreting
+=] ( -- )
+switch state to compiling
+=['] ( "<spaces>name<space>" -- ; -- xt )
+compile xt of name as literal;
+may throw -14 "interpreting a compile-only word"
+=[CHAR] ( "<spaces>char" -- ; -- char )
+compile char as literal;
+note that the syntax 'char is preferred instead of this legacy word;
+may throw -14 "interpreting a compile-only word"
+=[COMPILE] ( "<space>name<space>" -- ; ... -- ... )
+compile name;
+note that POSTPONE is preferred instead of this legacy word;
+may throw -14 "interpreting a compile-only word"
+=HIDE ( -- )
+hide the last definition
+=REVEAL ( -- )
+reveal the last definition, i.e. unhide it
+=IMMEDIATE ( -- )
+make the last definition immediate
+=?COMP ( -- )
+check if compiling;
+may throw -14 "interpreting a compile-only word"
+=?SYS ( -- ; C: x -- )
+check if compiled control structure matches x;
+may throw -14 "interpreting a compile-only word";
+may throw -22 "control structure mismatch"
+=ALLOT ( n -- )
+allocate n bytes starting from HERE in the dictionary;
+undo the last ALLOT with negative n to reclaim memory,
+but beware: don't use negative n when new words were defined;
+may throw -8 "dictionary overflow"
+=COMPILE, ( xt -- )
+append execution token to dictionary;
+may throw -8 "dictionary overflow"
+=, ( x -- )
+append cell to dictionary;
+may throw -8 "dictionary overflow"
+=C, ( char -- )
+append char to dictionary;
+may throw -8 "dictionary overflow"
+=2, ( x1 x2 -- )
+append double cell to dictionary;
+may throw -8 "dictionary overflow"
+=NFA, ( c-addr u -- )
+append dictionary entry with name string;
+set LASTXT to HERE;
+may throw -8 "dictionary overflow"
+=CODE ( "<spaces>name<space>" -- )
+parse name and append dictionary entry with name to execute machine code;
+machine code should be appended to CODE definitions;
+set LASTXT to HERE;
+may throw -8 "dictionary overflow"
+=CFA, ( addr -- )
+append cfa call addr to dictionary;
+may throw -8 "dictionary overflow"
+=:CFA ( -- addr colon_sys )
+append cfa colon definition with cfa call addr to dictionary;
+make CONTEXT the CURRENT vocabulary;
+start compiling and leave HERE and colon_sys to end compiling with the ; word;
+may throw -8 "dictionary overflow"
+=CFA= ( xt1 xt2 -- flag )
+true if xt1 has a cfa equal to a call to addr xt2;
+used for introspection of
+VARIABLE, 2VARIABLE and CREATE without DOES> that leave a pfa (VAR),
+CREATE with DOES> (DOES),
+VALUE (VAL), 2VALUE (2VAL),
+CONSTANT (CON), 2CONSTANT (2CON),
+DEFER (DEF), for example:
+    3 VALUE X
+    ' X ' (VAL) CFA=
+leaves -1 (TRUE) meaning X is a VALUE which calls runtime (VAL)
+=POSTPONE ( "<spaces>name<space>" -- )
+postpone compile action of name;
+if name is immediate, then compile name instead of executing it;
+otherwise compile name into the current colon definition;
+can be used to create macros, e.g. : TRUE POSTPONE -1 ; IMMEDIATE;
+may throw -13 "undefined word";
+may throw -14 "interpreting a compile-only word"
+=BUFFER: ( n "<spaces>name<space>" -- ; -- addr )
+define buffer with n bytes;
+executing name leaves address of n bytes
+=:NONAME ( -- xt )
+colon definition without name;
+leaves the execution token of the definition to be used or saved
+=: ( -- ; C: "<spaces>name<space>" -- addr colon_sys )
+define name and start compiling
+=; ( -- ; C: addr colon_sys -- )
+end colon definition and stop compiling;
+may throw -14 "interpreting a compile-only word";
+may throw -22 "control structure mismatch"
+=EXIT ( -- )
+exit colon definition;
+to EXIT the definition from within a DO-LOOP,
+call UNLOOP first to remove DO-LOOP parameters from the return stack
+=CREATE ( "<spaces>name<space>" -- ; -- addr )
+create name;
+executing name leaves address (HERE address after CREATE)
+=DOES> ( -- ; ... -- ... )
+change CREATE name behavior to execute code after DOES>
+=VARIABLE ( "<spaces>name<space>" -- ; -- addr )
+define a variable;
+executing name leaves address of value (initialized to zero)
+=2VARIABLE ( "<spaces>name<space>" -- ; -- addr )
+define a double variable;
+executing name leaves address of double value (initialized to zero)
+=CONSTANT ( x "<spaces>name<space>" -- ; -- x )
+define a constant;
+executing name leaves x
+=2CONSTANT ( x1 x2 "<spaces>name<space>" -- ; -- x1 x2 )
+define a double constant;
+executing name leaves x1 x2
+=VALUE ( x "<spaces>name<space>" -- ; -- x )
+define a value;
+executing name leaves x
+=2VALUE ( dx "<spaces>name<space>" -- ; -- dx )
+define a double value;
+executing name leaves dx
+=TO ( "<spaces>name<space>" -- ; x -- )
+assign value name;
+may throw -32 "invalid name argument"
+=+TO ( "<spaces>name<space>" -- ; n -- )
+increment value name;
+may throw -32 "invalid name argument"
+=DEFER ( "<spaces>name<space>" -- ; ... -- ... )
+define a deferred name
+=DEFER! ( xt1 xt2 -- )
+store xt1 in deferred xt2
+=DEFER@ ( xt1 -- xt2 )
+fetch execution token from deferred xt1
+=IS ( xt "<spaces>name<space>" -- )
+assign execution token to deferred name;
+may throw -32 "invalid name argument"
+=ACTION-OF ( "<spaces>name<space>" -- xt )
+fetch execution token of deferred name;
+may throw -32 "invalid name argument"
+=LITERAL ( x -- ; -- x )
+compile a literal
+=2LITERAL ( x1 x2 -- ; -- x1 x2 )
+compile a double literal
+=SLITERAL ( c-addr u -- ; -- c-addr u )
+compile a string literal;
+max literal string length is 255
+=." ( "ccc<quote>" -- ; -- )
+type "ccc" (compiled, not interpreted)
+=C" ( "ccc<quote>" -- ; -- c-addr )
+leave counted string "ccc" (compiled, not interpreted);
+may throw -18 "parsed string overflow"
+=S" ( "ccc<quote>" -- ; -- c-addr u )
+leave string "ccc" (compiled and interpreted);
+truncates string to 255 characters long when excessive
+=S\" ( "ccc<quote>" -- ; -- c-addr u )
+leave string "ccc" (compiled and interpreted);
+"ccc" may include \-escape codes translated by the S\>S word;
+truncates string to 255 characters long when excessive
+=S\>S ( c-addr u -- c-addr u )
+convert string in place by translating \-escape codes
+code | corresponding ASCII character code
+---- | ----------------------------------------------------------
+\\   | \ backslash (92)
+\a   | BEL (7)
+\b   | BS (8)
+\e   | ESC (27)
+\f   | FF (12)
+\l   | LF (10)
+\m   | CR/LF (13 then 10)
+\n   | LF (10)
+\q   | " quote (34)
+\r   | CR (13)
+\t   | TAB (9)
+\v   | VT (11)
+\xhh | hh in hex (0xhh)
+\z   | NUL (0)
+\G   | MSX graphic character header (1) e.g. \GA
+=SDUP ( c-addr1 u -- c-addr2 u )
+duplicate string to a TMP buffer or to a string literal when compiling;
+stores the copy of the string as a counted string at c-addr2 - 1;
+truncates the copy to 255 characters long when excessive
+=I ( -- n )
+the loop counter value of innermost do-loop
+=J ( -- n )
+the loop counter value of outer (second) do-loop
+=K ( -- n )
+the loop counter value of outer (third) do-loop
+=AHEAD ( -- ; C: -- addr orig )
+branch ahead to THEN;
+may throw -14 "interpreting a compile-only word"
+=BEGIN ( -- ; C: -- addr dest )
+begin WHILE REPEAT;
+may throw -14 "interpreting a compile-only word"
+=AGAIN ( -- ; C: addr dest -- )
+branch back to BEGIN;
+may throw -14 "interpreting a compile-only word";
+may throw -22 "control structure mismatch"
+=UNTIL ( x -- ; C: addr dest -- )
+branch back to BEGIN if x = 0 (FALSE);
+may throw -14 "interpreting a compile-only word";
+may throw -22 "control structure mismatch"
+=IF ( x -- ; C: -- addr orig )
+branch to closest ELSE or THEN if x = 0 (FALSE);
+may throw -14 "interpreting a compile-only word"
+=THEN ( -- ; C: addr orig -- )
+close AHEAD, IF, ELSE;
+may throw -14 "interpreting a compile-only word";
+may throw -22 "control structure mismatch"
+=ELSE ( -- ; C: addr orig -- addr orig )
+close IF and branch to THEN;
+may throw -14 "interpreting a compile-only word";
+may throw -22 "control structure mismatch"
+=WHILE ( x -- ; C: addr sys -- addr orig addr sys )
+branch to exit REPEAT if x = 0 (FALSE);
+may throw -14 "interpreting a compile-only word"
+=REPEAT ( -- ; C: addr orig addr dest -- )
+branch back to BEGIN after WHILE;
+may throw -14 "interpreting a compile-only word";
+may throw -22 "control structure mismatch"
+=DO ( n1|u1 n2|u2 -- ; C: -- addr do_sys )
+begin loop from initial value n2|u2 to the limit n1|u1;
+loop at least once;
+pushes do-loop parameters onto the return stack;
+may throw -14 "interpreting a compile-only word"
+=?DO ( n1|u1 n2|u2 -- ; C: -- addr do_sys )
+begin loop from initial value n2|u2 to the limit n1|u1;
+pushes do-loop parameters onto the return stack;
+skip loop when zero trip loop;
+may throw -14 "interpreting a compile-only word"
+=LOOP ( -- ; C: addr do_sys -- )
+repeat loop unless loop counter crosses the limit;
+may throw -14 "interpreting a compile-only word";
+may throw -22 "control structure mismatch"
+=+LOOP ( n|u -- ; C: addr do_sys -- )
+increment counter and repeat loop unless counter crosses the limit;
+may throw -14 "interpreting a compile-only word";
+may throw -22 "control structure mismatch"
+=UNLOOP ( -- )
+remove do-loop parameters from the return stack;
+may throw -14 "interpreting a compile-only word"
+=?LEAVE ( x -- )
+if x is nonzero (not FALSE) then exit the innermost do-loop;
+may throw -14 "interpreting a compile-only word"
+=LEAVE ( -- )
+exit the innermost do-loop;
+may throw -14 "interpreting a compile-only word"
+=CASE ( x -- ; C: -- 0 )
+begin CASE ENDCASE switch;
+may throw -14 "interpreting a compile-only word"
+=OF ( x1 x2 -- x1 or x1 x2 -- ; C: n1 -- orig n2 )
+take CASE arm if x1 = x2;
+otherwise branch to next OF;
+may throw -14 "interpreting a compile-only word"
+=ENDOF ( -- ; C: n -- orig n )
+branch to ENDCASE;
+may throw -14 "interpreting a compile-only word";
+may throw -22 "control structure mismatch"
+=ENDCASE ( x -- ; C: n*orig n -- )
+close CASE;
+may throw -14 "interpreting a compile-only word";
+may throw -22 "control structure mismatch"
+=ERROR ( n -- )
+display exception n at the offending location in the input;
+n = 0 return without displaying an error message;
+n = -1 ABORT and n = -2 ABORT" also clears the parameter stack
+n = -56 QUIT stays silent;
+other errors n are displayed as <ERR-n> switched to decimal,
+a line number is included <ERR-n:line> when loading from files
+list of Forth errors:
+code | error
+---- | ---------------------------------------------------------
+  -1 | ABORT
+  -2 | ABORT"
+  -3 | stack overflow
+  -4 | stack underflow
+  -5 | return stack overflow
+  -6 | return stack underflow
+  -8 | dictionary overflow
+ -10 | division by zero
+ -11 | result out of range
+ -13 | undefined word
+ -14 | interpreting a compile-only word
+ -15 | invalid FORGET
+ -16 | attempt to use zero-length string as a name
+ -18 | parsed string overflow
+ -19 | definition name too long
+ -22 | control structure mismatch
+ -24 | invalid numeric argument
+ -28 | user interrupt (BREAK was pressed)
+ -32 | invalid name argument (invalid TO name)
+ -36 | invalid file position
+ -37 | file I/O exception
+ -38 | non-existent file
+ -39 | unexpected end of file
+ -42 | floating-point divide by zero
+ -43 | floating-point result out of range
+ -46 | floating-point invalid argument
+ -56 | QUIT
+-256 | execution of an uninitialized deferred word
+code | MSX error = code + 256
+---- | ---------------------------------------------------------
+-197 | 59 file not open
+-198 | 58 sequentual I/O only
+-200 | 56 incorrect file name
+-202 | 54 file already open
+-203 | 53 file not found
+-204 | 52 bad file number
+-236 | 20 verify error
+-231 | 25 line buffer overflow
+-237 | 19 device I/O error
+-243 | 13 type mismatch
+-245 | 11 division by zero
+-250 |  6 numeric overflow
+-251 |  5 invalid function argument
+=HANDLER ( -- addr )
+variable with saved return stack pointer
+=EXECUTE ( ... xt -- ... )
+execute execution token xt
+=CATCH ( ... xt -- ... 0 or xt -- n )
+execute xt leaving nonzero exception code n or 0 when no exception occurred;
+when an exception was caught, the parameter and return stacks are restored
+to their state before execution of xt
+=THROW ( 0 -- or ... n -- ... n )
+throw exception n if nonzero
+=QUIT ( ... -- ; R: ... -- )
+throw -56 "QUIT";
+no exception error is displayed;
+unlike ABORT, the parameter stack is not cleared
+=ABORT ( ... -- ; R: ... -- )
+throw -1 "ABORT";
+clears the parameter stack unless caught with CATCH
+=ABORT" ( ... flag -- ; C: "ccc<quote>" -- ; R: ... -- )
+if flag then abort with string message unless an active catch is present;
+throw -2 "ABORT"";
+clears the parameter stack unless caught with CATCH;
+may throw -14 "interpreting a compile-only word"
+=BYE ( -- )
+return to BASIC
+=( ( "ccc<paren>" -- )
+start a comment block;
+parse and skip input up to the closing )
+=\ ( "ccc<eol>" -- )
+start a comment line;
+parse and skip input up to the end of line
+=OK ( "ccc<eol>" -- )
+start a comment line;
+parse and skip input up to the end of line;
+same as \ but not immediate,
+so that screen editing of Forth output before OK is made possible
+=.( ( "ccc<paren>" -- )
+emit CR then type "ccc" up to the closing )
+=NUMBER ( c-addr u -- n|u|d|ud|r )
+convert string to number;
+prefixed with character $ converts hex;
+prefixed with character # converts decimal;
+prefixed with character % converts binary;
+sets value DBL to -1 when the number is a double;
+sets value DBL to 1 when the number is a float;
+otherwise sets value DBL to 0;
+may throw -13 "undefined word" when string is not numeric
+=INTERPRET ( -- )
+interpret input while input is available
+=EVALUATE ( ... c-addr u -- ... )
+evaluate string
+=REPL ( -- )
+read-evaluate-print loop
+=MARKER ( "<spaces>name<space>" -- ; -- )
+define a dictionary marker;
+executing the name deletes marker and all definitions made after;
+beware of vocabulary definitions crossings
+(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
+=FENCE ( -- addr )
+only permit FORGET past the dictionary FENCE address
+=FORGET ( "<spaces>name<space>" -- )
+delete name and all following definitions;
+may throw -15 "invalid FORGET";
+beware of vocabulary definitions crossings
+(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
+=CONTEXT ( -- addr )
+leaves address of link of the last vocabulary context definition
+=CURRENT ( -- addr )
+leaves address of link of the last current vocabulary definition
+=DEFINITIONS ( -- )
+make CURRENT the CONTEXT vocabulary
+=VOCABULARY ( "<spaces>name<space>" -- )
+define a new vocabulary
+=FORTH ( -- )
+make FORTH the CONTEXT vocabulary

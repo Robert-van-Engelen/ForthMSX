@@ -1,7 +1,7 @@
 \ Additional Forth 2012 standard Floating-Point and Floating-Point Extension words
+\ Author: Robert van Engelen
 
-\ Floating-point values are double numbers
-\ Therefore, Forth Double Number words can be used
+\ Floating-point values are double cells, Double Number words can be used
 
 : F! 2! ;
 : F@ 2@ ;

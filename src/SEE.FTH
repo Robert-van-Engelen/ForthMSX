@@ -9,22 +9,22 @@ DECIMAL
 0 VALUE IMM
 
 \ display the name of an xt
-: .NAME         ( xt -- ) ['] >NAME CATCH IF DROP S" ???" ELSE NAME>STRING THEN TYPE ;
+: .NAME		( xt -- ) ['] >NAME CATCH IF DROP S" ???" ELSE NAME>STRING THEN TYPE ;
 
 \ display the name of an xt formatted as a colon definition
-: .COLON        ( xt -- ) ['] >NAME CATCH IF DROP S" :NONAME" ELSE ." : " NAME>STRING THEN TYPE ;
+: .COLON	( xt -- ) ['] >NAME CATCH IF DROP S" :NONAME" ELSE ." : " NAME>STRING THEN TYPE ;
 
 \ display TO name
-: .TO           ( ip -- ip ) CELL+ DUP @ 3 - SPACE .NAME ;
+: .TO		( ip -- ip ) CELL+ DUP @ 3 - SPACE .NAME ;
 
 \ display the address of a jump word and increment ip by 2
-: .JUMP         ( ip -- ip ) CELL+ DUP @ ."  -> " HEX U. DECIMAL ;
+: .JUMP		( ip -- ip ) CELL+ DUP @ ."  -> " HEX U. DECIMAL ;
 
 \ display a cell value in hex and decimal, and as a word if the value matches an execution token
-: .CELL         ( x -- ) DUP . ['] >NAME CATCH IF DROP ELSE ." ( ['] " NAME>STRING TYPE ."  ) " THEN ;
+: .CELL		( x -- ) DUP . ['] >NAME CATCH IF DROP ELSE ." ( ['] " NAME>STRING TYPE ."  ) " THEN ;
 
 \ display the body of a colon definition starting at address ip
-: .DEF ( ip -- )
+: .DEF		( ip -- )
   BEGIN
     CR DUP HEX U. DECIMAL SPACE
     DUP @ CASE
@@ -53,7 +53,7 @@ DECIMAL
 ;
 
 \ display the meaning of a word's execution token
-: .XT ( xt -- )
+: .XT		( xt -- )
   DUP C@ $CD = IF
     DUP 1+ @ CASE
       ['] (:)    OF DUP .COLON       >BODY .DEF   ENDOF
@@ -73,7 +73,7 @@ DECIMAL
   DROP ." CODE"
 ;
 
-: SEE ( "name" -- )
+: SEE		( "name" -- )
   PARSE-NAME FIND-WORD \ 0 0 | xt 1 | xt -1
   ?DUP IF
     0 > TO IMM

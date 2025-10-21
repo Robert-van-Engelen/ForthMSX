@@ -1,5 +1,9 @@
 \ Programming-Tools extension words
-\ [IF] [ELSE] [THEN] are case sensitive and MUST be specified in UPPER case
+\ Author: Robert van Engelen
+
+\ [IF] [ELSE] [THEN] are case sensitive and MUST be specified in UPPER case!
+
+DECIMAL
 
 : [DEFINED]	( "<spaces>name ..." -- flag )
   PARSE-NAME FIND-WORD NIP
@@ -17,9 +21,9 @@
         2DROP 1+
       ELSE
         2DUP S" [ELSE]" COMPARE 0= IF
-	  2DROP 1- DUP IF 1+ THEN
-	ELSE
-	  S" [THEN]" COMPARE 0= IF 1- THEN
+          2DROP 1- DUP IF 1+ THEN
+        ELSE
+          S" [THEN]" COMPARE 0= IF 1- THEN
         THEN
       THEN
       ?DUP 0= IF EXIT THEN
@@ -41,10 +45,10 @@
 
 [UNDEFINED] DUMP [IF]
 
-: D.RB          ( d n1+ n2+ -- ) BASE @ >R BASE ! D.R R> BASE ! ;
-: U.RB          ( u n1+ n2+ -- ) BASE @ >R BASE ! U.R R> BASE ! ;
+: D.RB		( d n1+ n2+ -- ) BASE @ >R BASE ! D.R R> BASE ! ;
+: U.RB		( u n1+ n2+ -- ) BASE @ >R BASE ! U.R R> BASE ! ;
 
-: DUMP          ( addr  u -- )
+: DUMP		( addr  u -- )
   OVER 7 AND IF
     OVER 0 16 U.RB
   THEN

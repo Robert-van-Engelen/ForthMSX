@@ -1,14 +1,14 @@
-\ VIEW file content on screen, support both CR/LF and LF line endings
+\ VIEW file text on screen, support both CR/LF and LF line endings
+\ Author: Robert van Engelen
 
 .( Loading VIEW...)
 
 : VIEW-FILE	( c-addr u -- )
   R/O OPEN-FILE THROW
   BEGIN
-    DUP DUP FIB ROT READ-LINE 0= AND
-  WHILE
-    OVER FIB DROP SWAP TYPE CR
+    DUP GET-LINE 0= AND WHILE TYPE CR
   REPEAT
-  DROP CLOSE-FILE DROP ;
+  2DROP CLOSE-FILE DROP
+;
 
-: VIEW	( "<spaces>name" -- ) PARSE-NAME VIEW-FILE ;
+: VIEW		( "<spaces>name" -- ) PARSE-NAME VIEW-FILE ;
