@@ -5,7 +5,7 @@
 \ string length len as the first two bytes in its buffer.
 
 \ Allocate a new strbuf named mystr with 255 characters max size:
-\     255 STRING: mystr
+\     255 STRING mystr
 \ Now mystr is added as a Forth word that returns -- strbuf len
 \ which is a pair c-addr u
 
@@ -32,7 +32,7 @@ DECIMAL
 : STRUPD	( strbuf len -- ) OVER STRMAX UMIN SWAP 1- C! ;
 
 \ create a new strbuf
-: STRING:	( max "<spaces>name<space>" -- ; strbuf len )
+: STRING	( max "<spaces>name<space>" -- ; strbuf len )
   CREATE DUP C, 0 C, ALLOT
   DOES> 2+ DUP STRLEN ;
 
@@ -73,7 +73,7 @@ DECIMAL
     2+ DUP STRLEN ;
 
 \ create an array of strubf
-: SARRAY:	( size max "name" -- ; index -- strbuf len )
+: SARRAY	( size max "name" -- ; index -- strbuf len )
   CREATE
     DUP , 2+ * ALLOT	\ save max and allocate space
   DOES>		( array-addr index -- strbuf len )
