@@ -4665,8 +4665,8 @@ word | stack
 [`SPACE`](#SPACE)	|		--
 [`STATE`](#STATE)	|		-- addr
 [`SWAP`](#SWAP)	|		x1 x2 -- x2 x1
-[`S\\"`](#S\\")	|		"ccc&lt;quote&gt;" -- ; -- c-addr u
-[`S\\>S`](#S\\>S)	|		c-addr u -- c-addr u
+[`S\"`](#S\")	|		"ccc&lt;quote&gt;" -- ; -- c-addr u
+[`S\>S`](#S\>S)	|		c-addr u -- c-addr u
 [`THEN`](#THEN)	|		-- ; C: addr orig --
 [`THROW`](#THROW)	|		0 -- or ... n -- ... n
 [`TIB`](#TIB)	|		-- c-addr
@@ -4704,5 +4704,5 @@ word | stack
 [`[CHAR]`](#[CHAR])	|	"&lt;spaces&gt;char" -- ; -- char
 [`[COMPILE]`](#[COMPILE])	|	"&lt;space&gt;name&lt;space&gt;" -- ; ... -- ...
 [`[`](#[)	|		--
-[`\\`](#\\)	|		"ccc&lt;eol&gt;" --
+[`\`](#\)	|		"ccc&lt;eol&gt;" --
 [`]`](#])	|		--
