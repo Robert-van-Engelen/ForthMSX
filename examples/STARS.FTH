@@ -6,6 +6,9 @@
 require VDP.FTH
 require RAND.FTH
 
+\ note: this RAND from libc is rather slow to compute,
+\ for speed we should use something much simpler instead
+
 DECIMAL
 
 \ display 1000 stars
