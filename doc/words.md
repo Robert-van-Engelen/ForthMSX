@@ -661,24 +661,24 @@ unsigned double product and quotient ud1*u1/u2 with single remainder u3,
 with intermediate triple-cell product;
 the result is undefined when u2 = 0
 
-    \ assume d = dh.dl     = hi.lo parts
-    \ assume t = th.tm.tl  = hi.mid.lo parts
-    \ then
-    \ dl*n -> tm.tl
-    \ dh*n+tm -> th.tm
-    \ gives d*n -> t
+    \\ assume d = dh.dl     = hi.lo parts
+    \\ assume t = th.tm.tl  = hi.mid.lo parts
+    \\ then
+    \\ dl*n -> tm.tl
+    \\ dh*n+tm -> th.tm
+    \\ gives d*n -> t
     : UMT*     ( ud u -- ut )
       DUP>R
       ROT UM*
       ROT 0 SWAP R> UM* D+ ;
-    \ assume d = dh.dl     = hi.lo parts
-    \ assume t = th.tm.tl  = hi.mid.lo parts
-    \ then
-    \ (th.tm)/n -> dh
-    \ (th.tm)%n -> r
-    \ (r.tl)/n -> dl
-    \ (r.tl)%n -> r
-    \ gives t/n -> d remainder r
+    \\ assume d = dh.dl     = hi.lo parts
+    \\ assume t = th.tm.tl  = hi.mid.lo parts
+    \\ then
+    \\ (th.tm)/n -> dh
+    \\ (th.tm)%n -> r
+    \\ (r.tl)/n -> dl
+    \\ (r.tl)%n -> r
+    \\ gives t/n -> d remainder r
     : UMT/MOD  ( ut u1 -- u2 ud )
       DUP>R
       UM/MOD R> SWAP >R
@@ -2386,38 +2386,38 @@ truncates string to 255 characters long when excessive
     : S" '" PARSE SDUP ; IMMEDIATE
 
 ___
-### S\"
+### S\\"
 _"ccc&lt;quote&gt;" -- ; -- c-addr u_
 
 leave string "ccc" (compiled and interpreted);
-"ccc" may include \-escape codes translated by the S\>S word;
+"ccc" may include \\-escape codes translated by the S\>S word;
 truncates string to 255 characters long when excessive
 
-    : S\" '" PARSE S\>S SDUP ; IMMEDIATE
+    : S\\" '" PARSE S\>S SDUP ; IMMEDIATE
 
 ___
-### S\>S
+### S\\>S
 _c-addr u -- c-addr u_
 
-convert string in place by translating \-escape codes
+convert string in place by translating \\-escape codes
 
 code | corresponding ASCII character code
 ---- | ----------------------------------------------------------
-\\   | \ backslash (92)
-\a   | BEL (7)
-\b   | BS (8)
-\e   | ESC (27)
-\f   | FF (12)
-\l   | LF (10)
-\m   | CR/LF (13 then 10)
-\n   | LF (10)
-\q   | " quote (34)
-\r   | CR (13)
-\t   | TAB (9)
-\v   | VT (11)
-\xhh | hh in hex (0xhh)
-\z   | NUL (0)
-\G   | MSX graphic character header (1) e.g. \GA
+\\\   | \ backslash (92)
+\\a   | BEL (7)
+\\b   | BS (8)
+\\e   | ESC (27)
+\\f   | FF (12)
+\\l   | LF (10)
+\\m   | CR/LF (13 then 10)
+\\n   | LF (10)
+\\q   | " quote (34)
+\\r   | CR (13)
+\\t   | TAB (9)
+\\v   | VT (11)
+\\xhh | hh in hex (0xhh)
+\\z   | NUL (0)
+\\G   | MSX graphic character header (1) e.g. \GA
 
 ___
 ### SDUP
@@ -2811,13 +2811,13 @@ parse and skip input up to the closing )
       0= UNTIL ; IMMEDIATE
 
 ___
-### \
+### \\
 _"ccc&lt;eol&gt;" --_
 
 start a comment line;
 parse and skip input up to the end of line
 
-    : \ $A PARSE 2SROP ;
+    : \\ $A PARSE 2SROP ;
 
 ___
 ### OK
@@ -2825,10 +2825,10 @@ _"ccc&lt;eol&gt;" --_
 
 start a comment line;
 parse and skip input up to the end of line;
-same as \ but not immediate,
+same as \\ but not immediate,
 so that screen editing of Forth output before OK is made possible
 
-    : OK POSTPONE \ ;
+    : OK POSTPONE \\ ;
 
 ___
 ### .(
@@ -3172,10 +3172,11 @@ ior is nonzero when an error occurred, use GET-LINE 0= AND 0= which is TRUE for 
 does not support REPOSITION-FILE except for position zero to rewind
 
     : GET-LINE
-      DUP FILE-POSITION DROP D0= IF \ at start of file
-        DUP FIB 2- DUP OFF 2- OFF \ reset len and pos
+      DUP FIB                  \ -- fileid fib
+      OVER FILE-POSITION DROP D0= IF   \ if at start of file
+        DUP 2- DUP OFF 2- OFF  \ then reset len and pos
       THEN
-      DUP FIB DUP 2- DUP @ SWAP 2- @ SWAP \ -- fileid fib len pos
+      DUP 2- 2- 2@ SWAP        \ -- fileid fib len pos
       OVER UMIN /STRING        \ -- fileid fib+pos len-pos
       TUCK                     \ -- fileid len-pos fib+pos len-pos
       10 CHOP                  \ -- fileid len-pos fib+pos u
@@ -3204,7 +3205,7 @@ does not support REPOSITION-FILE except for position zero to rewind
       THEN                     \ -- fileid fib+pos u
       ROT FIB                  \ -- fib+pos u fib
       OVER 1+ SWAP 2- +!       \ increment pos by u+1 -- fib+pos u
-      13 -TRIM TRUE 0
+      13 -TRIM TRUE 0          \ trim CR from end when present
     ;
 
 ___
