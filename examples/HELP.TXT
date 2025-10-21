@@ -627,7 +627,7 @@ output signed cell stored at addr
 check for key press and return the code of the key;
 0 = no key pressed
 =KEY-CLEAR ( -- )
-wait until no keys are pressed
+clear the key buffer
 =KEY? ( -- flag )
 true if a key is pressed
 =KEY ( -- char )
