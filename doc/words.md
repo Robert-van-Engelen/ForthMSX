@@ -95,7 +95,7 @@ _ccc_            | a parsed sequence of arbitrary characters, excluding the deli
 _name_           | a token delimited by space, equivalent to _ccc&lt;space&gt;_ or _ccc&lt;eol&gt;_
 
 ___
-### 0
+### `0`
 _-- 0_
 
 leave constant 0
@@ -103,7 +103,7 @@ leave constant 0
     0 CONSTANT 0
 
 ___
-### 1
+### `1`
 _-- 1_
 
 leave constant 1
@@ -111,7 +111,7 @@ leave constant 1
     1 CONSTANT 1
 
 ___
-### 2
+### `2`
 _-- 2_
 
 leave constant 2
@@ -119,7 +119,7 @@ leave constant 2
     2 CONSTANT 2
 
 ___
-### 3
+### `3`
 _-- 3_
 
 leave constant 3
@@ -127,7 +127,7 @@ leave constant 3
     3 CONSTANT 3
 
 ___
-### -1
+### `-1`
 _-- -1_
 
 leave constant -1
@@ -135,7 +135,7 @@ leave constant -1
     -1 CONSTANT -1
 
 ___
-### FALSE
+### `FALSE`
 _-- 0_
 
 leave 0
@@ -143,7 +143,7 @@ leave 0
     0 CONSTANT FALSE
 
 ___
-### TRUE
+### `TRUE`
 _-- -1_
 
 leave -1
@@ -151,7 +151,7 @@ leave -1
     -1 CONSTANT TRUE
 
 ___
-### BL
+### `BL`
 _-- 32_
 
 leave constant 32 (space)
@@ -159,14 +159,14 @@ leave constant 32 (space)
     32 CONSTANT BL
 
 ___
-### PAD
+### `PAD`
 _-- c-addr_
 
 leave address of the PAD;
 the PAD is a free buffer space of 256 bytes not used by Forth
 
 ___
-### TMP
+### `TMP`
 _-- c-addr_
 
 leave address of the next temporary string buffer;
@@ -174,7 +174,7 @@ switches between two string buffers of 256 free bytes each;
 used by SDUP, WORD and S" to store a string when interpreting
 
 ___
-### TIB
+### `TIB`
 _-- c-addr_
 
 leave c-addr of the terminal input buffer;
@@ -182,43 +182,43 @@ held by SOURCE with input length;
 used by the Forth interpreter
 
 ___
-### #IB
+### `#IB`
 _-- u_
 
 the allocated size of TIB and FIB
 
 ___
-### DROP
+### `DROP`
 _x --_
 
 drop TOS
 
 ___
-### DUP
+### `DUP`
 _x -- x x_
 
 duplicate TOS
 
 ___
-### ?DUP
+### `?DUP`
 _x -- x x or 0 -- 0_
 
 duplicate TOS if nonzero
 
 ___
-### SWAP
+### `SWAP`
 _x1 x2 -- x2 x1_
 
 swap TOS with 2OS
 
 ___
-### OVER
+### `OVER`
 _x1 x2 -- x1 x2 x1_
 
 copy 2OS over TOS
 
 ___
-### ROT
+### `ROT`
 _x1 x2 x3 -- x2 x3 x1_
 
 rotate cells
@@ -226,7 +226,7 @@ rotate cells
     : ROT >R SWAP R> SWAP ;
 
 ___
-### -ROT
+### `-ROT`
 _x1 x2 x3 -- x3 x1 x2_
 
 undo (or back, or left) rotate cells, or ROT twice
@@ -234,7 +234,7 @@ undo (or back, or left) rotate cells, or ROT twice
     : -ROT ROT ROT ;
 
 ___
-### NIP
+### `NIP`
 _x1 x2 -- x2_
 
 nip 2OS
@@ -242,7 +242,7 @@ nip 2OS
     : NIP SWAP DROP ;
 
 ___
-### TUCK
+### `TUCK`
 _x1 x2 -- x2 x1 x2_
 
 tuck TOS under 2OS
@@ -250,7 +250,7 @@ tuck TOS under 2OS
     : TUCK SWAP OVER ;
 
 ___
-### 2DROP
+### `2DROP`
 _xd1 xd2 -- xd1_
 
 drop double TOS
@@ -258,7 +258,7 @@ drop double TOS
     : 2DROP DROP DROP ;
 
 ___
-### 2DUP
+### `2DUP`
 _xd -- xd xd_
 
 duplicate double TOS
@@ -266,7 +266,7 @@ duplicate double TOS
     : 2DUP OVER OVER ;
 
 ___
-### 2SWAP
+### `2SWAP`
 _xd1 xd2 -- xd2 xd1_
 
 swap double TOS with double 2OS
@@ -275,7 +275,7 @@ swap double TOS with double 2OS
     : 2SWAP 3 ROLL 3 ROLL ;
 
 ___
-### 2OVER
+### `2OVER`
 _xd1 xd2 -- xd1 xd2 xd1_
 
 copy double 2OS over double TOS
@@ -284,7 +284,7 @@ copy double 2OS over double TOS
     : 2OVER 3 PICK 3 PICK ;
 
 ___
-### 2ROT
+### `2ROT`
 _xd1 xd2 xd3 -- xd2 xd3 xd1_
 
 rotate double cells
@@ -292,7 +292,7 @@ rotate double cells
     : 2ROT 5 ROLL 5 ROLL ;
 
 ___
-### PICK
+### `PICK`
 _xu ... x0 u -- xu ... x0 xu_
 
 pick u'th cell from the parameter stack;
@@ -302,7 +302,7 @@ pick u'th cell from the parameter stack;
     : PICK 1+ CELLS SP@ + @ ;
 
 ___
-### ROLL
+### `ROLL`
 _xu x(u+1) ... x1 x0 u -- x(u+1) ... x1 x0 xu_
 
 roll u cells on the parameter stack,
@@ -312,7 +312,7 @@ where u < 128 (u is not checked, using u modulo 128 for safety);
 2 ROLL is the same as ROT
 
 ___
-### DEPTH
+### `DEPTH`
 _-- u_
 
 parameter stack depth
@@ -320,7 +320,7 @@ parameter stack depth
     : DEPTH SP0@ SP@ - 2- 2/ ;
 
 ___
-### CLEAR
+### `CLEAR`
 _... --_
 
 purge parameter stack
@@ -328,19 +328,19 @@ purge parameter stack
     : CLEAR SP0@ SP! ;
 
 ___
-### SP@
+### `SP@`
 _-- addr_
 
 fetch stack pointer, leave addr of the TOS cell (the TOS before SP@)
 
 ___
-### SP!
+### `SP!`
 _addr --_
 
 store stack pointer
 
 ___
-### .S
+### `.S`
 _--_
 
 display parameter stack
@@ -348,55 +348,55 @@ display parameter stack
     : .S DEPTH 0 ?DO SP0@ I 2+ CELLS - ? LOOP ;
 
 ___
-### >R
+### `>R`
 _x -- ; R: -- x_
 
 move TOS to the return stack
 
 ___
-### DUP>R
+### `DUP>R`
 _x -- x ; R: -- x_
 
 duplicate TOS to the return stack, a single word for DUP >R
 
 ___
-### R>
+### `R>`
 _R: x -- ; -- x_
 
 move cell from the return stack
 
 ___
-### RDROP
+### `RDROP`
 _R: x -- ; --_
 
 drop cell from the return stack, a single word for R> DROP
 
 ___
-### R@
+### `R@`
 _R: x -- x ; -- x_
 
 fetch cell from the return stack
 
 ___
-### 2>R
+### `2>R`
 _x1 x2 -- ; R: -- x1 x2_
 
 move double TOS to the return stack, a single word for SWAP >R >R
 
 ___
-### 2R>
+### `2R>`
 _R: x1 x2 -- ; -- x1 x2_
 
 move double cell from the return stack, a single word for R> R> SWAP
 
 ___
-### 2R@
+### `2R@`
 _R: x1 x2 -- x1 x2 ; -- x1 x2_
 
 fetch double cell from the return stack, a single word for R> R@ SWAP DUP R>
 
 ___
-### N>R
+### `N>R`
 _n*x n -- ; R: -- n*x n_
 
 move n cells to the return stack;
@@ -404,7 +404,7 @@ where n < 127 (u is not checked, using n modulo 128 for safety);
 no stack under/overflow checking
 
 ___
-### NR>
+### `NR>`
 _R: n*x n -- ; -- n*x n_
 
 move n cells from the return stack;
@@ -412,19 +412,19 @@ where n < 127 (u is not checked, using n modulo 128 for safety);
 no stack under/overflow checking
 
 ___
-### RP@
+### `RP@`
 _-- addr_
 
 fetch return stack pointer
 
 ___
-### RP!
+### `RP!`
 _addr --_
 
 store return stack pointer
 
 ___
-### ?RP
+### `?RP`
 _--_
 
 check return stack pointer for under- and overflow,
@@ -432,19 +432,19 @@ available only when assembled with the SAVR assembly flag;
 may throw -5 "return stack overflow" or -6 "return stack underflow"
 
 ___
-### C@
+### `C@`
 _c-addr -- char_
 
 fetch char
 
 ___
-### @
+### `@`
 _addr -- x_
 
 fetch from cell
 
 ___
-### 2@
+### `2@`
 _addr -- x1 x2_
 
 fetch from double cell
@@ -452,19 +452,19 @@ fetch from double cell
     : 2@ DUP CELL+ @ SWAP @ ;
 
 ___
-### C!
+### `C!`
 _char c-addr --_
 
 store char in c-addr
 
 ___
-### !
+### `!`
 _x addr --_
 
 store in cell
 
 ___
-### 2!
+### `2!`
 _x1 x2 addr --_
 
 store in double cell
@@ -472,19 +472,19 @@ store in double cell
     : 2! TUCK ! CELL+ ! ;
 
 ___
-### +!
+### `+!`
 _n addr --_
 
 increment cell
 
 ___
-### D+!
+### `D+!`
 _d addr --_
 
 increment double cell
 
 ___
-### ON
+### `ON`
 _addr --_
 
 store TRUE (-1) in cell
@@ -492,7 +492,7 @@ store TRUE (-1) in cell
     : ON -1 SWAP ! ;
 
 ___
-### OFF
+### `OFF`
 _addr --_
 
 store FALSE (0) in cell
@@ -500,19 +500,19 @@ store FALSE (0) in cell
     : OFF 0 SWAP ! ;
 
 ___
-### +
+### `+`
 _n1 n2 -- n3_
 
 sum n1+n2
 
 ___
-### M+
+### `M+`
 _d1 n -- d2_
 
 double sum d1+n
 
 ___
-### D+
+### `D+`
 _d1 d2 -- d3_
 
 double sum d1+d2
@@ -520,13 +520,13 @@ double sum d1+d2
     : D+ >R M+ R> + ;
 
 ___
-### -
+### `-`
 _n1 n2 -- n3_
 
 difference n1-n2
 
 ___
-### D-
+### `D-`
 _d1 d2 -- d3_
 
 double difference d1-d2
@@ -534,13 +534,13 @@ double difference d1-d2
     : D- DNEGATE D+ ;
 
 ___
-### UM*
+### `UM*`
 _u1 u2 -- ud_
 
 unsigned double product u1*u2
 
 ___
-### M*
+### `M*`
 _n1 n2 -- d_
 
 signed double product n1*n2
@@ -552,7 +552,7 @@ signed double product n1*n2
       R> 0< IF DNEGATE THEN ;
 
 ___
-### *
+### `*`
 _n1|u1 n2|u2 -- n3|u3_
 
 signed and unsigned product n1*n2
@@ -560,7 +560,7 @@ signed and unsigned product n1*n2
     : * UM* DROP ;
 
 ___
-### UMD*
+### `UMD*`
 _ud1 u -- ud2_
 
 unsigned double product ud1*u
@@ -571,14 +571,14 @@ unsigned double product ud1*u
       R> UM* ROT + ;
 
 ___
-### UM/MOD
+### `UM/MOD`
 _ud u1 -- u2 u3_
 
 unsigned remainder and quotient ud/u1;
 the result is undefined when u1 = 0
 
 ___
-### SM/REM
+### `SM/REM`
 _d1 n1 -- n2 n3_
 
 symmetric remainder and quotient d1/n1 rounded towards zero;
@@ -593,7 +593,7 @@ the result is undefined when n1 = 0
       R> 0< IF NEGATE THEN ;
 
 ___
-### FM/MOD
+### `FM/MOD`
 _d1 n1 -- n2 n3_
 
 floored signed modulus and quotient d1/n1 rounded towards negative (floored);
@@ -609,7 +609,7 @@ the result is undefined when n1 = 0
       THEN ;
 
 ___
-### /MOD
+### `/MOD`
 _n1 n2 -- n3 n4_
 
 symmetric remainder and quotient n1/n2;
@@ -618,7 +618,7 @@ the result is undefined when n2 = 0
     : /MOD SWAP S>D ROT SM/REM ;
 
 ___
-### MOD
+### `MOD`
 _n1 n2 -- n3_
 
 symmetric remainder of n1/n2;
@@ -627,7 +627,7 @@ the result is undefined when n2 = 0
     : MOD /MOD DROP ;
 
 ___
-### /
+### `/`
 _n1 n2 -- n3_
 
 quotient n1/n2;
@@ -636,7 +636,7 @@ the result is undefined when n2 = 0
     : / /MOD NIP ;
 
 ___
-### */MOD
+### `*/MOD`
 _n1 n2 n3 -- n4 n5_
 
 product with symmetric remainder and quotient n1*n2/n3;
@@ -645,7 +645,7 @@ the result is undefined when n3 = 0
     : */MOD -ROT M* ROT SM/REM ;
 
 ___
-### */
+### `*/`
 _n1 n2 n3 -- n4_
 
 product with quotient n1*n2/n3;
@@ -654,31 +654,31 @@ the result is undefined when n3 = 0
     : */ */MOD NIP ;
 
 ___
-### UM*/MOD
+### `UM*/MOD`
 _ud1 u1 u2 -- u3 ud2_
 
 unsigned double product and quotient ud1*u1/u2 with single remainder u3,
 with intermediate triple-cell product;
 the result is undefined when u2 = 0
 
-    \\ assume d = dh.dl     = hi.lo parts
-    \\ assume t = th.tm.tl  = hi.mid.lo parts
-    \\ then
-    \\ dl*n -> tm.tl
-    \\ dh*n+tm -> th.tm
-    \\ gives d*n -> t
+    \ assume d = dh.dl     = hi.lo parts
+    \ assume t = th.tm.tl  = hi.mid.lo parts
+    \ then
+    \ dl*n -> tm.tl
+    \ dh*n+tm -> th.tm
+    \ gives d*n -> t
     : UMT*     ( ud u -- ut )
       DUP>R
       ROT UM*
       ROT 0 SWAP R> UM* D+ ;
-    \\ assume d = dh.dl     = hi.lo parts
-    \\ assume t = th.tm.tl  = hi.mid.lo parts
-    \\ then
-    \\ (th.tm)/n -> dh
-    \\ (th.tm)%n -> r
-    \\ (r.tl)/n -> dl
-    \\ (r.tl)%n -> r
-    \\ gives t/n -> d remainder r
+    \ assume d = dh.dl     = hi.lo parts
+    \ assume t = th.tm.tl  = hi.mid.lo parts
+    \ then
+    \ (th.tm)/n -> dh
+    \ (th.tm)%n -> r
+    \ (r.tl)/n -> dl
+    \ (r.tl)%n -> r
+    \ gives t/n -> d remainder r
     : UMT/MOD  ( ut u1 -- u2 ud )
       DUP>R
       UM/MOD R> SWAP >R
@@ -686,7 +686,7 @@ the result is undefined when u2 = 0
     : UM*/MOD >R UMT* R> UMT/MOD ;
 
 ___
-### M*/
+### `M*/`
 _d1 n1 n2 -- d2_
 
 double product with quotient d1*n1/n2,
@@ -700,7 +700,7 @@ the result is undefined when n2 = 0
       >R 0< IF DNEGATE THEN ;
 
 ___
-### MD*
+### `MD*`
 _d1 n -- d2_
 
 signed double product d1*n with a single
@@ -712,7 +712,7 @@ signed double product d1*n with a single
       R> 0< IF DNEGATE THEN ;
 
 ___
-### D*
+### `D*`
 _d1|ud1 d2|ud2 -- d3|ud3_
 
 signed and unsigned double product d1*d2;
@@ -723,7 +723,7 @@ use UMD* for unsigned double product ud*u with a single;
     : D* >R ROT DUP>R -ROT MD* 2R> * 0 SWAP D+ ;
 
 ___
-### UMD/MOD
+### `UMD/MOD`
 _ud1 u1 -- u2 ud2_
 
 unsigned remainder and unsigned double quotient ud1/u1;
@@ -732,14 +732,14 @@ the result is undefined when u1 = 0;
     : UMD/MOD DUP>R 0 SWAP UM/MOD -ROT R> UM/MOD ROT ;
 
 ___
-### UD/MOD
+### `UD/MOD`
 _ud1 ud2 -- ud3 ud4_
 
 unsigned double remainder and quotient ud1/ud2;
 the result is undefined when ud2 = 0
 
 ___
-### D/MOD
+### `D/MOD`
 _d1 d2 -- d3 d4_
 
 double symmetric remainder and quotient d1/d2;
@@ -753,7 +753,7 @@ the result is undefined when d2 = 0
       R> 0< IF 2SWAP DNEGATE 2SWAP THEN ;
 
 ___
-### DMOD
+### `DMOD`
 _d1 d2 -- d3_
 
 double symmetric remainder of d1/d2;
@@ -762,7 +762,7 @@ the result is undefined when d2 = 0
     : DMOD D/MOD 2DROP ;
 
 ___
-### D/
+### `D/`
 _d1 d2 -- d3_
 
 double quotient d1/d2;
@@ -771,37 +771,37 @@ the result is undefined when d2 = 0
     : D/ D/MOD 2SWAP 2DROP ;
 
 ___
-### AND
+### `AND`
 _x1 x2 -- x1&x2_
 
 bitwise and x1 with x2
 
 ___
-### OR
+### `OR`
 _x1 x2 -- x1|x2_
 
 bitwise or x1 with x2
 
 ___
-### XOR
+### `XOR`
 _x1 x2 -- x1^x2_
 
 bitwise xor x1 with x2
 
 ___
-### =
+### `=`
 _x1 x2 -- flag_
 
 true if x1 = x2
 
 ___
-### <>
+### `<>`
 _x1 x2 -- flag_
 
 true if x1 <> x2
 
 ___
-### <
+### `<`
 _n1 n2 -- flag_
 
 true if n1 < n2 signed
@@ -814,7 +814,7 @@ true if n1 < n2 signed
       - 0< ;
 
 ___
-### >
+### `>`
 _n1 n2 -- flag_
 
 true if n1 > n2 signed
@@ -822,7 +822,7 @@ true if n1 > n2 signed
     : > SWAP < ;
 
 ___
-### U<
+### `U<`
 _u1 u2 -- flag_
 
 true if u1 < u2 unsigned
@@ -835,7 +835,7 @@ true if u1 < u2 unsigned
       - 0< ;
 
 ___
-### U>
+### `U>`
 _u1 u2 -- flag_
 
 true if u1 > u2 unsigned
@@ -843,20 +843,20 @@ true if u1 > u2 unsigned
     : U> SWAP U< ;
 
 ___
-### 0=
+### `0=`
 _x -- flag_
 
 true if x = 0;
 also serves as a logical NOT
 
 ___
-### 0<
+### `0<`
 _n -- flag_
 
 true if n < 0
 
 ___
-### D0=
+### `D0=`
 _dx -- flag_
 
 true if dx = 0
@@ -864,7 +864,7 @@ true if dx = 0
     : D0= OR 0= ;
 
 ___
-### D0<
+### `D0<`
 _d -- flag_
 
 true if d < 0
@@ -872,20 +872,20 @@ true if d < 0
     : D0< NIP 0< ;
 
 ___
-### S>D
+### `S>D`
 _n -- d_
 
 widen single to double
 
 ___
-### D>S
+### `D>S`
 _d -- n_
 
 narrow double to single;
 may throw -11 "result out of range" valid range is -32768 to 65535
 
 ___
-### D=
+### `D=`
 _d1 d2 -- flag_
 
 true if d1 = d2
@@ -893,7 +893,7 @@ true if d1 = d2
     : D= D- D0= ;
 
 ___
-### D<
+### `D<`
 _d1 d2 -- flag_
 
 true if d1 < d2
@@ -906,7 +906,7 @@ true if d1 < d2
       D- D0< ;
 
 ___
-### DU<
+### `DU<`
 _du1 du2 -- flag_
 
 true if ud1 < ud2
@@ -919,7 +919,7 @@ true if ud1 < ud2
       D- D0< ;
 
 ___
-### MAX
+### `MAX`
 _n1 n2 -- n3_
 
 signed max of n1 and n2
@@ -929,7 +929,7 @@ signed max of n1 and n2
       DROP ;
 
 ___
-### MIN
+### `MIN`
 _n1 n2 -- n3_
 
 signed min of n1 and n2
@@ -939,7 +939,7 @@ signed min of n1 and n2
       DROP ;
 
 ___
-### UMAX
+### `UMAX`
 _u1 u2 -- u3_
 
 unsigned max of u1 and u2
@@ -949,7 +949,7 @@ unsigned max of u1 and u2
       DROP ;
 
 ___
-### UMIN
+### `UMIN`
 _u1 u2 -- u3_
 
 unsigned min of u1 and u2
@@ -959,7 +959,7 @@ unsigned min of u1 and u2
       DROP ;
 
 ___
-### DMAX
+### `DMAX`
 _d1 d2 -- d3_
 
 signed double max of d1 and d2
@@ -969,7 +969,7 @@ signed double max of d1 and d2
       2DROP ;
 
 ___
-### DMIN
+### `DMIN`
 _d1 d2 -- d3_
 
 signed double min of d1 and d2
@@ -979,7 +979,7 @@ signed double min of d1 and d2
       2DROP ;
 
 ___
-### WITHIN
+### `WITHIN`
 _x1 x2 x3 -- flag_
 
 true if x1 is within x2 up to x3 exclusive
@@ -987,7 +987,7 @@ true if x1 is within x2 up to x3 exclusive
     : WITHIN OVER - >R - R> U< ;
 
 ___
-### INVERT
+### `INVERT`
 _x1 -- x2_
 
 one's complement ~x1
@@ -996,7 +996,7 @@ one's complement ~x1
     : INVERT -1 XOR ;
 
 ___
-### NEGATE
+### `NEGATE`
 _n1 -- n2_
 
 two's complement -n1
@@ -1005,7 +1005,7 @@ two's complement -n1
     : NEGATE INVERT 1+ ;
 
 ___
-### ABS
+### `ABS`
 _n1 -- n2_
 
 absolute value |n1|
@@ -1013,7 +1013,7 @@ absolute value |n1|
     : ABS DUP 0< IF NEGATE THEN ;
 
 ___
-### DNEGATE
+### `DNEGATE`
 _d1 -- d2_
 
 two's complement -d1
@@ -1021,7 +1021,7 @@ two's complement -d1
     : DNEGATE SWAP INVERT SWAP INVERT 1 M+ ;
 
 ___
-### DABS
+### `DABS`
 _d1 -- d2_
 
 absolute value |d1|
@@ -1029,19 +1029,19 @@ absolute value |d1|
     : DABS DUP 0< IF DNEGATE THEN ;
 
 ___
-### LSHIFT
+### `LSHIFT`
 _x1 u -- x2_
 
 logical shift left x1 << u
 
 ___
-### RSHIFT
+### `RSHIFT`
 _x1 u -- x2_
 
 logical shift right x1 >> u
 
 ___
-### 1+
+### `1+`
 _n1 -- n2_
 
 increment n1+1
@@ -1049,7 +1049,7 @@ increment n1+1
     : 1+ 1 + ;
 
 ___
-### 2+
+### `2+`
 _n1 -- n2_
 
 increment n1+2
@@ -1057,7 +1057,7 @@ increment n1+2
     : 2+ 2 + ;
 
 ___
-### 1-
+### `1-`
 _n1 -- n2_
 
 decrement n1-1
@@ -1065,7 +1065,7 @@ decrement n1-1
     : 1- 1 - ;
 
 ___
-### 2-
+### `2-`
 _n1 -- n2_
 
 decrement n1-2
@@ -1073,7 +1073,7 @@ decrement n1-2
     : 2- 2 - ;
 
 ___
-### 2*
+### `2*`
 _n1 -- n2_
 
 arithmetic shift left n1 << 1
@@ -1081,7 +1081,7 @@ arithmetic shift left n1 << 1
     : 2* 2 * ;
 
 ___
-### 2/
+### `2/`
 _n1 -- n2_
 
 arithmetic shift right n1 >> 1
@@ -1089,7 +1089,7 @@ arithmetic shift right n1 >> 1
     : 2/ 2 / ;
 
 ___
-### D2*
+### `D2*`
 _d1 -- d2_
 
 arithmetic shift left d1 << 1
@@ -1097,7 +1097,7 @@ arithmetic shift left d1 << 1
     : D2* 2 MD* ;
 
 ___
-### D2/
+### `D2/`
 _d1 -- d2_
 
 arithmetic shift right d1 >> 1
@@ -1105,7 +1105,7 @@ arithmetic shift right d1 >> 1
     : D2/ 1 2 M*/ ;
 
 ___
-### CELL+
+### `CELL+`
 _addr -- addr_
 
 increment to next cell
@@ -1113,7 +1113,7 @@ increment to next cell
     : CELL+ 2+ ;
 
 ___
-### CELLS
+### `CELLS`
 _n1 -- n2_
 
 convert to cell unit
@@ -1121,7 +1121,7 @@ convert to cell unit
     : CELLS 2* ;
 
 ___
-### CHAR+
+### `CHAR+`
 _n1 -- n1_
 
 increment to next char
@@ -1129,7 +1129,7 @@ increment to next char
     : CHAR+ 1+ ;
 
 ___
-### CHARS
+### `CHARS`
 _n1 -- n2_
 
 convert to char unit (does nothing as chars are bytes)
@@ -1137,7 +1137,7 @@ convert to char unit (does nothing as chars are bytes)
     : CHARS ;
 
 ___
-### COUNT
+### `COUNT`
 _c-addr1 -- c-addr2 u_
 
 convert counted string to string
@@ -1145,13 +1145,13 @@ convert counted string to string
     : COUNT DUP 1+ SWAP C@ ;
 
 ___
-### COMPARE
+### `COMPARE`
 _c-addr1 u1 c-addr2 u2 -- -1|0|1_
 
 compare strings, leaves -1 = less or 0 = equal or 1 = greater
 
 ___
-### SEARCH
+### `SEARCH`
 _c-addr1 u1 c-addr2 u2 -- c-addr3 u3 flag_
 
 true if the first string contains the second string;
@@ -1159,7 +1159,7 @@ leaves matching address, remaining length, and TRUE;
 or leaves the first string and FALSE
 
 ___
-### CMOVE
+### `CMOVE`
 _c-addr1 c-addr2 u --_
 
 move u bytes from c-addr1 to c-addr2 (from begin going up)
@@ -1174,13 +1174,13 @@ move u bytes from c-addr1 to c-addr2 (from begin going up)
       2DROP ;
 
 ___
-### CMOVE>
+### `CMOVE>`
 _c-addr1 c-addr2 u --_
 
 move u bytes from c-addr1 to c-addr2 up (from end going down)
 
 ___
-### MOVE
+### `MOVE`
 _c-addr1 c-addr2 u --_
 
 move u bytes from c-addr1 to c-addr2
@@ -1194,13 +1194,13 @@ move u bytes from c-addr1 to c-addr2
       THEN ;
 
 ___
-### FILL
+### `FILL`
 _c-addr u char --_
 
 fill memory with char
 
 ___
-### ERASE
+### `ERASE`
 _c-addr u --_
 
 fill memory with zeros
@@ -1208,7 +1208,7 @@ fill memory with zeros
     : ERASE 0 FILL ;
 
 ___
-### BLANK
+### `BLANK`
 _c-addr u --_
 
 fill memory with 0x20 (BL) chars
@@ -1216,7 +1216,7 @@ fill memory with 0x20 (BL) chars
     : ERASE BL FILL ;
 
 ___
-### CHOP
+### `CHOP`
 _c-addr u1 char -- c-addr u2_
 
 truncate a string up to a matching char;
@@ -1224,21 +1224,21 @@ leaves the string if char not found;
 char = 0x20 (BL) chops 0x00 to 0x20 (white space and control)
 
 ___
-### TRIM
+### `TRIM`
 _c-addr1 u1 char -- c-addr2 u2_
 
 trim initial chars from a string;
 char = 0x20 (BL) trims 0x00 to 0x20 (white space and control)
 
 ___
-### -TRIM
+### `-TRIM`
 _c-addr u1 char -- c-addr u2_
 
 trim trailing chars from a string;
 char = 0x20 (BL) trims 0x00 to 0x20 (white space and control)
 
 ___
-### -TRAILING
+### `-TRAILING`
 _c-addr u1 -- c-addr u2_
 
 trim trailing white space and control characters from a string
@@ -1246,7 +1246,7 @@ trim trailing white space and control characters from a string
     : -TRAILING BL -TRIM ;
 
 ___
-### /STRING
+### `/STRING`
 _c-addr1 u1 n -- c-addr2 u2_
 
 slice n characters off the start of a string;
@@ -1256,7 +1256,7 @@ which should be avoided with OVER UMIN /STRING
     : /STRING ROT OVER + -ROT - ;
 
 ___
-### NEXT-CHAR
+### `NEXT-CHAR`
 _c-addr1 u1 -- c-addr2 u2 char_
 
 get next char from a string;
@@ -1266,25 +1266,25 @@ increments the string address and decrements its length by one
     : NEXT-CHAR OVER C@ -ROT 1- SWAP 1+ SWAP ROT ;
 
 ___
-### WIDTH
+### `WIDTH`
 _u --_
 
 set text mode screen and its window width
 
 ___
-### MAX-XY
+### `MAX-XY`
 _-- u1 u2_
 
 leave number of screen columns x as u1 and rows y as u2
 
 ___
-### CUR-XY
+### `CUR-XY`
 _-- u1 u2_
 
 fetch cursor column x as u1 >= 0 and row y as u2 >= 0
 
 ___
-### AT-XY
+### `AT-XY`
 _u1 u2 --_
 
 set column x to u1 >= 0 and row y to u2 >= 0
@@ -1292,13 +1292,13 @@ set column x to u1 >= 0 and row y to u2 >= 0
     : AT-XY Y! X! ;
 
 ___
-### OUTPUT-ID
+### `OUTPUT-ID`
 _-- 0|fileid_
 
 value with 0 = console output, otherwise fileid to redirect output
 
 ___
-### EMIT
+### `EMIT`
 _char --_
 
 emit char to screen or to OUTPUT-ID when set;
@@ -1340,7 +1340,7 @@ ESC x | change cursor, follow by '4' (block) or '5' (disable)
 ESC y | change cursor, follow by '4' (under) or '5' (enable)
 
 ___
-### PAGE
+### `PAGE`
 _--_
 
 clear console screen
@@ -1348,7 +1348,7 @@ clear console screen
     : PAGE $C EMIT ;
 
 ___
-### CR
+### `CR`
 _--_
 
 emit carriage return and line feed
@@ -1356,7 +1356,7 @@ emit carriage return and line feed
     : CR 13 EMIT 10 EMIT ;
 
 ___
-### SPACE
+### `SPACE`
 _--_
 
 emit a space
@@ -1364,7 +1364,7 @@ emit a space
     : SPACE BL EMIT ;
 
 ___
-### SPACES
+### `SPACES`
 _n --_
 
 emit n spaces (zero or negative n does nothing)
@@ -1372,7 +1372,7 @@ emit n spaces (zero or negative n does nothing)
     : SPACES 0 MAX 0 ?DO SPACE LOOP ;
 
 ___
-### TYPE
+### `TYPE`
 _c-addr u --_
 
 type string to output or to OUTPUT-ID when set;
@@ -1385,7 +1385,7 @@ string may contain control codes, see EMIT
       2DROP ;
 
 ___
-### BASE
+### `BASE`
 _-- addr_
 
 variable with numeric base for conversion
@@ -1393,7 +1393,7 @@ variable with numeric base for conversion
     VARIABLE BASE
 
 ___
-### DECIMAL
+### `DECIMAL`
 _--_
 
 set BASE to 10
@@ -1401,7 +1401,7 @@ set BASE to 10
     : DECIMAL 10 BASE ! ;
 
 ___
-### HEX
+### `HEX`
 _--_
 
 set BASE to 16
@@ -1409,7 +1409,7 @@ set BASE to 16
     : HEX 16 BASE ! ;
 
 ___
-### HP
+### `HP`
 _-- addr_
 
 hold pointer
@@ -1417,7 +1417,7 @@ hold pointer
     0 VALUE HP
 
 ___
-### <#
+### `<#`
 _--_
 
 begin pictured numeric output
@@ -1425,7 +1425,7 @@ begin pictured numeric output
     : <# HERE h_size + TO HP ;
 
 ___
-### HOLD
+### `HOLD`
 _char --_
 
 hold char for pictured numeric output
@@ -1433,7 +1433,7 @@ hold char for pictured numeric output
     : HOLD -1 +TO HP HP C! ;
 
 ___
-### HOLDS
+### `HOLDS`
 _c-addr u --_
 
 hold string for pictured numeric output;
@@ -1446,7 +1446,7 @@ the string size should be limited to not exceed the hold space size of 40 bytes
       2DROP ;
 
 ___
-### #
+### `#`
 _ud1 -- ud2_
 
 hold digit
@@ -1461,7 +1461,7 @@ hold digit
       R> ;
 
 ___
-### #S
+### `#S`
 _ud -- 0 0_
 
 hold all remaining digits
@@ -1469,7 +1469,7 @@ hold all remaining digits
     : #S BEGIN # 2DUP D0= UNTIL ;
 
 ___
-### SIGN
+### `SIGN`
 _n --_
 
 hold minus sign if n < 0
@@ -1477,7 +1477,7 @@ hold minus sign if n < 0
     : SIGN 0< IF '- HOLD THEN ;
 
 ___
-### #>
+### `#>`
 _ud -- c-addr u_
 
 end pictured numeric output, leave string
@@ -1485,7 +1485,7 @@ end pictured numeric output, leave string
     : #> 2DROP HP HERE h_size + OVER - ;
 
 ___
-### D.R
+### `D.R`
 _d +n --_
 
 output signed double d right-aligned in field of +n chars wide
@@ -1493,7 +1493,7 @@ output signed double d right-aligned in field of +n chars wide
     : D.R -ROT TUCK DABS <# #S ROT SIGN #> ROT OVER - SPACES TYPE ;
 
 ___
-### D.
+### `D.`
 _d --_
 
 output signed double d with a trailing space
@@ -1501,7 +1501,7 @@ output signed double d with a trailing space
     : D. 0 D.R SPACE ;
 
 ___
-### U.R
+### `U.R`
 _u +n --_
 
 output unsigned u right-aligned in field of +n chars wide
@@ -1509,7 +1509,7 @@ output unsigned u right-aligned in field of +n chars wide
     : U.R 0 SWAP D.R ;
 
 ___
-### U.
+### `U.`
 _u --_
 
 output unsigned u with a trailing space
@@ -1517,7 +1517,7 @@ output unsigned u with a trailing space
     : U. 0 D. ;
 
 ___
-### .R
+### `.R`
 _n +n --_
 
 output signed n right-aligned in field of +n chars wide
@@ -1525,7 +1525,7 @@ output signed n right-aligned in field of +n chars wide
     : .R SWAP S>D ROT D.R ;
 
 ___
-### .
+### `.`
 _n --_
 
 output signed n with a trailing space
@@ -1533,7 +1533,7 @@ output signed n with a trailing space
     : . S>D D. ;
 
 ___
-### ?
+### `?`
 _addr --_
 
 output signed cell stored at addr
@@ -1541,14 +1541,14 @@ output signed cell stored at addr
     : ? @ . ;
 
 ___
-### INKEY
+### `INKEY`
 _-- x_
 
 check for key press and return the code of the key;
 0 = no key pressed
 
 ___
-### KEY-CLEAR
+### `KEY-CLEAR`
 _--_
 
 wait until no keys are pressed
@@ -1556,19 +1556,19 @@ wait until no keys are pressed
     : KEY-CLEAR BEGIN INKEY 0= UNTIL ;
 
 ___
-### KEY?
+### `KEY?`
 _-- flag_
 
 true if a key is pressed
 
 ___
-### KEY
+### `KEY`
 _-- char_
 
 wait and read key from the console
 
 ___
-### EDIT
+### `EDIT`
 _c-addr +n1 n2 n3 -- c-addr +n4_
 
 edit buffer c-addr;
@@ -1578,7 +1578,7 @@ non-editable left margin n3;
 leaves c-addr and length +n4 (MSX INLIN strips first n3 characters)
 
 ___
-### ACCEPT
+### `ACCEPT`
 _c-addr +n1 -- +n2_
 
 accept user input into buffer c-addr +n1;
@@ -1587,7 +1587,7 @@ leaves length +n2
     : ACCEPT 0 0 EDIT NIP ;
 
 ___
-### #IN
+### `#IN`
 _-- n_
 
 value with line number of the input file being read from SOURCE-ID
@@ -1595,7 +1595,7 @@ value with line number of the input file being read from SOURCE-ID
     0 VALUE #IN
 
 ___
-### >IN
+### `>IN`
 _-- addr_
 
 variable with offset into the input buffer
@@ -1603,7 +1603,7 @@ variable with offset into the input buffer
     VARIABLE >IN
 
 ___
-### SOURCE-ID
+### `SOURCE-ID`
 _-- 0|-1|fileid_
 
 value with 0 = console input or -1 = string input, otherwise fileid input
@@ -1611,7 +1611,7 @@ value with 0 = console input or -1 = string input, otherwise fileid input
     0 VALUE SOURCE-ID
 
 ___
-### SOURCE
+### `SOURCE`
 _-- c-addr u_
 
 double value with input source buffer and input length
@@ -1619,7 +1619,7 @@ double value with input source buffer and input length
     TIB 0 2VALUE SOURCE
 
 ___
-### RESTORE-INPUT
+### `RESTORE-INPUT`
 _... n -- flag_
 
 restore input parameters from the stack;
@@ -1629,7 +1629,7 @@ flag is always FALSE (success)
     : RESTORE-INPUT DROP TO #IN >IN ! TO SOURCE TO SOURCE-ID FALSE ;
 
 ___
-### SAVE-INPUT
+### `SAVE-INPUT`
 _-- ... n_
 
 save input parameters on the stack
@@ -1638,7 +1638,7 @@ save input parameters on the stack
     : SAVE-INPUT SOURCE-ID SOURCE >IN @ #IN 5 ;
 
 ___
-### REFILL
+### `REFILL`
 _-- flag_
 
 attempt to refill the input buffer;
@@ -1670,7 +1670,7 @@ leaves FALSE when the end of input (end of file) is reached
       THEN ;
 
 ___
-### SKIP
+### `SKIP`
 _char "&lt;chars&gt;" --_
 
 skip chars in input when present, 0x20 (BL) skips 0x00 to 0x20 (white space and control)
@@ -1678,7 +1678,7 @@ skip chars in input when present, 0x20 (BL) skips 0x00 to 0x20 (white space and 
     : SKIP SOURCE >IN @ /STRING ROT TRIM DROP SOURCE DROP - >IN ! ;
 
 ___
-### PARSE
+### `PARSE`
 _char "ccc&lt;char&gt;" -- c-addr u_
 
 parse "ccc" up to char when present
@@ -1686,7 +1686,7 @@ parse "ccc" up to char when present
     : PARSE SOURCE >IN @ /STRING ROT CHOP DUP 1+ >IN @ + SOURCE NIP UMIN >IN ! ;
 
 ___
-### PARSE-WORD
+### `PARSE-WORD`
 _char "&lt;chars&gt;ccc&lt;char&gt;" -- c-addr u_
 
 parse char-delimited word;
@@ -1697,7 +1697,7 @@ may throw -18 "parsed string overflow"
       DUP b_size-1 U> IF -18 THROW THEN ;
 
 ___
-### WORD
+### `WORD`
 _char "&lt;chars&gt;ccc&lt;char&gt;" -- c-addr_
 
 parse word as a counted string
@@ -1706,7 +1706,7 @@ parse word as a counted string
     : WORD PARSE-WORD SDUP DROP 1- ;
 
 ___
-### CHECK-NAME
+### `CHECK-NAME`
 _c-addr u -- c-addr u_
 
 check if name is valid;
@@ -1718,7 +1718,7 @@ may throw -19 "definition name too long"
       DUP length_mask U> IF -19 THROW THEN ;
 
 ___
-### PARSE-NAME
+### `PARSE-NAME`
 _"&lt;spaces&gt;name&lt;space&gt;" -- c-addr u_
 
 parse space-delimited name;
@@ -1727,7 +1727,7 @@ check if name length is valid
     : PARSE-NAME BL PARSE-WORD CHECK-NAME ;
 
 ___
-### CHAR
+### `CHAR`
 _"&lt;spaces&gt;name&lt;space&gt;" -- char_
 
 parse char
@@ -1735,14 +1735,14 @@ parse char
     : CHAR PARSE-NAME DROP C@ ;
 
 ___
-### >DIGIT
+### `>DIGIT`
 _char -- n_
 
 convert char digit to numeric digit when within BASE;
 leaves -1 if char is invalid
 
 ___
-### >NUMBER
+### `>NUMBER`
 _ud1 c-addr1 u1 -- ud2 c-addr2 u2_
 
 convert string to number;
@@ -1764,7 +1764,7 @@ leaves string with the remaining unconvertable chars or empty
       REPEAT ;
 
 ___
-### DBL
+### `DBL`
 _-- flag_
 
 true if >DOUBLE or NUMBER parsed and produced a double
@@ -1772,7 +1772,7 @@ true if >DOUBLE or NUMBER parsed and produced a double
     0 VALUE DBL
 
 ___
-### >DOUBLE
+### `>DOUBLE`
 _c-addr u -- d true | false_
 
 convert string to signed double;
@@ -1785,38 +1785,38 @@ sets value DBL to -1 when the number is a double;
 otherwise sets value DBL to 0
 
 ___
-### L>NAME
+### `L>NAME`
 _lfa -- nt_
 
 convert link field address (lfa) to name token or name field address (nfa)
 
 ___
-### NAME>STRING
+### `NAME>STRING`
 _nt -- c-addr u_
 
 convert name token or name field address (nfa) to string
 
 ___
-### NAME>
+### `NAME>`
 _nt -- xt_
 
 convert name token or name field address (nfa) to execution token or call field address (cfa)
 
 ___
-### >NAME
+### `>NAME`
 _xt -- nt_
 
 convert execution token or call field address (cfa) to name token or name field address (nfa);
 may throw -24 "invalid numeric argument"
 
 ___
-### >BODY
+### `>BODY`
 _xt -- addr_
 
 convert execution token to parameter field address (pfa)
 
 ___
-### FIND-WORD
+### `FIND-WORD`
 _c-addr u -- c-addr 0 | xt 1 | xt -1_
 
 search dictionary for matching word (case insensitive);
@@ -1824,7 +1824,7 @@ leaves execution token and 1 = immediate or -1 = not immediate;
 leaves c-addr and 0 when not found
 
 ___
-### '
+### `'`
 _"&lt;spaces&gt;name&lt;space&gt;" -- xt_
 
 parse name and search the dictionary to leave its execution token;
@@ -1833,7 +1833,7 @@ may throw -13 "undefined word"
     : ' PARSE-NAME FIND-WORD 0= IF -13 THROW THEN ;
 
 ___
-### FIND
+### `FIND`
 _c-addr -- c-addr 0 | xt 1 | xt -1_
 
 search dictionary for the counted string to match a word (case insensitive);
@@ -1843,13 +1843,13 @@ leaves c-addr and 0 when not found
     : FIND COUNT FIND-WORD ;
 
 ___
-### WORDS
+### `WORDS`
 _--_
 
 display context vocabulary words one screen full at a time
 
 ___
-### HERE
+### `HERE`
 _-- addr_
 
 address of free memory after the dictionary;
@@ -1857,7 +1857,7 @@ new definitions are added here;
 note that numeric output words use HERE for conversion
 
 ___
-### UNUSED
+### `UNUSED`
 _-- u_
 
 unused dictionary space
@@ -1865,7 +1865,7 @@ unused dictionary space
     : UNUSED top @ HERE - ;
 
 ___
-### LASTXT
+### `LASTXT`
 _-- xt_
 
 leaves the last execution token defined
@@ -1873,7 +1873,7 @@ leaves the last execution token defined
     0 VALUE LASTXT
 
 ___
-### RECURSE
+### `RECURSE`
 _... -- ..._
 
 recursively call the currently defined word;
@@ -1884,7 +1884,7 @@ recursion depth should not exceed available return stack space
     : RECURSE ?COMP ['] ?RP COMPILE, LASTXT COMPILE, ; IMMEDIATE
 
 ___
-### STATE
+### `STATE`
 _-- addr_
 
 compilation state;
@@ -1894,7 +1894,7 @@ STATE @ leaves FALSE when interpreting
     VARIABLE STATE
 
 ___
-### [
+### `[`
 _--_
 
 switch state to interpreting
@@ -1902,7 +1902,7 @@ switch state to interpreting
     : [ STATE OFF ;
 
 ___
-### ]
+### `]`
 _--_
 
 switch state to compiling
@@ -1910,7 +1910,7 @@ switch state to compiling
     : ] STATE ON ;
 
 ___
-### [']
+### `[']`
 _"&lt;spaces&gt;name&lt;space&gt;" -- ; -- xt_
 
 compile xt of name as literal;
@@ -1919,7 +1919,7 @@ may throw -14 "interpreting a compile-only word"
     : ['] ?COMP ' LITERAL ; IMMEDIATE
 
 ___
-### [CHAR]
+### `[CHAR]`
 _"&lt;spaces&gt;char" -- ; -- char_
 
 compile char as literal;
@@ -1929,7 +1929,7 @@ may throw -14 "interpreting a compile-only word"
     : [CHAR] ?COMP CHAR LITERAL ; IMMEDIATE
 
 ___
-### [COMPILE]
+### `[COMPILE]`
 _"&lt;space&gt;name&lt;space&gt;" -- ; ... -- ..._
 
 compile name;
@@ -1939,7 +1939,7 @@ may throw -14 "interpreting a compile-only word"
     : [COMPILE] ?COMP ' COMPILE, ; IMMEDIATE
 
 ___
-### HIDE
+### `HIDE`
 _--_
 
 hide the last definition
@@ -1947,7 +1947,7 @@ hide the last definition
     : HIDE CURRENT @ L>NAME DUP C@ smudge_mask OR SWAP C! ;
 
 ___
-### REVEAL
+### `REVEAL`
 _--_
 
 reveal the last definition, i.e. unhide it
@@ -1955,7 +1955,7 @@ reveal the last definition, i.e. unhide it
     : REVEAL CURRENT @ L>NAME DUP C@ ~smudge_mask AND SWAP C! ;
 
 ___
-### IMMEDIATE
+### `IMMEDIATE`
 _--_
 
 make the last definition immediate
@@ -1963,14 +1963,14 @@ make the last definition immediate
     : IMMEDIATE CURRENT @ L>NAME DUP C@ immediate_mask OR SWAP C! ;
 
 ___
-### ?COMP
+### `?COMP`
 _--_
 
 check if compiling;
 may throw -14 "interpreting a compile-only word"
 
 ___
-### ?SYS
+### `?SYS`
 _-- ; C: x --_
 
 check if compiled control structure matches x;
@@ -1978,7 +1978,7 @@ may throw -14 "interpreting a compile-only word";
 may throw -22 "control structure mismatch"
 
 ___
-### ALLOT
+### `ALLOT`
 _n --_
 
 allocate n bytes starting from HERE in the dictionary;
@@ -1987,7 +1987,7 @@ but beware: don't use negative n when new words were defined;
 may throw -8 "dictionary overflow"
 
 ___
-### COMPILE,
+### `COMPILE,`
 _xt --_
 
 append execution token to dictionary;
@@ -1996,21 +1996,21 @@ may throw -8 "dictionary overflow"
     : COMPILE, , ;
 
 ___
-### ,
+### `,`
 _x --_
 
 append cell to dictionary;
 may throw -8 "dictionary overflow"
 
 ___
-### C,
+### `C,`
 _char --_
 
 append char to dictionary;
 may throw -8 "dictionary overflow"
 
 ___
-### 2,
+### `2,`
 _x1 x2 --_
 
 append double cell to dictionary;
@@ -2019,7 +2019,7 @@ may throw -8 "dictionary overflow"
     : 2, , , ;
 
 ___
-### NFA,
+### `NFA,`
 _c-addr u --_
 
 append dictionary entry with name string;
@@ -2029,7 +2029,7 @@ may throw -8 "dictionary overflow"
     : NFA, HERE CURRENT @ , CURRENT ! DUP C, HERE SWAP DUP ALLOT CMOVE HERE TO LASTXT ;
 
 ___
-### CODE
+### `CODE`
 _"&lt;spaces&gt;name&lt;space&gt;" --_
 
 parse name and append dictionary entry with name to execute machine code;
@@ -2040,14 +2040,14 @@ may throw -8 "dictionary overflow"
     : CODE PARSE-NAME NFA, ;
 
 ___
-### CFA,
+### `CFA,`
 _addr --_
 
 append cfa call addr to dictionary;
 may throw -8 "dictionary overflow"
 
 ___
-### :CFA
+### `:CFA`
 _-- addr colon_sys_
 
 append cfa colon definition with cfa call addr to dictionary;
@@ -2058,7 +2058,7 @@ may throw -8 "dictionary overflow"
     : :CFA ] HERE colon_sys ['] (:) CFA, CURRENT TO CONTEXT ;
 
 ___
-### CFA=
+### `CFA=`
 _xt1 xt2 -- flag_
 
 true if xt1 has a cfa equal to a call to addr xt2;
@@ -2075,7 +2075,7 @@ leaves -1 (TRUE) meaning X is a VALUE which calls runtime (VAL)
     : CFA= OVER C@ $CD = -ROT SWAP 1+ @ = AND ;
 
 ___
-### POSTPONE
+### `POSTPONE`
 _"&lt;spaces&gt;name&lt;space&gt;" --_
 
 postpone compile action of name;
@@ -2086,7 +2086,7 @@ may throw -13 "undefined word";
 may throw -14 "interpreting a compile-only word"
 
 ___
-### BUFFER:
+### `BUFFER:`
 _n "&lt;spaces&gt;name&lt;space&gt;" -- ; -- addr_
 
 define buffer with n bytes;
@@ -2095,7 +2095,7 @@ executing name leaves address of n bytes
     : BUFFER: CREATE ALLOT ;
 
 ___
-### :NONAME
+### `:NONAME`
 _-- xt_
 
 colon definition without name;
@@ -2104,7 +2104,7 @@ leaves the execution token of the definition to be used or saved
     : :NONAME HERE DUP TO LASTXT :CFA ;
 
 ___
-### :
+### `:`
 _-- ; C: "&lt;spaces&gt;name&lt;space&gt;" -- addr colon_sys_
 
 define name and start compiling
@@ -2112,7 +2112,7 @@ define name and start compiling
     : : CODE HIDE :CFA ;
 
 ___
-### ;
+### `;`
 _-- ; C: addr colon_sys --_
 
 end colon definition and stop compiling;
@@ -2122,7 +2122,7 @@ may throw -22 "control structure mismatch"
     : ; ?COMP colon_sys <> IF -22 THROW THEN DROP POSTPONE (;) REVEAL [ ; IMMEDIATE
 
 ___
-### EXIT
+### `EXIT`
 _--_
 
 exit colon definition;
@@ -2132,7 +2132,7 @@ call UNLOOP first to remove DO-LOOP parameters from the return stack
     : EXIT ?COMP POSTPONE (EXIT) ; IMMEDIATE
 
 ___
-### CREATE
+### `CREATE`
 _"&lt;spaces&gt;name&lt;space&gt;" -- ; -- addr_
 
 create name;
@@ -2141,7 +2141,7 @@ executing name leaves address (HERE address after CREATE)
     : CREATE CODE ['] (VAR) CFA, ;
 
 ___
-### DOES>
+### `DOES>`
 _-- ; ... -- ..._
 
 change CREATE name behavior to execute code after DOES>
@@ -2149,7 +2149,7 @@ change CREATE name behavior to execute code after DOES>
     : DOES> ?COMP POSTPONE (;DOES) ['] (DOES) CFA, ; IMMEDIATE
 
 ___
-### VARIABLE
+### `VARIABLE`
 _"&lt;spaces&gt;name&lt;space&gt;" -- ; -- addr_
 
 define a variable;
@@ -2158,7 +2158,7 @@ executing name leaves address of value (initialized to zero)
     : VARIABLE CREATE 0 , ;
 
 ___
-### 2VARIABLE
+### `2VARIABLE`
 _"&lt;spaces&gt;name&lt;space&gt;" -- ; -- addr_
 
 define a double variable;
@@ -2167,7 +2167,7 @@ executing name leaves address of double value (initialized to zero)
     : 2VARIABLE CREATE 0 0 2, ;
 
 ___
-### CONSTANT
+### `CONSTANT`
 _x "&lt;spaces&gt;name&lt;space&gt;" -- ; -- x_
 
 define a constant;
@@ -2177,7 +2177,7 @@ executing name leaves x
     : CONSTANT CREATE , DOES> @ ;
 
 ___
-### 2CONSTANT
+### `2CONSTANT`
 _x1 x2 "&lt;spaces&gt;name&lt;space&gt;" -- ; -- x1 x2_
 
 define a double constant;
@@ -2187,7 +2187,7 @@ executing name leaves x1 x2
     : 2CONSTANT CREATE 2, DOES> 2@ ;
 
 ___
-### VALUE
+### `VALUE`
 _x "&lt;spaces&gt;name&lt;space&gt;" -- ; -- x_
 
 define a value;
@@ -2196,7 +2196,7 @@ executing name leaves x
     : VALUE CODE ['] (VAL) CFA, , ;
 
 ___
-### 2VALUE
+### `2VALUE`
 _dx "&lt;spaces&gt;name&lt;space&gt;" -- ; -- dx_
 
 define a double value;
@@ -2205,7 +2205,7 @@ executing name leaves dx
     : 2VALUE CODE ['] (2VAL) CFA, 2, ;
 
 ___
-### TO
+### `TO`
 _"&lt;spaces&gt;name&lt;space&gt;" -- ; x --_
 
 assign value name;
@@ -2236,7 +2236,7 @@ may throw -32 "invalid name argument"
       -32 THROW ; IMMEDIATE
 
 ___
-### +TO
+### `+TO`
 _"&lt;spaces&gt;name&lt;space&gt;" -- ; n --_
 
 increment value name;
@@ -2266,7 +2266,7 @@ may throw -32 "invalid name argument"
       -32 THROW ; IMMEDIATE
 
 ___
-### DEFER
+### `DEFER`
 _"&lt;spaces&gt;name&lt;space&gt;" -- ; ... -- ..._
 
 define a deferred name
@@ -2274,7 +2274,7 @@ define a deferred name
     : DEFER CODE ['] (DEF) CFA, ['] UNDEF , ;
 
 ___
-### DEFER!
+### `DEFER!`
 _xt1 xt2 --_
 
 store xt1 in deferred xt2
@@ -2282,7 +2282,7 @@ store xt1 in deferred xt2
     : DEFER! >BODY ! ;
 
 ___
-### DEFER@
+### `DEFER@`
 _xt1 -- xt2_
 
 fetch execution token from deferred xt1
@@ -2290,7 +2290,7 @@ fetch execution token from deferred xt1
     : DEFER@ >BODY @ ;
 
 ___
-### IS
+### `IS`
 _xt "&lt;spaces&gt;name&lt;space&gt;" --_
 
 assign execution token to deferred name;
@@ -2310,7 +2310,7 @@ may throw -32 "invalid name argument"
       #-32 THROW ; IMMEDIATE
 
 ___
-### ACTION-OF
+### `ACTION-OF`
 _"&lt;spaces&gt;name&lt;space&gt;" -- xt_
 
 fetch execution token of deferred name;
@@ -2330,7 +2330,7 @@ may throw -32 "invalid name argument"
       #-32 THROW ; IMMEDIATE
 
 ___
-### LITERAL
+### `LITERAL`
 _x -- ; -- x_
 
 compile a literal
@@ -2338,7 +2338,7 @@ compile a literal
     : LITERAL ?COMP POSTPONE (LIT) , ; IMMEDIATE
 
 ___
-### 2LITERAL
+### `2LITERAL`
 _x1 x2 -- ; -- x1 x2_
 
 compile a double literal
@@ -2346,7 +2346,7 @@ compile a double literal
     : 2LITERAL ?COMP POSTPONE (2LIT) 2, ; IMMEDIATE
 
 ___
-### SLITERAL
+### `SLITERAL`
 _c-addr u -- ; -- c-addr u_
 
 compile a string literal;
@@ -2360,7 +2360,7 @@ max literal string length is 255
       HERE OVER ALLOT SWAP CMOVE ; IMMEDIATE
 
 ___
-### ."
+### `."`
 _"ccc&lt;quote&gt;" -- ; --_
 
 type "ccc" (compiled, not interpreted)
@@ -2368,7 +2368,7 @@ type "ccc" (compiled, not interpreted)
     : ." ?COMP '" PARSE SLITERAL POSTPONE TYPE ; IMMEDIATE
 
 ___
-### C"
+### `C"`
 _"ccc&lt;quote&gt;" -- ; -- c-addr_
 
 leave counted string "ccc" (compiled, not interpreted);
@@ -2377,7 +2377,7 @@ may throw -18 "parsed string overflow"
     : C" ?COMP POSTPONE S" POSTPONE DROP POSTPONE 1- ; IMMEDIATE
 
 ___
-### S"
+### `S"`
 _"ccc&lt;quote&gt;" -- ; -- c-addr u_
 
 leave string "ccc" (compiled and interpreted);
@@ -2386,41 +2386,41 @@ truncates string to 255 characters long when excessive
     : S" '" PARSE SDUP ; IMMEDIATE
 
 ___
-### S\\"
+### `S\"`
 _"ccc&lt;quote&gt;" -- ; -- c-addr u_
 
 leave string "ccc" (compiled and interpreted);
-"ccc" may include \\-escape codes translated by the S\>S word;
+"ccc" may include \-escape codes translated by the S\>S word;
 truncates string to 255 characters long when excessive
 
-    : S\\" '" PARSE S\>S SDUP ; IMMEDIATE
+    : S\" '" PARSE S\>S SDUP ; IMMEDIATE
 
 ___
-### S\\>S
+### `S\>S`
 _c-addr u -- c-addr u_
 
-convert string in place by translating \\-escape codes
+convert string in place by translating \-escape codes
 
 code | corresponding ASCII character code
 ---- | ----------------------------------------------------------
-\\\   | \ backslash (92)
-\\a   | BEL (7)
-\\b   | BS (8)
-\\e   | ESC (27)
-\\f   | FF (12)
-\\l   | LF (10)
-\\m   | CR/LF (13 then 10)
-\\n   | LF (10)
-\\q   | " quote (34)
-\\r   | CR (13)
-\\t   | TAB (9)
-\\v   | VT (11)
-\\xhh | hh in hex (0xhh)
-\\z   | NUL (0)
-\\G   | MSX graphic character header (1) e.g. \GA
+\\   | \ backslash (92)
+\a   | BEL (7)
+\b   | BS (8)
+\e   | ESC (27)
+\f   | FF (12)
+\l   | LF (10)
+\m   | CR/LF (13 then 10)
+\n   | LF (10)
+\q   | " quote (34)
+\r   | CR (13)
+\t   | TAB (9)
+\v   | VT (11)
+\xhh | hh in hex (0xhh)
+\z   | NUL (0)
+\G   | MSX graphic character header (1) e.g. \GA
 
 ___
-### SDUP
+### `SDUP`
 _c-addr1 u -- c-addr2 u_
 
 duplicate string to a TMP buffer or to a string literal when compiling;
@@ -2442,39 +2442,39 @@ truncates the copy to 255 characters long when excessive
       2R> ;
 
 ___
-### I
+### `I`
 _-- n_
 
 the loop counter value of innermost do-loop
 
 ___
-### J
+### `J`
 _-- n_
 
 the loop counter value of outer (second) do-loop
 
 ___
-### K
+### `K`
 _-- n_
 
 the loop counter value of outer (third) do-loop
 
 ___
-### AHEAD
+### `AHEAD`
 _-- ; C: -- addr orig_
 
 branch ahead to THEN;
 may throw -14 "interpreting a compile-only word"
 
 ___
-### BEGIN
+### `BEGIN`
 _-- ; C: -- addr dest_
 
 begin WHILE REPEAT;
 may throw -14 "interpreting a compile-only word"
 
 ___
-### AGAIN
+### `AGAIN`
 _-- ; C: addr dest --_
 
 branch back to BEGIN;
@@ -2482,7 +2482,7 @@ may throw -14 "interpreting a compile-only word";
 may throw -22 "control structure mismatch"
 
 ___
-### UNTIL
+### `UNTIL`
 _x -- ; C: addr dest --_
 
 branch back to BEGIN if x = 0 (FALSE);
@@ -2490,14 +2490,14 @@ may throw -14 "interpreting a compile-only word";
 may throw -22 "control structure mismatch"
 
 ___
-### IF
+### `IF`
 _x -- ; C: -- addr orig_
 
 branch to closest ELSE or THEN if x = 0 (FALSE);
 may throw -14 "interpreting a compile-only word"
 
 ___
-### THEN
+### `THEN`
 _-- ; C: addr orig --_
 
 close AHEAD, IF, ELSE;
@@ -2505,7 +2505,7 @@ may throw -14 "interpreting a compile-only word";
 may throw -22 "control structure mismatch"
 
 ___
-### ELSE
+### `ELSE`
 _-- ; C: addr orig -- addr orig_
 
 close IF and branch to THEN;
@@ -2513,14 +2513,14 @@ may throw -14 "interpreting a compile-only word";
 may throw -22 "control structure mismatch"
 
 ___
-### WHILE
+### `WHILE`
 _x -- ; C: addr sys -- addr orig addr sys_
 
 branch to exit REPEAT if x = 0 (FALSE);
 may throw -14 "interpreting a compile-only word"
 
 ___
-### REPEAT
+### `REPEAT`
 _-- ; C: addr orig addr dest --_
 
 branch back to BEGIN after WHILE;
@@ -2528,7 +2528,7 @@ may throw -14 "interpreting a compile-only word";
 may throw -22 "control structure mismatch"
 
 ___
-### DO
+### `DO`
 _n1|u1 n2|u2 -- ; C: -- addr do_sys_
 
 begin loop from initial value n2|u2 to the limit n1|u1;
@@ -2537,7 +2537,7 @@ pushes do-loop parameters onto the return stack;
 may throw -14 "interpreting a compile-only word"
 
 ___
-### ?DO
+### `?DO`
 _n1|u1 n2|u2 -- ; C: -- addr do_sys_
 
 begin loop from initial value n2|u2 to the limit n1|u1;
@@ -2546,7 +2546,7 @@ skip loop when zero trip loop;
 may throw -14 "interpreting a compile-only word"
 
 ___
-### LOOP
+### `LOOP`
 _-- ; C: addr do_sys --_
 
 repeat loop unless loop counter crosses the limit;
@@ -2554,7 +2554,7 @@ may throw -14 "interpreting a compile-only word";
 may throw -22 "control structure mismatch"
 
 ___
-### +LOOP
+### `+LOOP`
 _n|u -- ; C: addr do_sys --_
 
 increment counter and repeat loop unless counter crosses the limit;
@@ -2562,35 +2562,35 @@ may throw -14 "interpreting a compile-only word";
 may throw -22 "control structure mismatch"
 
 ___
-### UNLOOP
+### `UNLOOP`
 _--_
 
 remove do-loop parameters from the return stack;
 may throw -14 "interpreting a compile-only word"
 
 ___
-### ?LEAVE
+### `?LEAVE`
 _x --_
 
 if x is nonzero (not FALSE) then exit the innermost do-loop;
 may throw -14 "interpreting a compile-only word"
 
 ___
-### LEAVE
+### `LEAVE`
 _--_
 
 exit the innermost do-loop;
 may throw -14 "interpreting a compile-only word"
 
 ___
-### CASE
+### `CASE`
 _x -- ; C: -- 0_
 
 begin CASE ENDCASE switch;
 may throw -14 "interpreting a compile-only word"
 
 ___
-### OF
+### `OF`
 _x1 x2 -- x1 or x1 x2 -- ; C: n1 -- orig n2_
 
 take CASE arm if x1 = x2;
@@ -2598,7 +2598,7 @@ otherwise branch to next OF;
 may throw -14 "interpreting a compile-only word"
 
 ___
-### ENDOF
+### `ENDOF`
 _-- ; C: n -- orig n_
 
 branch to ENDCASE;
@@ -2606,7 +2606,7 @@ may throw -14 "interpreting a compile-only word";
 may throw -22 "control structure mismatch"
 
 ___
-### ENDCASE
+### `ENDCASE`
 _x -- ; C: n*orig n --_
 
 close CASE;
@@ -2614,7 +2614,7 @@ may throw -14 "interpreting a compile-only word";
 may throw -22 "control structure mismatch"
 
 ___
-### ERROR
+### `ERROR`
 _n --_
 
 display exception n at the offending location in the input;
@@ -2700,7 +2700,7 @@ code | MSX error = code + 256
       THEN ;
 
 ___
-### HANDLER
+### `HANDLER`
 _-- addr_
 
 variable with saved return stack pointer
@@ -2708,13 +2708,13 @@ variable with saved return stack pointer
     VARIABLE HANDLER
 
 ___
-### EXECUTE
+### `EXECUTE`
 _... xt -- ..._
 
 execute execution token xt
 
 ___
-### CATCH
+### `CATCH`
 _... xt -- ... 0 or xt -- n_
 
 execute xt leaving nonzero exception code n or 0 when no exception occurred;
@@ -2731,7 +2731,7 @@ to their state before execution of xt
       0 ;
 
 ___
-### THROW
+### `THROW`
 _0 -- or ... n -- ... n_
 
 throw exception n if nonzero
@@ -2753,7 +2753,7 @@ throw exception n if nonzero
       THEN ;
 
 ___
-### QUIT
+### `QUIT`
 _... -- ; R: ... --_
 
 throw -56 "QUIT";
@@ -2763,7 +2763,7 @@ unlike ABORT, the parameter stack is not cleared
     : QUIT -56 THROW ;
 
 ___
-### ABORT
+### `ABORT`
 _... -- ; R: ... --_
 
 throw -1 "ABORT";
@@ -2772,7 +2772,7 @@ clears the parameter stack unless caught with CATCH
     : ABORT -1 THROW ;
 
 ___
-### ABORT"
+### `ABORT"`
 _... flag -- ; C: "ccc&lt;quote&gt;" -- ; R: ... --_
 
 if flag then abort with string message unless an active catch is present;
@@ -2783,13 +2783,13 @@ may throw -14 "interpreting a compile-only word"
     : ABORT" ?COMP POSTPONE S" POSTPONE (ABORT") ; IMMEDIATE
 
 ___
-### BYE
+### `BYE`
 _--_
 
 return to BASIC
 
 ___
-### (
+### `(`
 _"ccc&lt;paren&gt;" --_
 
 start a comment block;
@@ -2811,27 +2811,27 @@ parse and skip input up to the closing )
       0= UNTIL ; IMMEDIATE
 
 ___
-### \\
+### `\`
 _"ccc&lt;eol&gt;" --_
 
 start a comment line;
 parse and skip input up to the end of line
 
-    : \\ $A PARSE 2SROP ;
+    : \ $A PARSE 2SROP ;
 
 ___
-### OK
+### `OK`
 _"ccc&lt;eol&gt;" --_
 
 start a comment line;
 parse and skip input up to the end of line;
-same as \\ but not immediate,
+same as \ but not immediate,
 so that screen editing of Forth output before OK is made possible
 
-    : OK POSTPONE \\ ;
+    : OK POSTPONE \ ;
 
 ___
-### .(
+### `.(`
 _"ccc&lt;paren&gt;" --_
 
 emit CR then type "ccc" up to the closing )
@@ -2839,7 +2839,7 @@ emit CR then type "ccc" up to the closing )
     : .( ') PARSE CR TYPE ; IMMEDIATE
 
 ___
-### NUMBER
+### `NUMBER`
 _c-addr u -- n|u|d|ud|r_
 
 convert string to number;
@@ -2876,7 +2876,7 @@ may throw -13 "undefined word" when string is not numeric
       -13 THROW ;
 
 ___
-### INTERPRET
+### `INTERPRET`
 _--_
 
 interpret input while input is available
@@ -2899,7 +2899,7 @@ interpret input while input is available
       DROP ;
 
 ___
-### EVALUATE
+### `EVALUATE`
 _... c-addr u -- ..._
 
 evaluate string
@@ -2915,7 +2915,7 @@ evaluate string
       THROW ;
 
 ___
-### REPL
+### `REPL`
 _--_
 
 read-evaluate-print loop
@@ -2943,7 +2943,7 @@ read-evaluate-print loop
       BYE ;
 
 ___
-### MARKER
+### `MARKER`
 _"&lt;spaces&gt;name&lt;space&gt;" -- ; --_
 
 define a dictionary marker;
@@ -2966,7 +2966,7 @@ beware of vocabulary definitions crossings
         @ HERE - ALLOT ;
 
 ___
-### FENCE
+### `FENCE`
 _-- addr_
 
 only permit FORGET past the dictionary FENCE address
@@ -2974,7 +2974,7 @@ only permit FORGET past the dictionary FENCE address
     HERE VALUE FENCE
 
 ___
-### FORGET
+### `FORGET`
 _"&lt;spaces&gt;name&lt;space&gt;" --_
 
 delete name and all following definitions;
@@ -2983,7 +2983,7 @@ beware of vocabulary definitions crossings
 (other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
 
 ___
-### CONTEXT
+### `CONTEXT`
 _-- addr_
 
 leaves address of link of the last vocabulary context definition
@@ -2991,7 +2991,7 @@ leaves address of link of the last vocabulary context definition
     ' FORTH VALUE CONTEXT
 
 ___
-### CURRENT
+### `CURRENT`
 _-- addr_
 
 leaves address of link of the last current vocabulary definition
@@ -2999,7 +2999,7 @@ leaves address of link of the last current vocabulary definition
     ' FORTH VALUE CURRENT
 
 ___
-### DEFINITIONS
+### `DEFINITIONS`
 _--_
 
 make CURRENT the CONTEXT vocabulary
@@ -3007,7 +3007,7 @@ make CURRENT the CONTEXT vocabulary
     : DEFINITIONS CONTEXT TO CURRENT ;
 
 ___
-### VOCABULARY
+### `VOCABULARY`
 _"&lt;spaces&gt;name&lt;space&gt;" --_
 
 define a new vocabulary
@@ -3015,7 +3015,7 @@ define a new vocabulary
     : VOCABULARY CURRENT CREATE , fig_kludge , DOES> TO CONTEXT ;
 
 ___
-### FORTH
+### `FORTH`
 _--_
 
 make FORTH the CONTEXT vocabulary
