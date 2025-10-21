@@ -1551,13 +1551,15 @@ _-- x_
 check for key press and return the code of the key;
 0 = no key pressed
 
+    : INKEY KEY? IF KEY ELSE 0 THEN ;
+
 ___
 ### `KEY-CLEAR`
 _--_
 
-wait until no keys are pressed
+clear the key buffer
 
-    : KEY-CLEAR BEGIN INKEY 0= UNTIL ;
+    : KEY-CLEAR BEGIN KEY? WHILE KEY DROP REPEAT ;
 
 ___
 ### `KEY?`
