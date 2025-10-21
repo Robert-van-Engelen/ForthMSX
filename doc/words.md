@@ -6,6 +6,10 @@ to enter (part of) the word to search its meaning.
 
 For an overview see the [alphabetic list of words](#alphabetic-list-of-words)
 
+ForthMSX words are case insensitive.  So `ROT`, `Rot` and `rot` are the same.
+Built-in ForthMSX words are capitalized in this document to make them stand
+out from regular English.
+
 Forth words operate on the parameter stack, the return stack, and may parse
 delimited sequences of characters from the input buffer.  The parameter stack
 updates performed by a word are indicated by _before_ `--` _after_:
