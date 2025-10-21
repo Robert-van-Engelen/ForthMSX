@@ -52,7 +52,7 @@ Enter `bye` in Forth to exit back to BASIC.  You can return to Forth where you l
 ## Forth 2012 standard compliance and coverage
 
 - Core and Core-Ext (built-in, complete coverage)
-- Block (none, block buffer parsing will not be implemented)
+- Block (none, Forth old block-style buffers will not be implemented)
 - Double-Numbers and Double-Numbers-Ext (built-in, complete coverage)
 - Exception and Exception-Ext (built-in, complete coverage)
 - Facility and Facility-Ext (built-in, except for `K-*` words, require FACILITY.FTH for complete coverage)
