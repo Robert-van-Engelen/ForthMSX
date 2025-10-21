@@ -4570,10 +4570,11 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 ;		does not support REPOSITION-FILE except for position zero to rewind
 ;
 ;    : GET-LINE
-;      DUP FILE-POSITION DROP D0= IF \ at start of file
-;        DUP FIB 2- DUP OFF 2- OFF \ reset len and pos
+;      DUP FIB                  \ -- fileid fib
+;      OVER FILE-POSITION DROP D0= IF   \ if at start of file
+;        DUP 2- DUP OFF 2- OFF  \ then reset len and pos
 ;      THEN
-;      DUP FIB DUP 2- DUP @ SWAP 2- @ SWAP \ -- fileid fib len pos
+;      DUP 2- 2- 2@ SWAP        \ -- fileid fib len pos
 ;      OVER UMIN /STRING        \ -- fileid fib+pos len-pos
 ;      TUCK                     \ -- fileid len-pos fib+pos len-pos
 ;      10 CHOP                  \ -- fileid len-pos fib+pos u
@@ -4602,13 +4603,14 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 ;      THEN                     \ -- fileid fib+pos u
 ;      ROT FIB                  \ -- fib+pos u fib
 ;      OVER 1+ SWAP 2- +!       \ increment pos by u+1 -- fib+pos u
-;      13 -TRIM TRUE 0
+;      13 -TRIM TRUE 0          \ trim CR from end when present
 ;    ;
 
 		COLON GET-LINE,getline
-		.dw dup,fileposition,drop,dzeroequal,doif,1$
-		.dw   dup,fib,twominus,dup,off,twominus,off
-1$:		.dw dup,fib,dup,twominus,dup,fetch,swap,twominus,fetch,swap
+		.dw dup,fib
+		.dw over,fileposition,drop,dzeroequal,doif,1$
+		.dw   dup,twominus,dup,off,twominus,off
+1$:		.dw dup,twominus,twominus,twofetch,swap
 		.dw over,umin,slashstring
 		.dw tuck
 		.dw dolit,10,chop
@@ -4681,10 +4683,9 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		.dw duptor,writefile,qdup,doif,1$
 		.dw   rdrop
 		.dw   doexit
-		; SLIT ^|\r\n| crashes the assembler so manual inline
+		; SLIT ^|\r\n| crashes the assembler so add manually
 1$:		.dw doslit
-		.db 2
-		.str ^|\r\n|
+		.db 2,13,10
 		.dw rfrom,writefile
 		.dw doret
 
@@ -5913,16 +5914,16 @@ set_base:	ld (base+3),hl		; 10 -> [base]
 
 ;-------------------------------------------------------------------------------
 ;
-;		PORT I/O AND MSX VDP/VRAM CONTROL
+;		PORT I/O AND MSX VDP/VRAM ACCESS AND CONTROL
 ;
 ;-------------------------------------------------------------------------------
 
 .if PORT
 
-;- >PORT	u1 u2 --
+;- PORT!	u1 u2 --
 ;		send byte u1 to Z80 port u2
 
-		CODE >PORT,toport
+		CODE PORT!,portstore
 		ld a,e			; u2 -> a port
 		pop de			; pop u1 -> de
 		push bc			; save bc with ip
@@ -5932,10 +5933,10 @@ set_base:	ld (base+3),hl		; 10 -> [base]
 		pop de			; set new TOS
 		JP_NEXT			; continue
 
-;- PORT>	u1 -- u2
+;- PORT@	u1 -- u2
 ;		receive a byte from Z80 port u1
 
-		CODE PORT>,portfrom
+		CODE PORT@,portfetch
 		push bc			; save bc with ip
 		ld c,e			; u1 -> c
 		in e,(c)		; in(u1) -> e
@@ -6001,10 +6002,10 @@ set_base:	ld (base+3),hl		; 10 -> [base]
 2$:		pop de			; pop new TOS
 		JP_NEXT			; continue
 
-;- >VDP		u1 u2 --
+;- VDP!		u1 u2 --
 ;		send data byte u1 to VDP mode register u2
 
-		CODE >VDP,tovdp
+		CODE VDP!,vdpstore
 		pop hl			; pop u1 -> hl
 		ld a,l			; u2 -> a
 		di			; disable interrupts (interrupts access the VDP)
