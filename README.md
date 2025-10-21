@@ -2,9 +2,9 @@
 
 The goal of this ongoing project is to implement a "wicked fast" [Forth 2012 standard](https://forth-standard.org/standard/words) system for MSX.
 
-Why do I think this is useful? There is [Kuma Forth](https://www.jupiter-ace.co.uk/downloads/books/KumaForthManual%20.pdf) published in 1984 for MSX after all.  While KForth is historically important, it is limited and outdated.  It neither does justice to the Forth programming language, nor to the capabilities of MSX.  Forth is not meant to be a toy language for educational purposes only.
+Why do I believe this is useful? There is [Kuma Forth](https://www.jupiter-ace.co.uk/downloads/books/KumaForthManual%20.pdf) for MSX after all, published in 1984.  While KForth is historically important, it is limited and outdated.  It neither does justice to the Forth programming language nor to the capabilities of MSX.
 
-This repo will also include a complete Forth manual in the near future, similar to the Forth manual I wrote for [Forth500](https://github.com/Robert-van-Engelen/Forth500).  In the meantime, see the overview of [ForthMSX words](doc/words.md).
+See the [ForthMSX words](doc/words.md) that are built-in.  Additional word definitions can be loaded and compiled.
 
 If you don't have an MSX machine or just want to try out ForthMSX, then visit [WebMSX](http://webmsx.org).  To run ForthMSX in WebMSX, click the WebMSX floppy drive icon on the bottom-left, then "Import Files to Disk":
 
@@ -69,5 +69,7 @@ Enter `bye` in Forth to exit back to BASIC.  You can return to Forth where you l
 ## Work in progress
 
 Words for MSX graphics and sound will be added in the near future.
+
+Include a complete Forth manual in the near future, similar to the Forth manual I wrote for [Forth500](https://github.com/Robert-van-Engelen/Forth500).
 
 A "headless" ForthMSX can be assembled, which is only half the size.  This is a nice feature for stand-alone application development from which the Forth interpreter can be removed.  This is already possible by (re)setting the `REPL` and `MAIN` flags in the `forth.asm` source to assemble, but it is not ideal to write Forth in low-level code.  Ideal would be to develop and use a new external Forth compiler for "headless" application development.
