@@ -11,7 +11,7 @@ to enter (part of) the word to search its meaning.
 
 For an overview see the [alphabetic list of words](#alphabetic-list-of-words)
 
-ForthMSX words are case insensitive.  So `ROT`, `Rot` and `rot` are the same.
+ForthMSX words are case insensitive.  So `ROT`, `Rot`, and `rot` are the same.
 Built-in ForthMSX words are capitalized in this document to make them stand
 out from regular English.
 
@@ -23,9 +23,9 @@ updates performed by a word are indicated by _before_ `--` _after_:
 <br>
 _x1 x2 x3 -- x2 x3 x1_
 
-On the left side of `--` we have three single-cell values are on the parameter
+On the left side of `--` we have three single-cell values on the parameter
 stack with _x3_ the top-of-stack (TOS) value.  On the right side we have three
-single-cell values that are returned by ROT, replacing the input values on the
+single-cell values that are returned by `ROT`, replacing the input values on the
 stack in a rotated order with _x1_ the new TOS, _x3_ the second-on-stack (2OS)
 and _x2_ the third-on-stack (3OS).
 
