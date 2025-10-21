@@ -17,7 +17,7 @@ Run Forth in WebMSX:
     clear 100,&h8400
     bload "forth.bin",r
 
-This full ForthMSX version of standard Forth with MSX floating point math and MSX-DOS1 file access takes a little over 13K to run.  Without math and file access it is about 8K.
+This full ForthMSX version of standard Forth with MSX floating point math and MSX-DOS1 file access takes a little over 13K to run.  Without math and file access it is about 8K.  A "headless" version without Forth interpreter is half the size of either (to create headless binaries is work in progress).
 
 Once you've been greeted by the Forth system, type `80 width` and ENTER to switch to 80 characters per line.  Then `words` and ENTER to list all Forth words, one screenful at a time (press a key to continue).
 
