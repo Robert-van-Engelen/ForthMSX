@@ -3028,13 +3028,13 @@ File-access words
 --------------------------
 
 ___
-### DRV
+### `DRV`
 _-- c-addr_
 
 last used drive letter, the default drive when none is specified explicitly, initially drive A
 
 ___
-### FXB
+### `FXB`
 _-- addr_
 
 array of FCB+FIB per open file
@@ -3042,7 +3042,7 @@ array of FCB+FIB per open file
     CREATE FXB 37 4 + #IB + FCBN * ALLOT
 
 ___
-### S>FCB
+### `S>FCB`
 _c-addr u -- addr_
 
 store the filename string of the form [D:]FILENAME[.EXT] in a new FCB;
@@ -3051,7 +3051,7 @@ wildcard '*' matches any sequence of characters, at most one '*' may be used in 
 may throw -204 "bad file number" when max files are in use
 
     : S>FCB
-      \\ drive letter or use default drive
+      \ drive letter or use default drive
       S" :" SEARCH IF
         OVER 1- C@ TO DRV
         1 /STRING
@@ -3059,12 +3059,12 @@ may throw -204 "bad file number" when max files are in use
       (FCB)
       DUP 37 ERASE
       DUP 12 BLANK
-      \\ c-addr u fcb-addr
-      \\ set drive number
+      \ c-addr u fcb-addr
+      \ set drive number
       DRV $1f AND OVER C!
-      \\ set filename, expand * into ???...
+      \ set filename, expand * into ???...
       -ROT
-      \\ fcb-addr c-addr u
+      \ fcb-addr c-addr u
       8 0 ?DO
         DUP 0= ?LEAVE
         OVER C@ '. = ?LEAVE
@@ -3075,7 +3075,7 @@ may throw -204 "bad file number" when max files are in use
         THEN
         3 PICK 1+ I + C!
       LOOP
-      \\ set extension, expand * into ???...
+      \ set extension, expand * into ???...
       S" ." SEARCH IF
         1 /STRING
         3 0 ?DO
@@ -3091,39 +3091,39 @@ may throw -204 "bad file number" when max files are in use
       2DROP ;
 
 ___
-### FIB
+### `FIB`
 _fileid -- c-addr_
 
 the file input buffer associated with fileid;
 used by INCLUDE-FILE, INCLUDE, INCLUDED
 
 ___
-### BIN
+### `BIN`
 _fam -- fam_
 
 CREATE-FILE and OPEN-FILE mode fam;
 note: files are always treaded as binary
 
 ___
-### W/O
+### `W/O`
 _-- fam_
 
 CREATE-FILE and OPEN-FILE mode fam
 
 ___
-### R/O
+### `R/O`
 _-- fam_
 
 CREATE-FILE and OPEN-FILE mode fam
 
 ___
-### R/W
+### `R/W`
 _-- fam_
 
 CREATE-FILE and OPEN-FILE mode fam
 
 ___
-### CREATE-FILE
+### `CREATE-FILE`
 _c-addr u fam -- fileid ior_
 
 create a new file given by the filename string c-addr u, where fam is R/W, R/O or W/O;
@@ -3131,7 +3131,7 @@ if the file already exists, then it is truncated to zero length;
 leaves fileid (a fcb-addr) and ior 0 (success) or -203 (failure)
 
 ___
-### OPEN-FILE
+### `OPEN-FILE`
 _c-addr u fam -- fileid ior_
 
 open a file or device given by the filename string c-addr u, where fam is R/W, R/O or W/O;
@@ -3140,20 +3140,20 @@ filename format: [D:]FILENAME[.EXT] where D: becomes the default drive when spec
 device names are AUX, CON, LST, NUL, and PRN without a drive specified
 
 ___
-### CLOSE-FILE
+### `CLOSE-FILE`
 _fileid -- ior_
 
 close file with fileid (a fcb-addr);
 leaves ior 0 (success) or -197 (failure)
 
 ___
-### CLOSE-FILES
+### `CLOSE-FILES`
 _--_
 
 close all open files
 
 ___
-### READ-FILE
+### `READ-FILE`
 _c-addr u1 fileid -- u2 ior_
 
 read into buffer c-addr of size u1 from fileid (a fcb-addr);
@@ -3162,7 +3162,7 @@ to read a single character to a cell on the stack: 0 SP@ 1 fileid READ-FILE -- c
 
 
 ___
-### GET-LINE
+### `GET-LINE`
 _fileid -- c-addr u flag ior_
 
 sequentially read next line from fileid data buffered in FIB;
@@ -3172,44 +3172,44 @@ ior is nonzero when an error occurred, use GET-LINE 0= AND 0= which is TRUE for 
 does not support REPOSITION-FILE except for position zero to rewind
 
     : GET-LINE
-      DUP FIB                  \\ -- fileid fib
-      OVER FILE-POSITION DROP D0= IF   \\ if at start of file
-        DUP 2- DUP OFF 2- OFF  \\ then reset len and pos
+      DUP FIB                  \ -- fileid fib
+      OVER FILE-POSITION DROP D0= IF   \ if at start of file
+        DUP 2- DUP OFF 2- OFF  \ then reset len and pos
       THEN
-      DUP 2- 2- 2@ SWAP        \\ -- fileid fib len pos
-      OVER UMIN /STRING        \\ -- fileid fib+pos len-pos
-      TUCK                     \\ -- fileid len-pos fib+pos len-pos
-      10 CHOP                  \\ -- fileid len-pos fib+pos u
-      ROT                      \\ -- fileid fib+pos u len-pos
-      OVER = IF                \\ CHOPed no LF as u=len-pos
-        2>R DUP FIB R> 2DUP R> -ROT \\ -- fileid fib u fib+pos fib u
-        CMOVE                  \\ move fib+pos to fib u bytes
-        TUCK                   \\ -- fileid u fib u
-        #IB SWAP               \\ -- fileid u fib #ib u
-        /STRING                \\ -- fileid u fib+u #ib-u
-        3 PICK READ-FILE ?DUP IF \\ no more data
-          >R                   \\ -- fileid u u2
-          +                    \\ -- fileid u+u2
-          SWAP FIB SWAP        \\ -- fib u+u2
+      DUP 2- 2- 2@ SWAP        \ -- fileid fib len pos
+      OVER UMIN /STRING        \ -- fileid fib+pos len-pos
+      TUCK                     \ -- fileid len-pos fib+pos len-pos
+      10 CHOP                  \ -- fileid len-pos fib+pos u
+      ROT                      \ -- fileid fib+pos u len-pos
+      OVER = IF                \ CHOPed no LF as u=len-pos
+        2>R DUP FIB R> 2DUP R> -ROT \ -- fileid fib u fib+pos fib u
+        CMOVE                  \ move fib+pos to fib u bytes
+        TUCK                   \ -- fileid u fib u
+        #IB SWAP               \ -- fileid u fib #ib u
+        /STRING                \ -- fileid u fib+u #ib-u
+        3 PICK READ-FILE ?DUP IF \ no more data
+          >R                   \ -- fileid u u2
+          +                    \ -- fileid u+u2
+          SWAP FIB SWAP        \ -- fib u+u2
           FALSE R>
-          DUP 2/ 0= IF         \\ ior is 0 or 1
-            2DROP DUP 0= 0= 0  \\ -- fib u+u2 flag 0
+          DUP 2/ 0= IF         \ ior is 0 or 1
+            2DROP DUP 0= 0= 0  \ -- fib u+u2 flag 0
           THEN
           EXIT
-        THEN                   \\ -- fileid u u2
-        +                      \\ -- fileid u+u2
-        OVER FIB               \\ --fileid u+u2 fib
-        2DUP 2- DUP OFF 2- !   \\ set len to u+u2 and pos to 0
-        SWAP                   \\ -- fileid fib len
+        THEN                   \ -- fileid u u2
+        +                      \ -- fileid u+u2
+        OVER FIB               \ --fileid u+u2 fib
+        2DUP 2- DUP OFF 2- !   \ set len to u+u2 and pos to 0
+        SWAP                   \ -- fileid fib len
         10 CHOP
-      THEN                     \\ -- fileid fib+pos u
-      ROT FIB                  \\ -- fib+pos u fib
-      OVER 1+ SWAP 2- +!       \\ increment pos by u+1 -- fib+pos u
-      13 -TRIM TRUE 0          \\ trim CR from end when present
+      THEN                     \ -- fileid fib+pos u
+      ROT FIB                  \ -- fib+pos u fib
+      OVER 1+ SWAP 2- +!       \ increment pos by u+1 -- fib+pos u
+      13 -TRIM TRUE 0          \ trim CR from end when present
     ;
 
 ___
-### READ-LINE
+### `READ-LINE`
 _c-addr u1 fileid -- u2 flag ior_
 
 sequentially read a line into buffer c-addr of size u1 from fileid;
@@ -3228,63 +3228,63 @@ does not support REPOSITION-FILE except for position zero to rewind
     ;
 
 ___
-### WRITE-FILE
+### `WRITE-FILE`
 _c-addr u1 fileid -- ior_
 
 write buffer c-addr of size u1 to fileid (a fcb-addr);
 leaves ior 0 (success) or 1 (disk full) or nz (other failure)
 
 ___
-### WRITE-LINE
+### `WRITE-LINE`
 _c-addr u1 fileid -- ior_
 
 write buffer c-addr of size u1 to fileid (a fcb-addr) followed by a CR/LF pair;
 leaves ior 0 (success) or 1 (disk full)
 
 ___
-### FILE-POSITION
+### `FILE-POSITION`
 _fileid -- ud ior_
 
 for the open fileid get the current file position
 leaves file position ud and ior (always 0 for success)
 
 ___
-### REPOSITION-FILE
+### `REPOSITION-FILE`
 _ud fileid -- ior_
 
 for the open fileid set the file position to ud;
 leaves ior (always 0 for success)
 
 ___
-### FILE-SIZE
+### `FILE-SIZE`
 _fileid -- ud ior_
 
 for the open fileid get the size of the file;
 leaves file size ud and ior (always 0 for success)
 
 ___
-### RESIZE-FILE
+### `RESIZE-FILE`
 _ud fileid -- ior_
 
 rfor the open fileid esize the file to ud bytes;
 leaves ior 0 (success) or 1 (disk full) or nz (other failure)
 
 ___
-### DELETE-FILE
+### `DELETE-FILE`
 _c-addr u -- ior_
 
 delete the file with the name string c-addr u;
 leaves ior 0 (success) or nz (failure)
 
 ___
-### RENAME-FILE
+### `RENAME-FILE`
 _c-addr1 u1 c-addr2 u2 -- ior_
 
 rename the file with the name string c-addr1 u1 to c-addr2 u2;
 leaves ior 0 (success) or nz (failure)
 
 ___
-### INCLUDE-FILE
+### `INCLUDE-FILE`
 _... fileid -- ..._
 
 read and interpret Forth source code from fileid;
@@ -3304,7 +3304,7 @@ fileid is closed afterwards
       THROW ;
 
 ___
-### INCLUDED
+### `INCLUDED`
 _... c-addr u -- ..._
 
 read and interpret Forth source code from the file named by the string c-addr u
@@ -3314,7 +3314,7 @@ read and interpret Forth source code from the file named by the string c-addr u
       INCLUDE-FILE ;
 
 ___
-### INCLUDE
+### `INCLUDE`
 _... "&lt;spaces&gt;name&lt;space&gt;" -- ..._
 
 read and interpret Forth source code from file "name"
@@ -3322,7 +3322,7 @@ read and interpret Forth source code from file "name"
     : INCLUDE PARSE-NAME INCLUDED ;
 
 ___
-### REQUIRED
+### `REQUIRED`
 _... c-addr u -- ..._
 
 read and interpret Forth source code from the file named by the string c-addr u,
@@ -3338,12 +3338,12 @@ beware of vocabulary definitions crossings
         EXIT
       THEN
       CURRENT DUP @ 2>R HERE >R
-      2DUP NFA, marker_does CFA,  \\ create marker with marker DOES> cfa
-      R> , 2R> 2,                 \\ marker body stores HERE CURRENT CURRENT@
+      2DUP NFA, marker_does CFA,  \ create marker with marker DOES> cfa
+      R> , 2R> 2,                 \ marker body stores HERE CURRENT CURRENT@
       1 /STRING INCLUDED ;
 
 ___
-### REQUIRE
+### `REQUIRE`
 _... "&lt;spaces&gt;name&lt;space&gt;" -- ..._
 
 read and interpret Forth source code from file "name",
@@ -3355,7 +3355,7 @@ beware of vocabulary definitions crossings
     : REQUIRE PARSE-NAME REQUIRED ;
 
 ___
-### ANEW
+### `ANEW`
 _... "&lt;spaces&gt;name&lt;space&gt;" -- ..._
 
 read and interpret Forth source code from file "name",
@@ -3391,25 +3391,25 @@ such as `2DUP`, can be used to manipulate floats.  Floats can be stored in
 Beware that `HEX` prevents inputting floats and garbles the output of floats.
 
 ___
-### FTRUNC
+### `FTRUNC`
 _r1 -- r2_
 
 truncate float towards zero
 
 ___
-### FLOOR
+### `FLOOR`
 _r1 -- r2_
 
 floor float towards negative infinity
 
 ___
-### FNEGATE
+### `FNEGATE`
 _r1 -- r2_
 
 negate float
 
 ___
-### FABS
+### `FABS`
 _r1 -- r2_
 
 absolute value |r1|
@@ -3417,37 +3417,37 @@ absolute value |r1|
     : FABS 2DUP F0< IF FNEGATE THEN ;
 
 ___
-### FSQRT
+### `FSQRT`
 _r1 -- r2_
 
 take the square root of r1
 
 ___
-### FSIN
+### `FSIN`
 _r1 -- r2_
 
 sine of float in radian
 
 ___
-### FCOS
+### `FCOS`
 _r1 -- r2_
 
 cosine of float in radian
 
 ___
-### FTAN
+### `FTAN`
 _r1 -- r2_
 
 tangent of float in radian
 
 ___
-### FATAN
+### `FATAN`
 _r1 -- r2_
 
 arc tangent of float, in radian
 
 ___
-### FRAND
+### `FRAND`
 _r1 -- r2_
 
 if r1 is positive, then leave new random number from 0 to 1 exclusive;
@@ -3455,51 +3455,51 @@ if r1 is zero, then leave the last random number;
 if r1 is negative, then seed the random number using r1
 
 ___
-### F+
+### `F+`
 _r1 r2 -- r3_
 
 sum r1+r2
 
 ___
-### F-
+### `F-`
 _r1 r2 -- r3_
 
 difference r1-r2
 
 ___
-### F*
+### `F*`
 _r1 r2 -- r3_
 
 product r1*r2
 
 ___
-### F/
+### `F/`
 _r1 r2 -- r3_
 
 quotient r1/r2
 
 ___
-### F**
+### `F**`
 _r1 r2 -- r3_
 
 raise r1 to r2
 
 ___
-### FASIN
+### `FASIN`
 _r1 -- r2_
 
 arc sine of float, in radian
 
     : FASIN
       2DUP F0= IF EXIT THEN
-      2DUP FABS 1E0 F= IF                           \\ if |x|=1 then
-        PI/2 2SWAP F0< IF FNEGATE THEN              \\ sign(x)*pi/2
+      2DUP FABS 1E0 F= IF                           \ if |x|=1 then
+        PI/2 2SWAP F0< IF FNEGATE THEN              \ sign(x)*pi/2
         EXIT
       THEN
-      2DUP 2DUP F* 1E0 2SWAP F- FSQRT FATAN2 ;      \\ arctan(x/sqrt(1-x^2)) = atan2(x,sqrt(1-x*x))
+      2DUP 2DUP F* 1E0 2SWAP F- FSQRT FATAN2 ;      \ arctan(x/sqrt(1-x^2)) = atan2(x,sqrt(1-x*x))
 
 ___
-### FACOS
+### `FACOS`
 _r1 -- r2_
 
 arc cosine of float, in radian
@@ -3507,13 +3507,13 @@ arc cosine of float, in radian
     : FACOS FASIN PI/2 2SWAP F- ;
 
 ___
-### FATAN2
+### `FATAN2`
 _r1 r2 -- r3_
 
 atan2(r1,r2) = atan(r1/r2) but using a more accurate formulation
 
 ___
-### PI
+### `PI`
 _-- r_
 
 floating-point constant pi
@@ -3521,7 +3521,7 @@ floating-point constant pi
     3.14159E0 2CONSTANT PI
 
 ___
-### PI/2
+### `PI/2`
 _-- r_
 
 floating-point constant pi/2 (half pi)
@@ -3529,35 +3529,35 @@ floating-point constant pi/2 (half pi)
     1.57080E0 2CONSTANT PI/2
 
 ___
-### FLN
+### `FLN`
 _r1 -- r2_
 
 natural log of float
 
 ___
-### FEXP
+### `FEXP`
 _r1 -- r2_
 
 natural exponent of float
 
 ___
-### FLOG
+### `FLOG`
 _r1 -- r2_
 
 base 10 log of float
 
-    : FLOG FLN 0.434294E0 F* ;    \\ = ln(x)/ln(10) approx ln(10) such that 10E0 FLOG = 1E0
+    : FLOG FLN 0.434294E0 F* ;    \ = ln(x)/ln(10) approx ln(10) such that 10E0 FLOG = 1E0
 
 ___
-### FALOG
+### `FALOG`
 _r1 -- r2_
 
 base 10 exponent of float
 
-    : FALOG 2.30259E0 F* FEXP ;    \\ = exp(x*ln(10))
+    : FALOG 2.30259E0 F* FEXP ;    \ = exp(x*ln(10))
 
 ___
-### FSINH
+### `FSINH`
 _r1 -- r2_
 
 sine hyperbolicus of float
@@ -3565,7 +3565,7 @@ sine hyperbolicus of float
     : FSINH FEXP 2DUP 1E0 2SWAP F/ F- .5E0 F* ;
 
 ___
-### FCOSH
+### `FCOSH`
 _r1 -- r2_
 
 cosine hyperbolicus of float
@@ -3573,7 +3573,7 @@ cosine hyperbolicus of float
     : FCOSH FEXP 2DUP 1E0 2SWAP F/ F+ .5E0 F* ;
 
 ___
-### FTANH
+### `FTANH`
 _r1 -- r2_
 
 tangent hyperbolicus of float
@@ -3581,7 +3581,7 @@ tangent hyperbolicus of float
     : FTANH 2DUP F+ FEXP 2DUP 1E0 F- 2SWAP 1E0 F+ F/ ;
 
 ___
-### FASINH
+### `FASINH`
 _r1 -- r2_
 
 arc sine hyperbolicus of float
@@ -3589,7 +3589,7 @@ arc sine hyperbolicus of float
     : FASINH 2DUP 2DUP F* 1E0 F+ FSQRT F+ FLN ;
 
 ___
-### FACOSH
+### `FACOSH`
 _r1 -- r2_
 
 arc cosine hyperbolicus of float
@@ -3597,7 +3597,7 @@ arc cosine hyperbolicus of float
     : FACOSH 2DUP 2DUP F* 1E0 F- FSQRT F+ FLN ;
 
 ___
-### FATANH
+### `FATANH`
 _r1 -- r2_
 
 arc tangent hyperbolicus of float
@@ -3605,13 +3605,13 @@ arc tangent hyperbolicus of float
     : FATANH 2DUP 1E0 F+ 2SWAP 1E0 2SWAP F- F/ FLN .5E0 F* ;
 
 ___
-### F=
+### `F=`
 _r1 r2 -- flag_
 
 true if r1 = r2
 
 ___
-### F<
+### `F<`
 _r1 r2 -- flag_
 
 true if r1 < r2
@@ -3622,7 +3622,7 @@ true if r1 < r2
       D< ; ( works for MSX MATH-PACK decimals )
 
 ___
-### F0=
+### `F0=`
 _r -- flag_
 
 true if r = 0.0e0
@@ -3630,7 +3630,7 @@ true if r = 0.0e0
     : F0= D0= ; ( works for MSX MATH-PACK decimals )
 
 ___
-### F0<
+### `F0<`
 _r -- flag_
 
 true if r < 0.0e0
@@ -3638,7 +3638,7 @@ true if r < 0.0e0
     : F0< D0< ; ( works for MSX MATH-PACK decimals )
 
 ___
-### FMAX
+### `FMAX`
 _r1 r2 -- r3_
 
 max of r1 and r2
@@ -3648,7 +3648,7 @@ max of r1 and r2
       2DROP ;
 
 ___
-### FMIN
+### `FMIN`
 _r1 r2 -- r3_
 
 min of r1 and r2
@@ -3658,7 +3658,7 @@ min of r1 and r2
       2DROP ;
 
 ___
-### D>F
+### `D>F`
 _d -- r_
 
 widen signed double to float;
@@ -3671,7 +3671,7 @@ this word is much slower than the optimized S>F
       ROT BASE ! ;
 
 ___
-### S>F
+### `S>F`
 _n -- r_
 
 widen signed single to float
@@ -3679,7 +3679,7 @@ widen signed single to float
     : S>F S>D D>F ;
 
 ___
-### F>D
+### `F>D`
 _r -- d_
 
 narrow float to a signed double;
@@ -3695,16 +3695,16 @@ this word is much slower than the optimized F>S
       DUP 10 > IF
         -11 THROW
       THEN
-      '- HERE C!       \\ place '-' in here
-      OVER -           \\ sign exp-sign
-      SWAP HERE 1+ +   \\ exp-sign here+1+sign
-      SWAP             \\ here+1+sign exp-sign
+      '- HERE C!       \ place '-' in here
+      OVER -           \ sign exp-sign
+      SWAP HERE 1+ +   \ exp-sign here+1+sign
+      SWAP             \ here+1+sign exp-sign
       >DOUBLE 0= IF
         -11 THROW
       THEN ;
 
 ___
-### F>S
+### `F>S`
 _r -- n_
 
 narrow float to a signed single;
@@ -3713,7 +3713,7 @@ may throw -11 "result out of range" or -250 "numeric overflow"
     : F>S F>D D>S ;
 
 ___
-### >FLOAT
+### `>FLOAT`
 _c-addr u -- r true | false_
 
 convert string to float;
@@ -3721,7 +3721,7 @@ leaves the float and true if string is converted;
 leaves false if string is unconvertable;
 
 ___
-### REPRESENT
+### `REPRESENT`
 _r c-addr u -- n flag true_
 
 convert float to string;
@@ -3729,7 +3729,7 @@ store decimal digits of the float in buffer c-addr with size u > 0;
 leaves decimal exponent n+1 and flag = true if negative
 
 ___
-### PRECISION
+### `PRECISION`
 _-- +n_
 
 floating-point output precision, the number of decimal digits displayed is 6 by default
@@ -3737,7 +3737,7 @@ floating-point output precision, the number of decimal digits displayed is 6 by 
     6 VALUE PRECISION
 
 ___
-### FS.
+### `FS.`
 _r --_
 
 output float in scientific notation with a trailing space
@@ -3753,7 +3753,7 @@ output float in scientific notation with a trailing space
       'E EMIT . ;
 
 ___
-### F.
+### `F.`
 _r --_
 
 output float with a trailing space;
@@ -3797,28 +3797,28 @@ such as `2DUP`, can be used to manipulate floats.  Floats can be stored in
 Beware that `HEX` prevents inputting floats and garbles the output of floats.
 
 ___
-### F+
+### `F+`
 _r1 r2 -- r3_
 
 sum r1+r2;
 may throw -43 "floating-point result out of range"
 
 ___
-### F-
+### `F-`
 _r1 r2 -- r3_
 
 difference r1-r2;
 may throw -43 "floating-point result out of range"
 
 ___
-### F*
+### `F*`
 _r1 r2 -- r3_
 
 product r1*r2;
 may throw -43 "floating-point result out of range"
 
 ___
-### F/
+### `F/`
 _r1 r2 -- r3_
 
 quotient r1/r2;
@@ -3826,33 +3826,33 @@ may throw -42 "floating-point divide by zero";
 may throw -43 "floating-point result out of range"
 
 ___
-### FTRUNC
+### `FTRUNC`
 _r1 -- r2_
 
 truncate float towards zero
 
 ___
-### FLOOR
+### `FLOOR`
 _r1 -- r2_
 
 floor float towards negative infinity;
 may throw -43 "floating-point result out of range"
 
 ___
-### FROUND
+### `FROUND`
 _r1 -- r2_
 
 round float to nearest;
 may throw -43 "floating-point result out of range"
 
 ___
-### FNEGATE
+### `FNEGATE`
 _r1 -- r2_
 
 negate float
 
 ___
-### FABS
+### `FABS`
 _r1 -- r2_
 
 absolute value |r1|
@@ -3860,7 +3860,7 @@ absolute value |r1|
     : FABS 2DUP F0< IF FNEGATE THEN ;
 
 ___
-### F=
+### `F=`
 _r1 r2 -- flag_
 
 true if r1 = r2
@@ -3868,7 +3868,7 @@ true if r1 = r2
     : F= D= ; ( works for IEEE 754 floating-point without negative zero and inf/nan )
 
 ___
-### F<
+### `F<`
 _r1 r2 -- flag_
 
 true if r1 < r2
@@ -3879,7 +3879,7 @@ true if r1 < r2
       D< ; ( works for IEEE 754 floating-point without negative zero and inf/nan )
 
 ___
-### F0=
+### `F0=`
 _r -- flag_
 
 true if r = 0.0e0
@@ -3887,7 +3887,7 @@ true if r = 0.0e0
     : F0= D0= ; ( works for IEEE 754 floating-point without negative zero and inf/nan )
 
 ___
-### F0<
+### `F0<`
 _r -- flag_
 
 true if r < 0.0e0
@@ -3895,7 +3895,7 @@ true if r < 0.0e0
     : F0< D0< ; ( works for IEEE 754 floating-point without negative zero and inf/nan )
 
 ___
-### FMAX
+### `FMAX`
 _r1 r2 -- r3_
 
 max of r1 and r2
@@ -3905,7 +3905,7 @@ max of r1 and r2
       2DROP ;
 
 ___
-### FMIN
+### `FMIN`
 _r1 r2 -- r3_
 
 min of r1 and r2
@@ -3915,33 +3915,33 @@ min of r1 and r2
       2DROP ;
 
 ___
-### D>F
+### `D>F`
 _d -- r_
 
 widen signed double to float
 
 ___
-### S>F
+### `S>F`
 _n -- r_
 
 widen signed single to float
 
 ___
-### F>D
+### `F>D`
 _r -- d_
 
 narrow float to a signed double;
 may throw -11 "result out of range"
 
 ___
-### F>S
+### `F>S`
 _r -- n_
 
 narrow float to a signed single;
 may throw -11 "result out of range"
 
 ___
-### >FLOAT
+### `>FLOAT`
 _c-addr u -- r true | false_
 
 convert string to float;
@@ -3949,7 +3949,7 @@ leaves the float and true if string is converted;
 leaves false if string is unconvertable
 
 ___
-### REPRESENT
+### `REPRESENT`
 _r c-addr u -- n flag true_
 
 convert float to string;
@@ -3957,7 +3957,7 @@ store decimal digits of the float in buffer c-addr with size u > 0;
 leaves decimal exponent n+1 and flag = true if negative
 
 ___
-### PRECISION
+### `PRECISION`
 _-- +n_
 
 floating-point output precision, the number of decimal digits displayed is 7 by default
@@ -3965,7 +3965,7 @@ floating-point output precision, the number of decimal digits displayed is 7 by 
     7 VALUE PRECISION
 
 ___
-### FS.
+### `FS.`
 _r --_
 
 output float in scientific notation with a trailing space
@@ -3980,7 +3980,7 @@ output float in scientific notation with a trailing space
       'E EMIT 1- . ;
 
 ___
-### F.
+### `F.`
 _r --_
 
 output float with a trailing space;
@@ -4007,7 +4007,7 @@ output fixed notation when 1e-1 <= |r| < 1e+7, otherwise output scientific notat
       'E EMIT 1- . ;
 
 ___
-### FSQRT
+### `FSQRT`
 _r1 -- r2_
 
 square root of float
@@ -4015,18 +4015,18 @@ square root of float
     : FSQRT
       2DUP F0< IF -46 THROW THEN
       2DUP F0= IF EXIT THEN
-      \\ map r1 to [0.5,2) using sqrt(x*2^n) = sqrt(x*2^(n%2))*2^(n/2)
-      DUP 8 RSHIFT $3f - -ROT               \\ 2^(n/2) = 2^(exponent/2 - bias/2)
-      $ff AND $3f00 +                       \\ remove exponent 2^(n/2) from x
-      2DUP                                  \\ initial estimate y is x
-      5 0 DO                                \\ 5 Newton-Raphson iterations
-        2OVER 2OVER F/ F+ .5E0 F*           \\ x y -- x (y+x/y)/2
+      \ map r1 to [0.5,2) using sqrt(x*2^n) = sqrt(x*2^(n%2))*2^(n/2)
+      DUP 8 RSHIFT $3f - -ROT               \ 2^(n/2) = 2^(exponent/2 - bias/2)
+      $ff AND $3f00 +                       \ remove exponent 2^(n/2) from x
+      2DUP                                  \ initial estimate y is x
+      5 0 DO                                \ 5 Newton-Raphson iterations
+        2OVER 2OVER F/ F+ .5E0 F*           \ x y -- x (y+x/y)/2
       LOOP
-      2SWAP 2DROP                           \\ x y -- y
-      ROT $7f + 7 LSHIFT 0 SWAP F* ;        \\ y times 2^(n/2)
+      2SWAP 2DROP                           \ x y -- y
+      ROT $7f + 7 LSHIFT 0 SWAP F* ;        \ y times 2^(n/2)
 
 ___
-### PI
+### `PI`
 _-- r_
 
 floating-point constant pi
@@ -4034,7 +4034,7 @@ floating-point constant pi
     3.1415928E0 2CONSTANT PI
 
 ___
-### PI/2
+### `PI/2`
 _-- r_
 
 floating-point constant pi/2 (half pi)
@@ -4042,38 +4042,38 @@ floating-point constant pi/2 (half pi)
     1.5707964E0 2CONSTANT PI/2
 
 ___
-### FCOSI
+### `FCOSI`
 _r1 flag -- r2_
 
 if flag is -1 (TRUE) then leave sin(r1) else if flag is 0 (FALSE) then leave cos(r1)
 
-    : FCOSI                                 \\ r2=sin(r1) if flag=-1 else r2=cos(r1) if flag=0
-      >R                                    \\ save flag
-      PI/2 F/                               \\ map r1 to x in [-pi/4,pi/4]
-      2DUP .5E0 F+ F>D                      \\ floor(2x/pi+.5)
-      \\ save (floor(2x/pi+.5)+flag+1) mod 4 = quadrant 0,1,2,3 where flag is -1 (sin) or 0 (cos)
+    : FCOSI                                 \ r2=sin(r1) if flag=-1 else r2=cos(r1) if flag=0
+      >R                                    \ save flag
+      PI/2 F/                               \ map r1 to x in [-pi/4,pi/4]
+      2DUP .5E0 F+ F>D                      \ floor(2x/pi+.5)
+      \ save (floor(2x/pi+.5)+flag+1) mod 4 = quadrant 0,1,2,3 where flag is -1 (sin) or 0 (cos)
       OVER R> + 1+ >R
-      D>F F- PI/2 F*                        \\ pi/2 * (2x/pi - floor(2x/pi + .5))
-      2DUP 2DUP F* FNEGATE 2SWAP            \\ -- -x*x x
-      \\ quadrant 0:  sin(x) =  x - x^3/3! + x^5/5! - x^7/7! + ...
-      \\ quadrant 1:  cos(x) =  1 - x^2/2! + x^4/4! - x^6/6! + ...
-      \\ quadrant 2: -sin(x) = -x + x^3/3! - x^5/5! + x^7/7! - ...
-      \\ quadrant 3: -cos(x) = -1 + x^2/2! - x^4/4! + x^6/6! - ...
-      R@ 1 AND IF 2DROP 1E0 THEN            \\ initial term 1 for quadrant 1 and 3
-      R@ 2 AND IF FNEGATE THEN              \\ negate initial term for quadrant 2 and 4
-      2SWAP                                 \\ -- x|1|-x|-1 -x*x
-      \\ Maclaurin series iterations i=2,4,6,8,10,12 (cos) or i=1,3,5,7,9,11 (sin)
-      13 2 R> 1 AND - DO                    \\ 6 iterations
-        2OVER 2OVER F*                      \\ -- ... term -x*x -x*x*term
-        I DUP 1+ *                          \\ -- ... term -x*x -x*x*term i*(i+1)
-        S>F F/                              \\ -- ... term -x*x -x*x*term/(i*(i+1))
-        2SWAP                               \\ -- ... term -x*x*term/(i*(i+1)) -x*x
+      D>F F- PI/2 F*                        \ pi/2 * (2x/pi - floor(2x/pi + .5))
+      2DUP 2DUP F* FNEGATE 2SWAP            \ -- -x*x x
+      \ quadrant 0:  sin(x) =  x - x^3/3! + x^5/5! - x^7/7! + ...
+      \ quadrant 1:  cos(x) =  1 - x^2/2! + x^4/4! - x^6/6! + ...
+      \ quadrant 2: -sin(x) = -x + x^3/3! - x^5/5! + x^7/7! - ...
+      \ quadrant 3: -cos(x) = -1 + x^2/2! - x^4/4! + x^6/6! - ...
+      R@ 1 AND IF 2DROP 1E0 THEN            \ initial term 1 for quadrant 1 and 3
+      R@ 2 AND IF FNEGATE THEN              \ negate initial term for quadrant 2 and 4
+      2SWAP                                 \ -- x|1|-x|-1 -x*x
+      \ Maclaurin series iterations i=2,4,6,8,10,12 (cos) or i=1,3,5,7,9,11 (sin)
+      13 2 R> 1 AND - DO                    \ 6 iterations
+        2OVER 2OVER F*                      \ -- ... term -x*x -x*x*term
+        I DUP 1+ *                          \ -- ... term -x*x -x*x*term i*(i+1)
+        S>F F/                              \ -- ... term -x*x -x*x*term/(i*(i+1))
+        2SWAP                               \ -- ... term -x*x*term/(i*(i+1)) -x*x
       2 +LOOP
       2DROP
-      F+ F+ F+ F+ F+ F+ ;                   \\ sum the 7 terms in reverse order for accuracy
+      F+ F+ F+ F+ F+ F+ ;                   \ sum the 7 terms in reverse order for accuracy
 
 ___
-### FSIN
+### `FSIN`
 _r1 -- r2_
 
 sine of float in radian
@@ -4081,7 +4081,7 @@ sine of float in radian
     : FSIN TRUE FCOSI ;
 
 ___
-### FCOS
+### `FCOS`
 _r1 -- r2_
 
 cosine of float in radian
@@ -4089,7 +4089,7 @@ cosine of float in radian
     : FCOS FALSE FCOSI ;
 
 ___
-### FTAN
+### `FTAN`
 _r1 -- r2_
 
 tangent of float in radian
@@ -4097,24 +4097,24 @@ tangent of float in radian
     : FTAN 2DUP FSIN 2SWAP FCOS F/ ;
 
 ___
-### FASIN
+### `FASIN`
 _r1 -- r2_
 
 arc sine of float, in radian
 
     : FASIN
       2DUP F0= IF EXIT THEN
-      2DUP FABS 1E0 F= IF                           \\ if |x|=1 then
-        PI/2 2SWAP F0< IF FNEGATE THEN              \\ sign(x)*pi/2
+      2DUP FABS 1E0 F= IF                           \ if |x|=1 then
+        PI/2 2SWAP F0< IF FNEGATE THEN              \ sign(x)*pi/2
 ___
-### ;
+### `;`
 _ EXIT_
 
       THEN
-      2DUP 2DUP F* 1E0 2SWAP F- FSQRT FATAN2 ;      \\ arctan(x/sqrt(1-x^2)) = atan2(x,sqrt(1-x*x))
+      2DUP 2DUP F* 1E0 2SWAP F- FSQRT FATAN2 ;      \ arctan(x/sqrt(1-x^2)) = atan2(x,sqrt(1-x*x))
 
 ___
-### FACOS
+### `FACOS`
 _r1 -- r2_
 
 arc cosine of float, in radian
@@ -4122,14 +4122,14 @@ arc cosine of float, in radian
     : FACOS FASIN PI/2 2SWAP F- ;
 
 ___
-### FATAN
+### `FATAN`
 _r1 -- r2_
 
 arc tangent of float, in radian
 
     : FATAN
-      \\ map r1 to [-1,1] using arctan(x) = sign(x) * (pi/2-arctan(1/abs(x)))
-      1E0 2OVER FABS F< IF                  \\ if |r1| > 1 then
+      \ map r1 to [-1,1] using arctan(x) = sign(x) * (pi/2-arctan(1/abs(x)))
+      1E0 2OVER FABS F< IF                  \ if |r1| > 1 then
         2DUP F0< -ROT
         1E0 2SWAP FABS F/
         TRUE
@@ -4137,30 +4137,30 @@ arc tangent of float, in radian
         FALSE
       THEN
       -ROT
-      \\ map r1 in [-1,1] to [-sqrt(2)+1,sqrt(2)-1] using arctan(x) = 2*arctan(x/(1+sqrt(1+x^2)))
-      .41423562E0 2OVER FABS F< IF          \\ if |r1| > sqrt(2)-1 then
+      \ map r1 in [-1,1] to [-sqrt(2)+1,sqrt(2)-1] using arctan(x) = 2*arctan(x/(1+sqrt(1+x^2)))
+      .41423562E0 2OVER FABS F< IF          \ if |r1| > sqrt(2)-1 then
         2DUP 2DUP F* 1E0 F+ FSQRT 1E0 F+ F/
         TRUE
       ELSE
         FALSE
       THEN
       -ROT
-      \\ Maclaurin series arctan(x) = x - x^3/3 + x^5/5 - x^7/7 + ... with x in (-1,1)
-      2DUP 2DUP 2DUP F* FNEGATE 2SWAP       \\ -- x -x*x x
-      16 3 DO                               \\ 7 iterations
-        2OVER F*                            \\ -- x -x^3/3 ... -x*x -x*x*term
-        2DUP I S>F F/                       \\ -- x -x^3/3 ... -x*x -x*x*term -x*x*term/i
-        2ROT 2ROT                           \\ -- x -x^3/3 ... -x*x*term/i -x*x -x*x*term
+      \ Maclaurin series arctan(x) = x - x^3/3 + x^5/5 - x^7/7 + ... with x in (-1,1)
+      2DUP 2DUP 2DUP F* FNEGATE 2SWAP       \ -- x -x*x x
+      16 3 DO                               \ 7 iterations
+        2OVER F*                            \ -- x -x^3/3 ... -x*x -x*x*term
+        2DUP I S>F F/                       \ -- x -x^3/3 ... -x*x -x*x*term -x*x*term/i
+        2ROT 2ROT                           \ -- x -x^3/3 ... -x*x*term/i -x*x -x*x*term
       2 +LOOP
-      2DROP 2DROP                           \\ -- x -x^3/3 ... x^15/15
-      F+ F+ F+ F+ F+ F+ F+                  \\ sum the 8 terms in reverse order for accuracy
-      ROT IF 2E0 F* THEN                    \\ 2*arctan(x/(1+sqrt(1+x^2)))
+      2DROP 2DROP                           \ -- x -x^3/3 ... x^15/15
+      F+ F+ F+ F+ F+ F+ F+                  \ sum the 8 terms in reverse order for accuracy
+      ROT IF 2E0 F* THEN                    \ 2*arctan(x/(1+sqrt(1+x^2)))
       ROT IF PI/2 2SWAP F-
         ROT IF FNEGATE THEN
-      THEN ;                                \\ sign(x) * (pi/2-arctan(1/abs(x)))
+      THEN ;                                \ sign(x) * (pi/2-arctan(1/abs(x)))
 
 ___
-### FATAN2
+### `FATAN2`
 _r1 r2 -- r3_
 
 atan2(r1,r2) = atan(r1/r2) but using a more accurate formulation
@@ -4179,31 +4179,31 @@ atan2(r1,r2) = atan(r1/r2) but using a more accurate formulation
       2ROT 2ROT F/ FATAN F- ;
 
 ___
-### FLN
+### `FLN`
 _r1 -- r2_
 
 natural log of float
 
     : FLN
       2DUP 2DUP F0< -ROT F0= OR IF -46 THROW THEN
-      \\ map r1 to [0.5,1) using ln(x*2^n) = ln(x) + ln(2^n) = ln(x) + n*ln(2)
-      DUP 7 RSHIFT $7e - -ROT               \\ 2^(n+1) = 2^(exponent - bias + 1)
-      $7f AND $3f00 +                       \\ remove exponent 2^(n+1)
-      1E0 2SWAP F-                          \\ 1-x
-      \\ Maclaurin series -ln(1-x) = x + x^2/2 + x^3/3 + ... with x in (0,0.5]
-      2DUP 2DUP                             \\ -- x x x
-      22 2 DO                               \\ 20 iterations
-        2OVER F*                            \\ -- x x^2/2 ... x term*x
-        2DUP I S>F F/                       \\ -- x x^2/2 ... x term*x term*x/i
-        2ROT 2ROT                           \\ -- x x^2/2 ... term*x/i x term*x
+      \ map r1 to [0.5,1) using ln(x*2^n) = ln(x) + ln(2^n) = ln(x) + n*ln(2)
+      DUP 7 RSHIFT $7e - -ROT               \ 2^(n+1) = 2^(exponent - bias + 1)
+      $7f AND $3f00 +                       \ remove exponent 2^(n+1)
+      1E0 2SWAP F-                          \ 1-x
+      \ Maclaurin series -ln(1-x) = x + x^2/2 + x^3/3 + ... with x in (0,0.5]
+      2DUP 2DUP                             \ -- x x x
+      22 2 DO                               \ 20 iterations
+        2OVER F*                            \ -- x x^2/2 ... x term*x
+        2DUP I S>F F/                       \ -- x x^2/2 ... x term*x term*x/i
+        2ROT 2ROT                           \ -- x x^2/2 ... term*x/i x term*x
       LOOP
-      2DROP 2DROP                           \\ -- x x^2/2 ... x^19/19
-      20 0 DO F+ LOOP                       \\ sum the 21 terms in reverse order
+      2DROP 2DROP                           \ -- x x^2/2 ... x^19/19
+      20 0 DO F+ LOOP                       \ sum the 21 terms in reverse order
       FNEGATE
-      ROT S>F .69314724E0 F* F+ ;           \\ + n*ln(2) with approx ln(2) such that 1E0 FLN = 0
+      ROT S>F .69314724E0 F* F+ ;           \ + n*ln(2) with approx ln(2) such that 1E0 FLN = 0
 
 ___
-### FEXP
+### `FEXP`
 _r1 -- r2_
 
 natural exponent of float
@@ -4211,42 +4211,42 @@ natural exponent of float
     : FEXP
       2DUP F0< -ROT
       FABS
-      \\ map |r1| to [0,ln(2)) using exp(x+k*ln(2)) = exp(x)*2^k
-      2DUP .69314724E0 F/ F>S               \\ ln(2) = .69314724E0
-      DUP $7f > IF -43 THROW THEN           \\ multiply by 2^k will overflow
+      \ map |r1| to [0,ln(2)) using exp(x+k*ln(2)) = exp(x)*2^k
+      2DUP .69314724E0 F/ F>S               \ ln(2) = .69314724E0
+      DUP $7f > IF -43 THROW THEN           \ multiply by 2^k will overflow
       DUP>R
-      S>F .69314724E0 F* F-                 \\ ln(2) = .69314724E0
-      \\ Maclaurin series expm1(x) = exp(x) - 1 = x + x^2/2! + x^3/3! + ...
-      2DUP                                  \\ -- x x
-      10 2 DO                               \\ 8 iterations
-        2OVER 2OVER F*                      \\ -- x x^2/2! ... term x term*x
-        I S>F F/                            \\ -- x x^2/2! ... term x term*x/i
-        2SWAP                               \\ -- x x^2/2! ... term term*x/i x
+      S>F .69314724E0 F* F-                 \ ln(2) = .69314724E0
+      \ Maclaurin series expm1(x) = exp(x) - 1 = x + x^2/2! + x^3/3! + ...
+      2DUP                                  \ -- x x
+      10 2 DO                               \ 8 iterations
+        2OVER 2OVER F*                      \ -- x x^2/2! ... term x term*x
+        I S>F F/                            \ -- x x^2/2! ... term x term*x/i
+        2SWAP                               \ -- x x^2/2! ... term term*x/i x
       LOOP
-      2DROP                                 \\ -- x x^2/2! ... x^9/9!
-      F+ F+ F+ F+ F+ F+ F+ F+               \\ sum the 9 terms in reverse order
-      1E0 F+                                \\ exp(x) = expm1(x) + 1
-      R> 7 LSHIFT +                         \\ multiply exp(x) by 2^k
-      ROT IF 1E0 2SWAP F/ THEN ;            \\ return reciprocal for negative r1
+      2DROP                                 \ -- x x^2/2! ... x^9/9!
+      F+ F+ F+ F+ F+ F+ F+ F+               \ sum the 9 terms in reverse order
+      1E0 F+                                \ exp(x) = expm1(x) + 1
+      R> 7 LSHIFT +                         \ multiply exp(x) by 2^k
+      ROT IF 1E0 2SWAP F/ THEN ;            \ return reciprocal for negative r1
 
 ___
-### FLOG
+### `FLOG`
 _r1 -- r2_
 
 base 10 log of float
 
-    : FLOG FLN 0.4342945E0 F* ;    \\ = ln(x)/ln(10) approx ln(10) such that 10E0 FLOG = 1E0
+    : FLOG FLN 0.4342945E0 F* ;    \ = ln(x)/ln(10) approx ln(10) such that 10E0 FLOG = 1E0
 
 ___
-### FALOG
+### `FALOG`
 _r1 -- r2_
 
 base 10 exponent of float
 
-    : FALOG 2.3025853E0 F* FEXP ;    \\ = exp(x*ln(10))
+    : FALOG 2.3025853E0 F* FEXP ;    \ = exp(x*ln(10))
 
 ___
-### F^
+### `F^`
 _r1 r2 -- r3_
 
 raise r1 to r2 using exp(ln(r1)*r2) where r1 > 0
@@ -4254,55 +4254,55 @@ raise r1 to r2 using exp(ln(r1)*r2) where r1 > 0
     : F^ 2SWAP FLN F* FEXP ;
 
 ___
-### F**
+### `F**`
 _r1 r2 -- r3_
 
 raise r1 to r2
 
     : F**
-      2DUP F0= IF                           \\ r2 = 0
-        2OVER F0= IF -46 THROW THEN         \\ error if r1 = 0 and r2 = 0
-        2DROP 2DROP 1E0 EXIT                \\ return 1.0E0
+      2DUP F0= IF                           \ r2 = 0
+        2OVER F0= IF -46 THROW THEN         \ error if r1 = 0 and r2 = 0
+        2DROP 2DROP 1E0 EXIT                \ return 1.0E0
       THEN
-      2OVER F0= IF                          \\ r1 = 0
-        2DUP F0< IF -46 THROW THEN          \\ error if r1 = 0 and r2 < 0
-        2DROP 2DROP 0E0 EXIT                \\ return 0.0E0
+      2OVER F0= IF                          \ r1 = 0
+        2DUP F0< IF -46 THROW THEN          \ error if r1 = 0 and r2 < 0
+        2DROP 2DROP 0E0 EXIT                \ return 0.0E0
       THEN
-      \\ exponentiation r1^n by repeated squaring when n is a small integer |n|<=16
-      2DUP 2DUP FTRUNC F= IF                \\ r2 has no fractional part
-        2DUP ['] F>D CATCH 0= IF            \\ r2 is convertable to a double n
-          2DUP DABS 17. DU< IF              \\ |n| <= 16
-            DROP                            \\ drop high order of n
-            DUP 0< >R                       \\ save sign of n
-            ABS >R                          \\ save |n|
-            2DROP                           \\ drop old r2
-            1E0                             \\ -- r1 1.0
+      \ exponentiation r1^n by repeated squaring when n is a small integer |n|<=16
+      2DUP 2DUP FTRUNC F= IF                \ r2 has no fractional part
+        2DUP ['] F>D CATCH 0= IF            \ r2 is convertable to a double n
+          2DUP DABS 17. DU< IF              \ |n| <= 16
+            DROP                            \ drop high order of n
+            DUP 0< >R                       \ save sign of n
+            ABS >R                          \ save |n|
+            2DROP                           \ drop old r2
+            1E0                             \ -- r1 1.0
             BEGIN
               R@ 1 AND IF 2OVER F* THEN
-              R> 1 RSHIFT                   \\ -- r1^n product u>>1
+              R> 1 RSHIFT                   \ -- r1^n product u>>1
             DUP WHILE
               >R
-              2SWAP 2DUP F* 2SWAP           \\ -- r1^n^2 product u>>1
+              2SWAP 2DUP F* 2SWAP           \ -- r1^n^2 product u>>1
             REPEAT
-            DROP 2SWAP 2DROP                \\ -- product
-            R> IF 1E0 2SWAP F/ THEN         \\ reciprocal when exponent was negative
+            DROP 2SWAP 2DROP                \ -- product
+            R> IF 1E0 2SWAP F/ THEN         \ reciprocal when exponent was negative
             EXIT
           THEN
-          OVER 1 AND IF                     \\ n is odd
-            2OVER F0< IF                    \\ r1 is negative
+          OVER 1 AND IF                     \ n is odd
+            2OVER F0< IF                    \ r1 is negative
               2DROP 2SWAP FABS 2SWAP F^ FNEGATE
-              EXIT                          \\ return -(|r1|^n)
+              EXIT                          \ return -(|r1|^n)
             THEN
           THEN
-          2DROP 2SWAP FABS 2SWAP            \\ we want to return |r1|^r2
+          2DROP 2SWAP FABS 2SWAP            \ we want to return |r1|^r2
         ELSE
-          2DROP                             \\ drop copy of r2
+          2DROP                             \ drop copy of r2
         THEN
       THEN
       F^ ;
 
 ___
-### FSINH
+### `FSINH`
 _r1 -- r2_
 
 sine hyperbolicus of float
@@ -4310,7 +4310,7 @@ sine hyperbolicus of float
     : FSINH FEXP 2DUP 1E0 2SWAP F/ F- .5E0 F* ;
 
 ___
-### FCOSH
+### `FCOSH`
 _r1 -- r2_
 
 cosine hyperbolicus of float
@@ -4318,7 +4318,7 @@ cosine hyperbolicus of float
     : FCOSH FEXP 2DUP 1E0 2SWAP F/ F+ .5E0 F* ;
 
 ___
-### FTANH
+### `FTANH`
 _r1 -- r2_
 
 tangent hyperbolicus of float
@@ -4326,7 +4326,7 @@ tangent hyperbolicus of float
     : FTANH 2DUP F+ FEXP 2DUP 1E0 F- 2SWAP 1E0 F+ F/ ;
 
 ___
-### FASINH
+### `FASINH`
 _r1 -- r2_
 
 arc sine hyperbolicus of float
@@ -4334,7 +4334,7 @@ arc sine hyperbolicus of float
     : FASINH 2DUP 2DUP F* 1E0 F+ FSQRT F+ FLN ;
 
 ___
-### FACOSH
+### `FACOSH`
 _r1 -- r2_
 
 arc cosine hyperbolicus of float
@@ -4342,7 +4342,7 @@ arc cosine hyperbolicus of float
     : FACOSH 2DUP 2DUP F* 1E0 F- FSQRT F+ FLN ;
 
 ___
-### FATANH
+### `FATANH`
 _r1 -- r2_
 
 arc tangent hyperbolicus of float
