@@ -2,7 +2,7 @@
 
 The goal of this ongoing project is to implement a "wicked fast" [Forth 2012 standard](https://forth-standard.org/standard/words) system for MSX.
 
-Why do I think this is useful? There is [Kuma Forth](https://www.jupiter-ace.co.uk/downloads/books/KumaForthManual%20.pdf) published in 1984 for MSX after all.  But KForth is very limited.  It neither does justice to the Forth programming language, nor to the capabilities of MSX.  Forth is not meant to be a toy language for educational purposes alone.
+Why do I think this is useful? There is [Kuma Forth](https://www.jupiter-ace.co.uk/downloads/books/KumaForthManual%20.pdf) published in 1984 for MSX after all.  But KForth is very limited.  It neither does justice to the Forth programming language, nor to the capabilities of MSX.  Forth is not meant to be a toy language for educational purposes only.
 
 This repo will also include a complete Forth manual in the near future, similar to the Forth manual I wrote for [Forth500](https://github.com/Robert-van-Engelen/Forth500).  In the meantime, see the overview of [ForthMSX words](doc/words.md).
 
