@@ -3051,7 +3051,7 @@ wildcard '*' matches any sequence of characters, at most one '*' may be used in 
 may throw -204 "bad file number" when max files are in use
 
     : S>FCB
-      \ drive letter or use default drive
+      \\ drive letter or use default drive
       S" :" SEARCH IF
         OVER 1- C@ TO DRV
         1 /STRING
@@ -3059,12 +3059,12 @@ may throw -204 "bad file number" when max files are in use
       (FCB)
       DUP 37 ERASE
       DUP 12 BLANK
-      \ c-addr u fcb-addr
-      \ set drive number
+      \\ c-addr u fcb-addr
+      \\ set drive number
       DRV $1f AND OVER C!
-      \ set filename, expand * into ???...
+      \\ set filename, expand * into ???...
       -ROT
-      \ fcb-addr c-addr u
+      \\ fcb-addr c-addr u
       8 0 ?DO
         DUP 0= ?LEAVE
         OVER C@ '. = ?LEAVE
@@ -3075,7 +3075,7 @@ may throw -204 "bad file number" when max files are in use
         THEN
         3 PICK 1+ I + C!
       LOOP
-      \ set extension, expand * into ???...
+      \\ set extension, expand * into ???...
       S" ." SEARCH IF
         1 /STRING
         3 0 ?DO
@@ -3172,40 +3172,40 @@ ior is nonzero when an error occurred, use GET-LINE 0= AND 0= which is TRUE for 
 does not support REPOSITION-FILE except for position zero to rewind
 
     : GET-LINE
-      DUP FIB                  \ -- fileid fib
-      OVER FILE-POSITION DROP D0= IF   \ if at start of file
-        DUP 2- DUP OFF 2- OFF  \ then reset len and pos
+      DUP FIB                  \\ -- fileid fib
+      OVER FILE-POSITION DROP D0= IF   \\ if at start of file
+        DUP 2- DUP OFF 2- OFF  \\ then reset len and pos
       THEN
-      DUP 2- 2- 2@ SWAP        \ -- fileid fib len pos
-      OVER UMIN /STRING        \ -- fileid fib+pos len-pos
-      TUCK                     \ -- fileid len-pos fib+pos len-pos
-      10 CHOP                  \ -- fileid len-pos fib+pos u
-      ROT                      \ -- fileid fib+pos u len-pos
-      OVER = IF                \ CHOPed no LF as u=len-pos
-        2>R DUP FIB R> 2DUP R> -ROT \ -- fileid fib u fib+pos fib u
-        CMOVE                  \ move fib+pos to fib u bytes
-        TUCK                   \ -- fileid u fib u
-        #IB SWAP               \ -- fileid u fib #ib u
-        /STRING                \ -- fileid u fib+u #ib-u
-        3 PICK READ-FILE ?DUP IF \ no more data
-          >R                   \ -- fileid u u2
-          +                    \ -- fileid u+u2
-          SWAP FIB SWAP        \ -- fib u+u2
+      DUP 2- 2- 2@ SWAP        \\ -- fileid fib len pos
+      OVER UMIN /STRING        \\ -- fileid fib+pos len-pos
+      TUCK                     \\ -- fileid len-pos fib+pos len-pos
+      10 CHOP                  \\ -- fileid len-pos fib+pos u
+      ROT                      \\ -- fileid fib+pos u len-pos
+      OVER = IF                \\ CHOPed no LF as u=len-pos
+        2>R DUP FIB R> 2DUP R> -ROT \\ -- fileid fib u fib+pos fib u
+        CMOVE                  \\ move fib+pos to fib u bytes
+        TUCK                   \\ -- fileid u fib u
+        #IB SWAP               \\ -- fileid u fib #ib u
+        /STRING                \\ -- fileid u fib+u #ib-u
+        3 PICK READ-FILE ?DUP IF \\ no more data
+          >R                   \\ -- fileid u u2
+          +                    \\ -- fileid u+u2
+          SWAP FIB SWAP        \\ -- fib u+u2
           FALSE R>
-          DUP 2/ 0= IF         \ ior is 0 or 1
-            2DROP DUP 0= 0= 0  \ -- fib u+u2 flag 0
+          DUP 2/ 0= IF         \\ ior is 0 or 1
+            2DROP DUP 0= 0= 0  \\ -- fib u+u2 flag 0
           THEN
           EXIT
-        THEN                   \ -- fileid u u2
-        +                      \ -- fileid u+u2
-        OVER FIB               \ --fileid u+u2 fib
-        2DUP 2- DUP OFF 2- !   \ set len to u+u2 and pos to 0
-        SWAP                   \ -- fileid fib len
+        THEN                   \\ -- fileid u u2
+        +                      \\ -- fileid u+u2
+        OVER FIB               \\ --fileid u+u2 fib
+        2DUP 2- DUP OFF 2- !   \\ set len to u+u2 and pos to 0
+        SWAP                   \\ -- fileid fib len
         10 CHOP
-      THEN                     \ -- fileid fib+pos u
-      ROT FIB                  \ -- fib+pos u fib
-      OVER 1+ SWAP 2- +!       \ increment pos by u+1 -- fib+pos u
-      13 -TRIM TRUE 0          \ trim CR from end when present
+      THEN                     \\ -- fileid fib+pos u
+      ROT FIB                  \\ -- fib+pos u fib
+      OVER 1+ SWAP 2- +!       \\ increment pos by u+1 -- fib+pos u
+      13 -TRIM TRUE 0          \\ trim CR from end when present
     ;
 
 ___
@@ -3338,8 +3338,8 @@ beware of vocabulary definitions crossings
         EXIT
       THEN
       CURRENT DUP @ 2>R HERE >R
-      2DUP NFA, marker_does CFA,  \ create marker with marker DOES> cfa
-      R> , 2R> 2,                 \ marker body stores HERE CURRENT CURRENT@
+      2DUP NFA, marker_does CFA,  \\ create marker with marker DOES> cfa
+      R> , 2R> 2,                 \\ marker body stores HERE CURRENT CURRENT@
       1 /STRING INCLUDED ;
 
 ___
@@ -3492,11 +3492,11 @@ arc sine of float, in radian
 
     : FASIN
       2DUP F0= IF EXIT THEN
-      2DUP FABS 1E0 F= IF                           \ if |x|=1 then
-        PI/2 2SWAP F0< IF FNEGATE THEN              \ sign(x)*pi/2
+      2DUP FABS 1E0 F= IF                           \\ if |x|=1 then
+        PI/2 2SWAP F0< IF FNEGATE THEN              \\ sign(x)*pi/2
         EXIT
       THEN
-      2DUP 2DUP F* 1E0 2SWAP F- FSQRT FATAN2 ;      \ arctan(x/sqrt(1-x^2)) = atan2(x,sqrt(1-x*x))
+      2DUP 2DUP F* 1E0 2SWAP F- FSQRT FATAN2 ;      \\ arctan(x/sqrt(1-x^2)) = atan2(x,sqrt(1-x*x))
 
 ___
 ### FACOS
@@ -3546,7 +3546,7 @@ _r1 -- r2_
 
 base 10 log of float
 
-    : FLOG FLN 0.434294E0 F* ;    \ = ln(x)/ln(10) approx ln(10) such that 10E0 FLOG = 1E0
+    : FLOG FLN 0.434294E0 F* ;    \\ = ln(x)/ln(10) approx ln(10) such that 10E0 FLOG = 1E0
 
 ___
 ### FALOG
@@ -3554,7 +3554,7 @@ _r1 -- r2_
 
 base 10 exponent of float
 
-    : FALOG 2.30259E0 F* FEXP ;    \ = exp(x*ln(10))
+    : FALOG 2.30259E0 F* FEXP ;    \\ = exp(x*ln(10))
 
 ___
 ### FSINH
@@ -3695,10 +3695,10 @@ this word is much slower than the optimized F>S
       DUP 10 > IF
         -11 THROW
       THEN
-      '- HERE C!       \ place '-' in here
-      OVER -           \ sign exp-sign
-      SWAP HERE 1+ +   \ exp-sign here+1+sign
-      SWAP             \ here+1+sign exp-sign
+      '- HERE C!       \\ place '-' in here
+      OVER -           \\ sign exp-sign
+      SWAP HERE 1+ +   \\ exp-sign here+1+sign
+      SWAP             \\ here+1+sign exp-sign
       >DOUBLE 0= IF
         -11 THROW
       THEN ;
@@ -4015,15 +4015,15 @@ square root of float
     : FSQRT
       2DUP F0< IF -46 THROW THEN
       2DUP F0= IF EXIT THEN
-      \ map r1 to [0.5,2) using sqrt(x*2^n) = sqrt(x*2^(n%2))*2^(n/2)
-      DUP 8 RSHIFT $3f - -ROT               \ 2^(n/2) = 2^(exponent/2 - bias/2)
-      $ff AND $3f00 +                       \ remove exponent 2^(n/2) from x
-      2DUP                                  \ initial estimate y is x
-      5 0 DO                                \ 5 Newton-Raphson iterations
-        2OVER 2OVER F/ F+ .5E0 F*           \ x y -- x (y+x/y)/2
+      \\ map r1 to [0.5,2) using sqrt(x*2^n) = sqrt(x*2^(n%2))*2^(n/2)
+      DUP 8 RSHIFT $3f - -ROT               \\ 2^(n/2) = 2^(exponent/2 - bias/2)
+      $ff AND $3f00 +                       \\ remove exponent 2^(n/2) from x
+      2DUP                                  \\ initial estimate y is x
+      5 0 DO                                \\ 5 Newton-Raphson iterations
+        2OVER 2OVER F/ F+ .5E0 F*           \\ x y -- x (y+x/y)/2
       LOOP
-      2SWAP 2DROP                           \ x y -- y
-      ROT $7f + 7 LSHIFT 0 SWAP F* ;        \ y times 2^(n/2)
+      2SWAP 2DROP                           \\ x y -- y
+      ROT $7f + 7 LSHIFT 0 SWAP F* ;        \\ y times 2^(n/2)
 
 ___
 ### PI
@@ -4047,30 +4047,30 @@ _r1 flag -- r2_
 
 if flag is -1 (TRUE) then leave sin(r1) else if flag is 0 (FALSE) then leave cos(r1)
 
-    : FCOSI                                 \ r2=sin(r1) if flag=-1 else r2=cos(r1) if flag=0
-      >R                                    \ save flag
-      PI/2 F/                               \ map r1 to x in [-pi/4,pi/4]
-      2DUP .5E0 F+ F>D                      \ floor(2x/pi+.5)
-      \ save (floor(2x/pi+.5)+flag+1) mod 4 = quadrant 0,1,2,3 where flag is -1 (sin) or 0 (cos)
+    : FCOSI                                 \\ r2=sin(r1) if flag=-1 else r2=cos(r1) if flag=0
+      >R                                    \\ save flag
+      PI/2 F/                               \\ map r1 to x in [-pi/4,pi/4]
+      2DUP .5E0 F+ F>D                      \\ floor(2x/pi+.5)
+      \\ save (floor(2x/pi+.5)+flag+1) mod 4 = quadrant 0,1,2,3 where flag is -1 (sin) or 0 (cos)
       OVER R> + 1+ >R
-      D>F F- PI/2 F*                        \ pi/2 * (2x/pi - floor(2x/pi + .5))
-      2DUP 2DUP F* FNEGATE 2SWAP            \ -- -x*x x
-      \ quadrant 0:  sin(x) =  x - x^3/3! + x^5/5! - x^7/7! + ...
-      \ quadrant 1:  cos(x) =  1 - x^2/2! + x^4/4! - x^6/6! + ...
-      \ quadrant 2: -sin(x) = -x + x^3/3! - x^5/5! + x^7/7! - ...
-      \ quadrant 3: -cos(x) = -1 + x^2/2! - x^4/4! + x^6/6! - ...
-      R@ 1 AND IF 2DROP 1E0 THEN            \ initial term 1 for quadrant 1 and 3
-      R@ 2 AND IF FNEGATE THEN              \ negate initial term for quadrant 2 and 4
-      2SWAP                                 \ -- x|1|-x|-1 -x*x
-      \ Maclaurin series iterations i=2,4,6,8,10,12 (cos) or i=1,3,5,7,9,11 (sin)
-      13 2 R> 1 AND - DO                    \ 6 iterations
-        2OVER 2OVER F*                      \ -- ... term -x*x -x*x*term
-        I DUP 1+ *                          \ -- ... term -x*x -x*x*term i*(i+1)
-        S>F F/                              \ -- ... term -x*x -x*x*term/(i*(i+1))
-        2SWAP                               \ -- ... term -x*x*term/(i*(i+1)) -x*x
+      D>F F- PI/2 F*                        \\ pi/2 * (2x/pi - floor(2x/pi + .5))
+      2DUP 2DUP F* FNEGATE 2SWAP            \\ -- -x*x x
+      \\ quadrant 0:  sin(x) =  x - x^3/3! + x^5/5! - x^7/7! + ...
+      \\ quadrant 1:  cos(x) =  1 - x^2/2! + x^4/4! - x^6/6! + ...
+      \\ quadrant 2: -sin(x) = -x + x^3/3! - x^5/5! + x^7/7! - ...
+      \\ quadrant 3: -cos(x) = -1 + x^2/2! - x^4/4! + x^6/6! - ...
+      R@ 1 AND IF 2DROP 1E0 THEN            \\ initial term 1 for quadrant 1 and 3
+      R@ 2 AND IF FNEGATE THEN              \\ negate initial term for quadrant 2 and 4
+      2SWAP                                 \\ -- x|1|-x|-1 -x*x
+      \\ Maclaurin series iterations i=2,4,6,8,10,12 (cos) or i=1,3,5,7,9,11 (sin)
+      13 2 R> 1 AND - DO                    \\ 6 iterations
+        2OVER 2OVER F*                      \\ -- ... term -x*x -x*x*term
+        I DUP 1+ *                          \\ -- ... term -x*x -x*x*term i*(i+1)
+        S>F F/                              \\ -- ... term -x*x -x*x*term/(i*(i+1))
+        2SWAP                               \\ -- ... term -x*x*term/(i*(i+1)) -x*x
       2 +LOOP
       2DROP
-      F+ F+ F+ F+ F+ F+ ;                   \ sum the 7 terms in reverse order for accuracy
+      F+ F+ F+ F+ F+ F+ ;                   \\ sum the 7 terms in reverse order for accuracy
 
 ___
 ### FSIN
@@ -4104,14 +4104,14 @@ arc sine of float, in radian
 
     : FASIN
       2DUP F0= IF EXIT THEN
-      2DUP FABS 1E0 F= IF                           \ if |x|=1 then
-        PI/2 2SWAP F0< IF FNEGATE THEN              \ sign(x)*pi/2
+      2DUP FABS 1E0 F= IF                           \\ if |x|=1 then
+        PI/2 2SWAP F0< IF FNEGATE THEN              \\ sign(x)*pi/2
 ___
 ### ;
 _ EXIT_
 
       THEN
-      2DUP 2DUP F* 1E0 2SWAP F- FSQRT FATAN2 ;      \ arctan(x/sqrt(1-x^2)) = atan2(x,sqrt(1-x*x))
+      2DUP 2DUP F* 1E0 2SWAP F- FSQRT FATAN2 ;      \\ arctan(x/sqrt(1-x^2)) = atan2(x,sqrt(1-x*x))
 
 ___
 ### FACOS
@@ -4128,8 +4128,8 @@ _r1 -- r2_
 arc tangent of float, in radian
 
     : FATAN
-      \ map r1 to [-1,1] using arctan(x) = sign(x) * (pi/2-arctan(1/abs(x)))
-      1E0 2OVER FABS F< IF                  \ if |r1| > 1 then
+      \\ map r1 to [-1,1] using arctan(x) = sign(x) * (pi/2-arctan(1/abs(x)))
+      1E0 2OVER FABS F< IF                  \\ if |r1| > 1 then
         2DUP F0< -ROT
         1E0 2SWAP FABS F/
         TRUE
@@ -4137,27 +4137,27 @@ arc tangent of float, in radian
         FALSE
       THEN
       -ROT
-      \ map r1 in [-1,1] to [-sqrt(2)+1,sqrt(2)-1] using arctan(x) = 2*arctan(x/(1+sqrt(1+x^2)))
-      .41423562E0 2OVER FABS F< IF          \ if |r1| > sqrt(2)-1 then
+      \\ map r1 in [-1,1] to [-sqrt(2)+1,sqrt(2)-1] using arctan(x) = 2*arctan(x/(1+sqrt(1+x^2)))
+      .41423562E0 2OVER FABS F< IF          \\ if |r1| > sqrt(2)-1 then
         2DUP 2DUP F* 1E0 F+ FSQRT 1E0 F+ F/
         TRUE
       ELSE
         FALSE
       THEN
       -ROT
-      \ Maclaurin series arctan(x) = x - x^3/3 + x^5/5 - x^7/7 + ... with x in (-1,1)
-      2DUP 2DUP 2DUP F* FNEGATE 2SWAP       \ -- x -x*x x
-      16 3 DO                               \ 7 iterations
-        2OVER F*                            \ -- x -x^3/3 ... -x*x -x*x*term
-        2DUP I S>F F/                       \ -- x -x^3/3 ... -x*x -x*x*term -x*x*term/i
-        2ROT 2ROT                           \ -- x -x^3/3 ... -x*x*term/i -x*x -x*x*term
+      \\ Maclaurin series arctan(x) = x - x^3/3 + x^5/5 - x^7/7 + ... with x in (-1,1)
+      2DUP 2DUP 2DUP F* FNEGATE 2SWAP       \\ -- x -x*x x
+      16 3 DO                               \\ 7 iterations
+        2OVER F*                            \\ -- x -x^3/3 ... -x*x -x*x*term
+        2DUP I S>F F/                       \\ -- x -x^3/3 ... -x*x -x*x*term -x*x*term/i
+        2ROT 2ROT                           \\ -- x -x^3/3 ... -x*x*term/i -x*x -x*x*term
       2 +LOOP
-      2DROP 2DROP                           \ -- x -x^3/3 ... x^15/15
-      F+ F+ F+ F+ F+ F+ F+                  \ sum the 8 terms in reverse order for accuracy
-      ROT IF 2E0 F* THEN                    \ 2*arctan(x/(1+sqrt(1+x^2)))
+      2DROP 2DROP                           \\ -- x -x^3/3 ... x^15/15
+      F+ F+ F+ F+ F+ F+ F+                  \\ sum the 8 terms in reverse order for accuracy
+      ROT IF 2E0 F* THEN                    \\ 2*arctan(x/(1+sqrt(1+x^2)))
       ROT IF PI/2 2SWAP F-
         ROT IF FNEGATE THEN
-      THEN ;                                \ sign(x) * (pi/2-arctan(1/abs(x)))
+      THEN ;                                \\ sign(x) * (pi/2-arctan(1/abs(x)))
 
 ___
 ### FATAN2
@@ -4186,21 +4186,21 @@ natural log of float
 
     : FLN
       2DUP 2DUP F0< -ROT F0= OR IF -46 THROW THEN
-      \ map r1 to [0.5,1) using ln(x*2^n) = ln(x) + ln(2^n) = ln(x) + n*ln(2)
-      DUP 7 RSHIFT $7e - -ROT               \ 2^(n+1) = 2^(exponent - bias + 1)
-      $7f AND $3f00 +                       \ remove exponent 2^(n+1)
-      1E0 2SWAP F-                          \ 1-x
-      \ Maclaurin series -ln(1-x) = x + x^2/2 + x^3/3 + ... with x in (0,0.5]
-      2DUP 2DUP                             \ -- x x x
-      22 2 DO                               \ 20 iterations
-        2OVER F*                            \ -- x x^2/2 ... x term*x
-        2DUP I S>F F/                       \ -- x x^2/2 ... x term*x term*x/i
-        2ROT 2ROT                           \ -- x x^2/2 ... term*x/i x term*x
+      \\ map r1 to [0.5,1) using ln(x*2^n) = ln(x) + ln(2^n) = ln(x) + n*ln(2)
+      DUP 7 RSHIFT $7e - -ROT               \\ 2^(n+1) = 2^(exponent - bias + 1)
+      $7f AND $3f00 +                       \\ remove exponent 2^(n+1)
+      1E0 2SWAP F-                          \\ 1-x
+      \\ Maclaurin series -ln(1-x) = x + x^2/2 + x^3/3 + ... with x in (0,0.5]
+      2DUP 2DUP                             \\ -- x x x
+      22 2 DO                               \\ 20 iterations
+        2OVER F*                            \\ -- x x^2/2 ... x term*x
+        2DUP I S>F F/                       \\ -- x x^2/2 ... x term*x term*x/i
+        2ROT 2ROT                           \\ -- x x^2/2 ... term*x/i x term*x
       LOOP
-      2DROP 2DROP                           \ -- x x^2/2 ... x^19/19
-      20 0 DO F+ LOOP                       \ sum the 21 terms in reverse order
+      2DROP 2DROP                           \\ -- x x^2/2 ... x^19/19
+      20 0 DO F+ LOOP                       \\ sum the 21 terms in reverse order
       FNEGATE
-      ROT S>F .69314724E0 F* F+ ;           \ + n*ln(2) with approx ln(2) such that 1E0 FLN = 0
+      ROT S>F .69314724E0 F* F+ ;           \\ + n*ln(2) with approx ln(2) such that 1E0 FLN = 0
 
 ___
 ### FEXP
@@ -4211,23 +4211,23 @@ natural exponent of float
     : FEXP
       2DUP F0< -ROT
       FABS
-      \ map |r1| to [0,ln(2)) using exp(x+k*ln(2)) = exp(x)*2^k
-      2DUP .69314724E0 F/ F>S               \ ln(2) = .69314724E0
-      DUP $7f > IF -43 THROW THEN           \ multiply by 2^k will overflow
+      \\ map |r1| to [0,ln(2)) using exp(x+k*ln(2)) = exp(x)*2^k
+      2DUP .69314724E0 F/ F>S               \\ ln(2) = .69314724E0
+      DUP $7f > IF -43 THROW THEN           \\ multiply by 2^k will overflow
       DUP>R
-      S>F .69314724E0 F* F-                 \ ln(2) = .69314724E0
-      \ Maclaurin series expm1(x) = exp(x) - 1 = x + x^2/2! + x^3/3! + ...
-      2DUP                                  \ -- x x
-      10 2 DO                               \ 8 iterations
-        2OVER 2OVER F*                      \ -- x x^2/2! ... term x term*x
-        I S>F F/                            \ -- x x^2/2! ... term x term*x/i
-        2SWAP                               \ -- x x^2/2! ... term term*x/i x
+      S>F .69314724E0 F* F-                 \\ ln(2) = .69314724E0
+      \\ Maclaurin series expm1(x) = exp(x) - 1 = x + x^2/2! + x^3/3! + ...
+      2DUP                                  \\ -- x x
+      10 2 DO                               \\ 8 iterations
+        2OVER 2OVER F*                      \\ -- x x^2/2! ... term x term*x
+        I S>F F/                            \\ -- x x^2/2! ... term x term*x/i
+        2SWAP                               \\ -- x x^2/2! ... term term*x/i x
       LOOP
-      2DROP                                 \ -- x x^2/2! ... x^9/9!
-      F+ F+ F+ F+ F+ F+ F+ F+               \ sum the 9 terms in reverse order
-      1E0 F+                                \ exp(x) = expm1(x) + 1
-      R> 7 LSHIFT +                         \ multiply exp(x) by 2^k
-      ROT IF 1E0 2SWAP F/ THEN ;            \ return reciprocal for negative r1
+      2DROP                                 \\ -- x x^2/2! ... x^9/9!
+      F+ F+ F+ F+ F+ F+ F+ F+               \\ sum the 9 terms in reverse order
+      1E0 F+                                \\ exp(x) = expm1(x) + 1
+      R> 7 LSHIFT +                         \\ multiply exp(x) by 2^k
+      ROT IF 1E0 2SWAP F/ THEN ;            \\ return reciprocal for negative r1
 
 ___
 ### FLOG
@@ -4235,7 +4235,7 @@ _r1 -- r2_
 
 base 10 log of float
 
-    : FLOG FLN 0.4342945E0 F* ;    \ = ln(x)/ln(10) approx ln(10) such that 10E0 FLOG = 1E0
+    : FLOG FLN 0.4342945E0 F* ;    \\ = ln(x)/ln(10) approx ln(10) such that 10E0 FLOG = 1E0
 
 ___
 ### FALOG
@@ -4243,7 +4243,7 @@ _r1 -- r2_
 
 base 10 exponent of float
 
-    : FALOG 2.3025853E0 F* FEXP ;    \ = exp(x*ln(10))
+    : FALOG 2.3025853E0 F* FEXP ;    \\ = exp(x*ln(10))
 
 ___
 ### F^
@@ -4260,43 +4260,43 @@ _r1 r2 -- r3_
 raise r1 to r2
 
     : F**
-      2DUP F0= IF                           \ r2 = 0
-        2OVER F0= IF -46 THROW THEN         \ error if r1 = 0 and r2 = 0
-        2DROP 2DROP 1E0 EXIT                \ return 1.0E0
+      2DUP F0= IF                           \\ r2 = 0
+        2OVER F0= IF -46 THROW THEN         \\ error if r1 = 0 and r2 = 0
+        2DROP 2DROP 1E0 EXIT                \\ return 1.0E0
       THEN
-      2OVER F0= IF                          \ r1 = 0
-        2DUP F0< IF -46 THROW THEN          \ error if r1 = 0 and r2 < 0
-        2DROP 2DROP 0E0 EXIT                \ return 0.0E0
+      2OVER F0= IF                          \\ r1 = 0
+        2DUP F0< IF -46 THROW THEN          \\ error if r1 = 0 and r2 < 0
+        2DROP 2DROP 0E0 EXIT                \\ return 0.0E0
       THEN
-      \ exponentiation r1^n by repeated squaring when n is a small integer |n|<=16
-      2DUP 2DUP FTRUNC F= IF                \ r2 has no fractional part
-        2DUP ['] F>D CATCH 0= IF            \ r2 is convertable to a double n
-          2DUP DABS 17. DU< IF              \ |n| <= 16
-            DROP                            \ drop high order of n
-            DUP 0< >R                       \ save sign of n
-            ABS >R                          \ save |n|
-            2DROP                           \ drop old r2
-            1E0                             \ -- r1 1.0
+      \\ exponentiation r1^n by repeated squaring when n is a small integer |n|<=16
+      2DUP 2DUP FTRUNC F= IF                \\ r2 has no fractional part
+        2DUP ['] F>D CATCH 0= IF            \\ r2 is convertable to a double n
+          2DUP DABS 17. DU< IF              \\ |n| <= 16
+            DROP                            \\ drop high order of n
+            DUP 0< >R                       \\ save sign of n
+            ABS >R                          \\ save |n|
+            2DROP                           \\ drop old r2
+            1E0                             \\ -- r1 1.0
             BEGIN
               R@ 1 AND IF 2OVER F* THEN
-              R> 1 RSHIFT                   \ -- r1^n product u>>1
+              R> 1 RSHIFT                   \\ -- r1^n product u>>1
             DUP WHILE
               >R
-              2SWAP 2DUP F* 2SWAP           \ -- r1^n^2 product u>>1
+              2SWAP 2DUP F* 2SWAP           \\ -- r1^n^2 product u>>1
             REPEAT
-            DROP 2SWAP 2DROP                \ -- product
-            R> IF 1E0 2SWAP F/ THEN         \ reciprocal when exponent was negative
+            DROP 2SWAP 2DROP                \\ -- product
+            R> IF 1E0 2SWAP F/ THEN         \\ reciprocal when exponent was negative
             EXIT
           THEN
-          OVER 1 AND IF                     \ n is odd
-            2OVER F0< IF                    \ r1 is negative
+          OVER 1 AND IF                     \\ n is odd
+            2OVER F0< IF                    \\ r1 is negative
               2DROP 2SWAP FABS 2SWAP F^ FNEGATE
-              EXIT                          \ return -(|r1|^n)
+              EXIT                          \\ return -(|r1|^n)
             THEN
           THEN
-          2DROP 2SWAP FABS 2SWAP            \ we want to return |r1|^r2
+          2DROP 2SWAP FABS 2SWAP            \\ we want to return |r1|^r2
         ELSE
-          2DROP                             \ drop copy of r2
+          2DROP                             \\ drop copy of r2
         THEN
       THEN
       F^ ;
@@ -4665,8 +4665,8 @@ word | stack
 [`SPACE`](#SPACE)	|		--
 [`STATE`](#STATE)	|		-- addr
 [`SWAP`](#SWAP)	|		x1 x2 -- x2 x1
-[`S\"`](#S\")	|		"ccc&lt;quote&gt;" -- ; -- c-addr u
-[`S\>S`](#S\>S)	|		c-addr u -- c-addr u
+[`S\\"`](#S\\")	|		"ccc&lt;quote&gt;" -- ; -- c-addr u
+[`S\\>S`](#S\\>S)	|		c-addr u -- c-addr u
 [`THEN`](#THEN)	|		-- ; C: addr orig --
 [`THROW`](#THROW)	|		0 -- or ... n -- ... n
 [`TIB`](#TIB)	|		-- c-addr
@@ -4704,5 +4704,5 @@ word | stack
 [`[CHAR]`](#[CHAR])	|	"&lt;spaces&gt;char" -- ; -- char
 [`[COMPILE]`](#[COMPILE])	|	"&lt;space&gt;name&lt;space&gt;" -- ; ... -- ...
 [`[`](#[)	|		--
-[`\`](#\)	|		"ccc&lt;eol&gt;" --
+[`\\`](#\\)	|		"ccc&lt;eol&gt;" --
 [`]`](#])	|		--
