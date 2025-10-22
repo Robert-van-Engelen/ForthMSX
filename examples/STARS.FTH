@@ -6,8 +6,8 @@
 require VDP.FTH
 require RAND.FTH
 
-\ note: this RAND from libc is rather slow to compute,
-\ for speed we should use something much simpler instead
+\ rand is rather slow to compute and minstd-rand is a bit faster,
+\ but there are other faster ways to get RN
 
 DECIMAL
 
