@@ -69,7 +69,7 @@ CREATE star
   randomize
   251 0 DO
     rand 1600 MOD VRAM	\ random VRAM address $0000 to $037F
-    rand 3 AND 1+	\ random 1,2,3,4
+    I 3 AND 1+	        \ 1,2,3,4
     SP@ 1 >VRAM		\ SP@ is address of TOS
     DROP
   LOOP
