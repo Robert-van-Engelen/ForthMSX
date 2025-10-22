@@ -1109,22 +1109,6 @@ arithmetic shift right d1 >> 1
     : D2/ 1 2 M*/ ;
 
 ___
-### `CELL+`
-_addr -- addr_
-
-increment to next cell
-
-    : CELL+ 2+ ;
-
-___
-### `CELLS`
-_n1 -- n2_
-
-convert to cell unit
-
-    : CELLS 2* ;
-
-___
 ### `CHAR+`
 _n1 -- n1_
 
@@ -1139,6 +1123,22 @@ _n1 -- n2_
 convert to char unit (does nothing as chars are bytes)
 
     : CHARS ;
+
+___
+### `CELL+`
+_addr -- addr_
+
+increment to next cell
+
+    : CELL+ 2+ ;
+
+___
+### `CELLS`
+_n1 -- n2_
+
+convert to cell unit
+
+    : CELLS 2* ;
 
 ___
 ### `COUNT`
@@ -1554,14 +1554,6 @@ check for key press and return the code of the key;
     : INKEY KEY? IF KEY ELSE 0 THEN ;
 
 ___
-### `KEY-CLEAR`
-_--_
-
-clear the key buffer
-
-    : KEY-CLEAR BEGIN KEY? WHILE KEY DROP REPEAT ;
-
-___
 ### `KEY?`
 _-- flag_
 
@@ -1574,14 +1566,43 @@ _-- char_
 wait and read key from the console
 
 ___
-### `EDIT`
+### `EDLIN`
 _c-addr +n1 n2 n3 -- c-addr +n4_
 
-edit buffer c-addr;
-buffer size +n1;
+edit the line in buffer c-addr;
+max buffer c-addr size +n1;
 string in buffer has length n2;
 non-editable left margin n3;
-leaves c-addr and length +n4 (MSX INLIN strips first n3 characters)
+leaves c-addr and length +n4 (without first n3 characters)
+
+___
+### `INLIN`
+_-- c-addr u_
+
+MSX INLIN input a logical line of screen text;
+leaves c-addr pointing in TIB and input length u
+
+key          | effect
+------------ | -------------------------------------------------
+cursor LEFT  | CTRL-] move cursor down
+cursor RIGHT | CTRL-\ move cursor down
+cursor UP    | CTRL-^ move cursor up
+cursor DOWN  | CTRL-_ move cursor down
+RETURN       | CTRL-M enter the logical line the cursor is on
+HOME         | CTRL-K move cursor to the top left corner
+SHIFT-HOME   | CTRL-L clear screen
+INS          | CTRL-R toggle insert/overwrite mode
+DEL          | delete character under the cursor
+BS           | CTRL-H delete character to the left of the cursor
+TAB          | CTRL-I insert TAB spacing
+CTRL-A       | insert graphic header, follow by A to Z [ \ ] ^ _
+CTRL-B       | move cursor backward to the previous word
+CTRL-F       | move cursor forward to the next word
+CTRL-J       | move cursor down (line feed, scrolls)
+CTRL-N       | move cursor to the end of the logical line
+CTRL-E       | delete from cursor to the end of the logical line
+CTRL-U       | delete the entire logical line the cursor is on
+(CTRL-)STOP  | program break
 
 ___
 ### `ACCEPT`
@@ -1590,7 +1611,7 @@ _c-addr +n1 -- +n2_
 accept user input into buffer c-addr +n1;
 leaves length +n2
 
-    : ACCEPT 0 0 EDIT NIP ;
+    : ACCEPT 0 0 EDLIN NIP ;
 
 ___
 ### `#IN`
@@ -3163,9 +3184,7 @@ ___
 _c-addr u1 fileid -- u2 ior_
 
 read into buffer c-addr of size u1 from fileid (a fcb-addr);
-leaves number u2 of bytes read into the buffer and ior 0 (success) or 1 (u2 is zero and eof) or nz (other failure)
-to read a single character to a cell on the stack: 0 SP@ 1 fileid READ-FILE -- char 0|1 ior
-
+leaves number u2 of bytes read into the buffer and ior 0 (success) or 1 (u2 = 0 and eof) or nz (MSX error)
 
 ___
 ### `GET-LINE`
@@ -3238,14 +3257,14 @@ ___
 _c-addr u1 fileid -- ior_
 
 write buffer c-addr of size u1 to fileid (a fcb-addr);
-leaves ior 0 (success) or 1 (disk full) or nz (other failure)
+leaves ior 0 (success) or 1 (disk full) or nz (other MSX error)
 
 ___
 ### `WRITE-LINE`
 _c-addr u1 fileid -- ior_
 
 write buffer c-addr of size u1 to fileid (a fcb-addr) followed by a CR/LF pair;
-leaves ior 0 (success) or 1 (disk full)
+leaves ior 0 (success) or 1 (disk full) or nz (other MSX error)
 
 ___
 ### `FILE-POSITION`
@@ -4520,7 +4539,7 @@ word | stack
 [`DU<`](#DU<)	|		du1 du2 -- flag
 [`DUP>R`](#DUP>R)	|		x -- x ; R: -- x
 [`DUP`](#DUP)	|		x -- x x
-[`EDIT`](#EDIT)	|		c-addr +n1 n2 n3 -- c-addr +n4
+[`EDLIN`](#EDLIN)	|		c-addr +n1 n2 n3 -- c-addr +n4
 [`ELSE`](#ELSE)	|		-- ; C: addr orig -- addr orig
 [`EMIT`](#EMIT)	|		char --
 [`ENDCASE`](#ENDCASE)	|	x -- ; C: n*orig n --
@@ -4586,12 +4605,12 @@ word | stack
 [`IF`](#IF)	|		x -- ; C: -- addr orig
 [`IMMEDIATE`](#IMMEDIATE)	|	--
 [`INKEY`](#INKEY)	|	-- x
+[`INLIN`](#INLIN)	|		-- c-addr u
 [`INTERPRET`](#INTERPRET)	|	--
 [`INVERT`](#INVERT)	|	x1 -- x2
 [`IS`](#IS)	|		xt "&lt;spaces&gt;name&lt;space&gt;" --
 [`I`](#I)	|		-- n
 [`J`](#J)	|		-- n
-[`KEY-CLEAR`](#KEY-CLEAR)	|	--
 [`KEY?`](#KEY?)	|		-- flag
 [`KEY`](#KEY)	|		-- char
 [`K`](#K)	|		-- n
