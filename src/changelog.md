@@ -98,6 +98,10 @@
 
 - add `HELP.FTH` to get help on Forth words, uses a `HELP.TXT` file with Forth word synopsis generated using help.sh from forth.asm
 
+- refactored `EDIT` and `(INLIN)` to new `EDLIN` and `INLIN` to reduce code size
+
+- rename `KEY-CLEAR` to `CLKEY`
+
 ### v1.0
 
 ## TODO

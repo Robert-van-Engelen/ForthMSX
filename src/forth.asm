@@ -26,19 +26,20 @@
 ;     - String & String-Ext (complate except REPLACE SUBSTITUTE ESCAPE)
 ;
 ;   Additional non-standard words:
-;     - stack: CLEAR -ROT DUP>R RDROP 2DUP>R 2RDROP
+;     - stack: CLEAR -ROT DUP>R RDROP
 ;     - variables: ON OFF
 ;     - values: +TO
-;     - arithmetic: UMAX UMIN 2+ 2- UMD*
-;     - strings: CHOP TRIM -TRIM -TRAILING /STRING NEXT-CHAR SDUP
+;     - arithmetic: UMAX UMIN 2+ 2- UMD* MD* D* D/ DMOD D/MOD UD/MOD UMD/MOD
+;     - strings: CHOP TRIM -TRIM -TRAILING /STRING NEXT-CHAR SDUP S\>S
 ;     - screen: CUR-XY MAX-XY
 ;     - introspection: CFA=
 ;     - looping: ?LEAVE K
 ;     - conversion: >DOUBLE
-;     - text input and editing: EDIT
+;     - text input and editing: INLIN EDLIN
 ;     - vocabulary: VOCABULARY CURRENT CONTEXT
 ;     - dictionary: LASTXT HIDE REVEAL L>NAME >NAME NAME> FIND-WORD
-;     - files: ANEW CLOSE-FILES
+;     - files: ANEW GET-LINE CLOSE-FILES
+;     - keyboard: INKEY CLKEY
 ;     - other: OK BYE
 ;
 ; Author:
@@ -116,13 +117,13 @@ JPIY = 1	; use register iy to jump to the next routine (1) or jp next (0)
 SAFE = 1	; check stack under- and overflow (1) or faster loops (0)
 SAFR = 0	; RECURSE checks return stack under- and overflow (1) or not (0)
 STOP = 1	; check STOP key to break execution (1) or faster word calls (0)
-EDIT = 1	; use MSX INLIN for EDIT and ACCEPT (1) or a line editor (0)
+EDIT = 1	; use MSX INLIN for EDLIN and ACCEPT (1) or a line editor (0)
 REPL = 1	; interpreter with REPL (1) or compiled headless to run MAIN (0)
-XTRA = 1	; include additional non-standard words
+XTRA = 1	; include additional words
 MATH = 1	; include floating-point single precision MSX MATH-PACK words
 IEEE = 0	; include floating-point IEEE 754 single precision words
 FUNC = 0	; include floating-point IEEE 754 sqrt, log, exp, trig functions
-FCBN = 2	; include MSX-DOS file-access words, FCBN = max open files
+FCBN = 2	; include MSX-DOS file-access words, set FCBN = max open files
 PORT = 0	; include additional Z80 I/O port words >PORT PORT> >VDP
 DUMP = 0	; include additional words DUMP DB.R UB.R
 MAIN = 0	; include main.asm
@@ -132,8 +133,8 @@ MAIN = 0	; include main.asm
 ; XTRA = 1 adds the following words:
 ; - arithmetic: MD* D* D/ DMOD D/MOD UD/MOD UMD/MOD
 ; - stacks: N>R NR>
-; - strings and memory: S\" S\>S
-; - keyboard: INKEY KEY-CLEAR
+; - strings: S\" S\>S
+; - keyboard: INKEY CLKEY
 
 .if 1-REPL	; REPL=0 disables STOP
 STOP = 0
@@ -2000,6 +2001,53 @@ store_a_hl:	ld (hl),a		;
 ;
 ;    : D* >R ROT DUP>R -ROT MD* 2R> * 0 SWAP D+ ;
 
+.if 0 ; disabled
+
+;		new fast Z80 method for signed 32x32->32 bit multiplication
+;		disabled because this is only a bit faster than coded in Forth below
+
+		CODE D*,dstar
+		ld hl,0			; 0 -> hl high order d3, de with d2 high order
+		SVBC			; save bc with ip
+		exx			;
+		pop de			; d2 -> de' low order d2
+		pop hl			; d1 -> hl' high order d1
+		pop bc			; d1 -> bc' low order d1
+		ld a,h			;
+		push af			; save d1 high order byte 3
+		ld a,l			;
+		push af			; save d1 high order byte 2
+		ld a,b			;
+		push af			; save d1 low order byte 1
+		ld a,c			;
+		push af			; save d1 low order byte 0
+		ld hl,0			; 0 -> hl' low order d3
+		ld c,4			; 4 -> c outer loop counter
+1$:		pop af			; loop, [sp++] -> a next d1 byte
+		ld b,8			;   8 -> b inner loop counter
+2$:		rra		;  4	;   loop, a >> 1 -> a set cf
+		jr nc,3$	;  7	;     if cf = 1 then
+		add hl,de	; 11	;       hl' + de' -> hl add low order
+		exx		;  4	;
+		adc hl,de	; 15	;       hl + de + cf -> hl add high order
+		exx		;  4	;
+3$:		sla e		;  8	;
+		rl d		;  8	;     de' << 1 -> de' shift low order
+		exx		;  4	;
+		rl e		;  8	;
+		rl d		;  8	;     de << 1 + cf -> de shift high order
+		exx		;  4	;
+		djnz 2$		; 13(98);   until --b = 0
+		dec c			;
+		jr nz,1$		; until --c = 0
+		push hl			; save hl' with low order d3
+		exx			;
+		LDBC			; restore bc with ip
+		ex de,hl		; set new TOS to hl with high order d3
+		JP_NEXT			; continue
+
+.else
+
 		COLON D*,dstar
 		.dw tor
 		.dw rot,duptor,mrot
@@ -2007,6 +2055,8 @@ store_a_hl:	ld (hl),a		;
 		.dw tworfrom,star
 		.dw zero,swap,dplus
 		.dw doret
+
+.endif
 
 ;+ UMD/MOD	ud1 u1 -- u2 ud2
 ;		unsigned remainder and unsigned double quotient ud1/u1;
@@ -2463,8 +2513,18 @@ true_if_c_next:	sbc a			; -cf -> a
 ;    : INVERT -1 XOR ;
 
 		CODE INVERT,invert
+.if FAST
+		ld a,e			;
+		cpl			;
+		ld e,a			; ~e -> e
+		ld a,d			;
+		cpl			;
+		ld d,a			; ~d -> d
+		NEXT			; continue
+.else
 		inc de			;
 		jr negate		; set new TOS to -x1 - 1 and continue
+.endif
 
 ; NEGATE	n1 -- n2
 ;		two's complement -n1
@@ -2631,22 +2691,6 @@ true_if_c_next:	sbc a			; -cf -> a
 		push hl			;
 		JP_NEXT			;
 
-; CELL+		addr -- addr
-;		increment to next cell
-;
-;    : CELL+ 2+ ;
-
-		CODE CELL+,cellplus
-		jr twoplus		; same as 2+
-
-; CELLS		n1 -- n2
-;		convert to cell unit
-;
-;    : CELLS 2* ;
-
-		CODE CELLS,cells
-		jr twostar		; same as 2*
-
 ; CHAR+		n1 -- n1
 ;		increment to next char
 ;
@@ -2662,6 +2706,22 @@ true_if_c_next:	sbc a			; -cf -> a
 
 		CODE CHARS,chars
 		JP_NEXT			; do nothing
+
+; CELL+		addr -- addr
+;		increment to next cell
+;
+;    : CELL+ 2+ ;
+
+		CODE CELL+,cellplus
+		jr twoplus		; same as 2+
+
+; CELLS		n1 -- n2
+;		convert to cell unit
+;
+;    : CELLS 2* ;
+
+		CODE CELLS,cells
+		jr twostar		; same as 2*
 
 ;-------------------------------------------------------------------------------
 ;
@@ -4552,9 +4612,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 
 ;/ READ-FILE	c-addr u1 fileid -- u2 ior
 ;		read into buffer c-addr of size u1 from fileid (a fcb-addr);
-;		leaves number u2 of bytes read into the buffer and ior 0 (success) or 1 (u2 is zero and eof) or nz (other failure)
-;		to read a single character to a cell on the stack: 0 SP@ 1 fileid READ-FILE -- char 0|1 ior
-;
+;		leaves number u2 of bytes read into the buffer and ior 0 (success) or 1 (u2 = 0 and eof) or nz (MSX error)
 
 		COLON READ-FILE,readfile
 		.dw rot,zero,dolit,0x1a,dodosx,twodrop	; MSX BDOS 1ah set DTA to c-addr
@@ -4665,7 +4723,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 
 ;/ WRITE-FILE	c-addr u1 fileid -- ior
 ;		write buffer c-addr of size u1 to fileid (a fcb-addr);
-;		leaves ior 0 (success) or 1 (disk full) or nz (other failure)
+;		leaves ior 0 (success) or 1 (disk full) or nz (other MSX error)
 
 		COLON WRITE-FILE,writefile
 		.dw over,doif,1$			; if u1 != 0 then
@@ -4677,7 +4735,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 
 ;/ WRITE-LINE	c-addr u1 fileid -- ior
 ;		write buffer c-addr of size u1 to fileid (a fcb-addr) followed by a CR/LF pair;
-;		leaves ior 0 (success) or 1 (disk full)
+;		leaves ior 0 (success) or 1 (disk full) or nz (other MSX error)
 
 		COLON WRITE-LINE,writeline
 		.dw duptor,writefile,qdup,doif,1$
@@ -6021,7 +6079,7 @@ set_base:	ld (base+3),hl		; 10 -> [base]
 
 ;-------------------------------------------------------------------------------
 ;
-;		INPUT
+;		KEYBOARD INPUT
 ;
 ;-------------------------------------------------------------------------------
 
@@ -6030,20 +6088,21 @@ set_base:	ld (base+3),hl		; 10 -> [base]
 ;+ INKEY	-- x
 ;		check for key press and return the code of the key;
 ;		0 = no key pressed
+;
+;    : INKEY KEY? IF KEY ELSE 0 THEN ;
 
 		CODE INKEY,inkey
 		push de			; save TOS
 		call CHSNS		; MSX CHSNS check keyboard status
 		jp z,zero_next		; if no key then set new TOS to 0
-		call CHGET		; MSX CHGET get the key
-		jp a_next		; set a -> de new TOS and continue
+		jr chget_next		; set new TOS to CHGET and continue
 
-;+ KEY-CLEAR	--
-;		wait until no keys are pressed
+;+ CLKEY
+;		clear the key buffer
 ;
-;    : KEY-CLEAR BEGIN INKEY 0= UNTIL ;
+;    : CLKEY BEGIN INKEY 0= UNTIL ;
 
-		CODE KEY-CLEAR,keyclear
+		CODE CLKEY,clkey
 		call KILBUF		; MSX KILBUF clear key buffer
 		JP_NEXT			; continue
 
@@ -6062,60 +6121,42 @@ set_base:	ld (base+3),hl		; 10 -> [base]
 
 		CODE KEY,key
 		push de			; save TOS
-		call CHGET		; MSX CHGET key code
+chget_next:	call CHGET		; MSX CHGET key code
 		jp a_next		; set a -> de new TOS and continue
 
 ;-------------------------------------------------------------------------------
 ;
-;		EDITOR
+;		LINE EDITOR
 ;
 ;-------------------------------------------------------------------------------
 
-; Store (toname) and retrieve (name) an internal integer by name
-
-.macro		INT name
-to'name:	ld (addr'name),de
-		pop de
-		JP_NEXT
-name:		push de
-		ld de,(addr'name)
-		JP_NEXT
-addr'name:	.dw 0
-.endm
-
-		; min <= len <= max
-		INT edmin		; minimum cursor position (for a prompt)
-		INT edlen		; length of the string in the buffer
-		INT edmax		; maximum string length (buffer size)
-		INT edbuf		; buffer string address
-
-; EDIT		c-addr +n1 n2 n3 -- c-addr +n4
-;		edit buffer c-addr;
-;		buffer size +n1;
+; EDLIN		c-addr +n1 n2 n3 -- c-addr +n4
+;		edit the line in buffer c-addr;
+;		max buffer c-addr size +n1;
 ;		string in buffer has length n2;
 ;		non-editable left margin n3;
-;		leaves c-addr and length +n4 (MSX INLIN strips first n3 characters)
+;		leaves c-addr and length +n4 (without first n3 characters)
 
 .if EDIT
 
-		COLON EDIT,edit
-		.dw toedmin		; store n3
-		.dw toedlen		; store n2
-		.dw toedmax		; store n1
-		.dw toedbuf		; store c-addr
-		.dw edbuf,edlen,type	; type buffer to output
-		.dw edmin,zero,doqdo,2$
-1$:		.dw   dolit,29,emit	; move cursor left to edmin
+		COLON EDLIN,edlin
+		.dw three,pick,two,pick	; -- c-addr n1 n2 n3 c-addr n2
+		.dw type		; -- c-addr n1 n2 n3
+		.dw doqdo,2$
+1$:		.dw   dolit,29,emit	; move cursor left to n2-n3 times
 		.dw doloop,1$
-2$:		.dw doinlin		; MSX INLIN
-		.dw edmax,umin
-		.dw over,edbuf,notequal,doif,3$
-		.dw   tuck,edbuf,swap,cmove,edbuf,swap
-3$:		.dw doret
+2$:		.dw inlin		; MSX INLIN -- c-addr n1 c-addr2 u
+		.dw rot,umin		; -- c-addr c-addr2 n4
+		.dw tor,swap		; -- c-addr2 c-addr ; R: n4
+		.dw twodup,notequal,doif,3$
+		.dw   twodup,rfetch	; -- c-addr2 c-addr c-addr2 c-addr n4 ; R: n4
+		.dw   cmove		; copy INLIN buffer c-addr2 to c-addr
+3$:		.dw nip,rfrom		; -- c-addr n4
+		.dw doret
 
-; (INLIN)	-- c-addr u
+; INLIN		-- c-addr u
 ;		MSX INLIN input a logical line of screen text;
-;		leaves c-addr of TIB and text input length u
+;		leaves c-addr pointing in TIB and input length u
 ;
 ;		key          | effect
 ;		------------ | -------------------------------------------------
@@ -6139,28 +6180,44 @@ addr'name:	.dw 0
 ;		CTRL-U       | delete the entire logical line the cursor is on
 ;		(CTRL-)STOP  | program break
 
-		CODE (INLIN),doinlin
+		CODE INLIN,inlin
 		push de			; save TOS
 		push bc			; save bc with ip
 		call INLIN		; MSX INLIN
-		inc hl			; hl++ points to TIB
-		xor a			; 0 -> a
+		inc hl			; hl++ points in TIB
+		xor a			; 0 -> a, 0 -> cf
 		ld b,a			;
 		ld c,a			; 0 -> bc
 		ld e,l			;
 		ld d,h			; hl -> de
 		cpir			; bc-- until [hl++] = 0
-		ld a,c			;
-		cpl			; -bc - 1 -> a with input length u
 		pop bc			; restore bc with ip
-		push de			; push c-addr = TIB
-		ld e,a			;
-		ld d,0			; set TOS to length u
+		sbc hl,de		; hl - de -> u (cf = 0)
+		ex de,hl		; set new TOS to u
+		push hl			; push c-addr
 		JP_NEXT			; continue
 
 .else
 
-		COLON EDIT,edit
+		; store (toname) and retrieve (name) an internal integer by name
+
+.macro		INT name
+to'name:	ld (addr'name),de
+		pop de
+		JP_NEXT
+name:		push de
+		ld de,(addr'name)
+		JP_NEXT
+addr'name:	.dw 0
+.endm
+
+		; min <= len <= max
+		INT edmin		; minimum cursor position (for a prompt)
+		INT edlen		; length of the string in the buffer
+		INT edmax		; maximum string length (buffer size)
+		INT edbuf		; buffer string address
+
+		COLON EDLIN,edlin
 		.dw toedmin		; store n3
 		.dw toedlen		; store n2
 		.dw toedmax		; store n1
@@ -6170,7 +6227,7 @@ addr'name:	.dw 0
 		.dw   key		; wait for user key
 		; case of ENTER
 		.dw   dolit,0x0d,doof,2$
-		.dw     cr,edbuf,edlen
+		.dw     cr,edbuf,edlen,edmin,slashstring
 		.dw     doexit
 2$:		; of BS backspace
 		.dw   dolit,0x08,doof,3$
@@ -6195,10 +6252,10 @@ addr'name:	.dw 0
 ;		accept user input into buffer c-addr +n1;
 ;		leaves length +n2
 ;
-;    : ACCEPT 0 0 EDIT NIP ;
+;    : ACCEPT 0 0 EDLIN NIP ;
 
 		COLON ACCEPT,accept
-		.dw zero,zero,edit,nip
+		.dw zero,zero,edlin,nip
 		.dw doret
 
 ;-------------------------------------------------------------------------------
