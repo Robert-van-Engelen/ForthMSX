@@ -1327,21 +1327,21 @@ code | effect
 
 codes | effect
 ----- | -----------------------------------------------------
-ESC j | clear screen and home
-ESC E | clear screen and home
-ESC K | clear to end of line
-ESC J | clear to end of screen
-ESC l | clear line
-ESC L | insert line
-ESC M | delete line
-ESC Y | set cursor coordinates, follow by row column bytes
 ESC A | cursor up, does not scroll
 ESC B | cursor down, does not scroll
 ESC C | cursor right, wraps if the logical line of text wraps
 ESC D | cursor left, does not wrap
+ESC E | clear screen and home
 ESC H | cursor home
+ESC j | clear screen and home
+ESC J | clear to end of screen
+ESC K | clear to end of line
+ESC l | clear line
+ESC L | insert line
+ESC M | delete line
 ESC x | change cursor, follow by '4' (block) or '5' (disable)
 ESC y | change cursor, follow by '4' (under) or '5' (enable)
+ESC Y | set cursor coordinates, follow by row column bytes
 
 ___
 ### `PAGE`
@@ -2009,8 +2009,7 @@ ___
 _n --_
 
 allocate n bytes starting from HERE in the dictionary;
-undo the last ALLOT with negative n to reclaim memory,
-but beware: don't use negative n when new words were defined;
+or undo the last ALLOT with negative n to reclaim memory (an ALLOT without new words);
 may throw -8 "dictionary overflow"
 
 ___
@@ -2407,7 +2406,7 @@ ___
 ### `S"`
 _"ccc&lt;quote&gt;" -- ; -- c-addr u_
 
-leave string "ccc" (compiled and interpreted);
+save and leave string "ccc" (compiled and interpreted);
 truncates string to 255 characters long when excessive
 
     : S" '" PARSE SDUP ; IMMEDIATE
@@ -2416,7 +2415,7 @@ ___
 ### `S\"`
 _"ccc&lt;quote&gt;" -- ; -- c-addr u_
 
-leave string "ccc" (compiled and interpreted);
+save and leave string "ccc" (compiled and interpreted);
 "ccc" may include \-escape codes translated by the S\>S word;
 truncates string to 255 characters long when excessive
 
@@ -2850,9 +2849,7 @@ ___
 ### `OK`
 _"ccc&lt;eol&gt;" --_
 
-start a comment line;
-parse and skip input up to the end of line;
-same as \ but not immediate,
+start a comment line, same as \ but not immediate,
 so that screen editing of Forth output before OK is made possible
 
     : OK POSTPONE \ ;
@@ -2975,22 +2972,20 @@ _"&lt;spaces&gt;name&lt;space&gt;" -- ; --_
 
 define a dictionary marker;
 executing the name deletes marker and all definitions made after;
-beware of vocabulary definitions crossings
-(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
 
     : MARKER
       CURRENT
       DUP @
-      HERE
+___
+### `      HERE    `
+_\ -- CURRENT LAST HERE_
+
       CREATE
-        , 2,
+        , 2,   \ store HERE LAST CURRENT
       DOES>
-        DUP CELL+ 2@
+        DUP @ SWAP CELL+ 2@    \ -- HEREold CURRENTold LASTold
         SWAP TO CONTEXT
-        DUP CONTEXT !
-        DEFINITIONS
-        L>NAME NAME> TO LASTXT
-        @ HERE - ALLOT ;
+        (CUT) ;
 
 ___
 ### `FENCE`
@@ -3006,14 +3001,19 @@ _"&lt;spaces&gt;name&lt;space&gt;" --_
 
 delete name and all following definitions;
 may throw -15 "invalid FORGET";
-beware of vocabulary definitions crossings
-(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
+
+    : FORGET
+      ' DUP FENCE U< IF -15 THROW THEN
+      >NAME 2- CONTEXT CURRENT UMAX    \ -- lfa max(CONTEXT,CURRENT)
+      OVER U> IF FORTH THEN            \ FORTH if lfa < max(CONTEXT,CURRENT) destroys a vocabulary
+      DUP @ (CUT) ;
 
 ___
 ### `CONTEXT`
 _-- addr_
 
-leaves address of link of the last vocabulary context definition
+leaves address of link to the last vocabulary context definition.
+to search words
 
     ' FORTH VALUE CONTEXT
 
@@ -3021,7 +3021,8 @@ ___
 ### `CURRENT`
 _-- addr_
 
-leaves address of link of the last current vocabulary definition
+leaves address of link to the last current vocabulary definition,
+to define new words
 
     ' FORTH VALUE CURRENT
 
@@ -3029,7 +3030,7 @@ ___
 ### `DEFINITIONS`
 _--_
 
-make CURRENT the CONTEXT vocabulary
+set CURRENT to CONTEXT to define new words
 
     : DEFINITIONS CONTEXT TO CURRENT ;
 
@@ -3039,7 +3040,14 @@ _"&lt;spaces&gt;name&lt;space&gt;" --_
 
 define a new vocabulary
 
-    : VOCABULARY CURRENT CREATE , fig_kludge , DOES> TO CONTEXT ;
+    : VOCABULARY
+      CURRENT
+      CREATE
+        HERE SWAP ,
+        fig_kludge ,
+        voc_link @ ,
+        voc_link !
+      DOES> TO CONTEXT ;
 
 ___
 ### `FORTH`
@@ -3353,8 +3361,6 @@ _... c-addr u -- ..._
 read and interpret Forth source code from the file named by the string c-addr u,
 if the file was not already included;
 this also adds file name as a MARKER with a leading '~' to the dictionary;
-beware of vocabulary definitions crossings
-(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
 
     : REQUIRED
       SDUP -1 /STRING OVER '~ SWAP C!
@@ -3374,8 +3380,6 @@ _... "&lt;spaces&gt;name&lt;space&gt;" -- ..._
 read and interpret Forth source code from file "name",
 if the file was not already included;
 this also adds file name with a leading '~' to the dictionary to assert inclusion;
-beware of vocabulary definitions crossings
-(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
 
     : REQUIRE PARSE-NAME REQUIRED ;
 
@@ -3784,7 +3788,7 @@ _r --_
 output float with a trailing space;
 output fixed notation when 1e-1 <= |r| < 1e+7, otherwise output scientific notation;
 beware that non-scientific output cannot be copy-pasted back into input,
-as floating-point literals require an exponent
+since floating-point literals require an exponent
 
     : F.
       HERE PRECISION REPRESENT DROP IF

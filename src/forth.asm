@@ -13,7 +13,7 @@
 ; ForthMSX - a Forth 2012 standard system for MSX v0.9
 ;
 ;   Configurable Forth features
-;   Highly optimized Z80 assembly routines
+;   Optimized Z80 assembly routines
 ;
 ;   Forth 2012 standard words:
 ;     - Core and Core-Ext (complete, built-in)
@@ -31,14 +31,14 @@
 ;     - values: +TO
 ;     - arithmetic: UMAX UMIN 2+ 2- UMD* MD* D* D/ DMOD D/MOD UD/MOD UMD/MOD
 ;     - strings: CHOP TRIM -TRIM -TRAILING /STRING NEXT-CHAR SDUP S\>S
-;     - screen: CUR-XY MAX-XY
+;     - screen: WIDTH MAX-XY CUR-XY
 ;     - introspection: CFA=
 ;     - looping: ?LEAVE K
 ;     - conversion: >DOUBLE
 ;     - text input and editing: INLIN EDLIN
 ;     - vocabulary: VOCABULARY CURRENT CONTEXT
 ;     - dictionary: LASTXT HIDE REVEAL L>NAME >NAME NAME> FIND-WORD
-;     - files: ANEW GET-LINE CLOSE-FILES
+;     - files: ANEW GET-LINE CLOSE-FILES OUTPUT-ID
 ;     - keyboard: INKEY CLKEY
 ;     - other: OK BYE
 ;
@@ -82,6 +82,7 @@
 .title		Forth
 .list		(me)
 .area		PROGRAM (ABS)
+.z80
 .org		0x8400-7		; subtract 7 header bytes from boot addr
 
 ;-------------------------------------------------------------------------------
@@ -134,7 +135,9 @@ MAIN = 0	; include main.asm
 ; - arithmetic: MD* D* D/ DMOD D/MOD UD/MOD UMD/MOD
 ; - stacks: N>R NR>
 ; - strings: S\" S\>S
+; - looping: ?LEAVE K
 ; - keyboard: INKEY CLKEY
+; - other: OK
 
 .if 1-REPL	; REPL=0 disables STOP
 STOP = 0
@@ -4318,7 +4321,7 @@ fop_csng:	call FRCSNG		; convert MSX DAC to single precision when applicable
 ;		output float with a trailing space;
 ;		output fixed notation when 1e-1 <= |r| < 1e+7, otherwise output scientific notation;
 ;		beware that non-scientific output cannot be copy-pasted back into input,
-;		as floating-point literals require an exponent
+;		since floating-point literals require an exponent
 ;
 ;    : F.
 ;      HERE PRECISION REPRESENT DROP IF
@@ -4861,8 +4864,6 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 ;		read and interpret Forth source code from the file named by the string c-addr u,
 ;		if the file was not already included;
 ;		this also adds file name as a MARKER with a leading '~' to the dictionary;
-;		beware of vocabulary definitions crossings
-;		(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
 ;
 ;    : REQUIRED
 ;      SDUP -1 /STRING OVER '~ SWAP C!
@@ -4890,8 +4891,6 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 ;		read and interpret Forth source code from file "name",
 ;		if the file was not already included;
 ;		this also adds file name with a leading '~' to the dictionary to assert inclusion;
-;		beware of vocabulary definitions crossings
-;		(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
 ;
 ;    : REQUIRE PARSE-NAME REQUIRED ;
 
@@ -5581,21 +5580,21 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 ;
 ;		codes | effect
 ;		----- | -----------------------------------------------------
-;		ESC j | clear screen and home
-;		ESC E | clear screen and home
-;		ESC K | clear to end of line
-;		ESC J | clear to end of screen
-;		ESC l | clear line
-;		ESC L | insert line
-;		ESC M | delete line
-;		ESC Y | set cursor coordinates, follow by row column bytes
 ;		ESC A | cursor up, does not scroll
 ;		ESC B | cursor down, does not scroll
 ;		ESC C | cursor right, wraps if the logical line of text wraps
 ;		ESC D | cursor left, does not wrap
+;		ESC E | clear screen and home
 ;		ESC H | cursor home
+;		ESC j | clear screen and home
+;		ESC J | clear to end of screen
+;		ESC K | clear to end of line
+;		ESC l | clear line
+;		ESC L | insert line
+;		ESC M | delete line
 ;		ESC x | change cursor, follow by '4' (block) or '5' (disable)
 ;		ESC y | change cursor, follow by '4' (under) or '5' (enable)
+;		ESC Y | set cursor coordinates, follow by row column bytes
 
 		CODE EMIT,emit
 .if FCBN
@@ -5619,7 +5618,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		pop bc			;   restore bc with ip
 		or a			;
 		ld a,-37		;
-		jp nz,throw_a		;   if error then THROW -37
+		jp nz,throw_a		;   if error then throw -37
 		pop de			;   pop new TOS
 		JP_NEXT			;   continue
 1$:		.db 0			;   a single character buffer
@@ -5701,7 +5700,7 @@ chput_a_next:	call CHPUT		; MSX CHPUT a to the console
 		pop bc			;   restore bc with ip
 		or a			;
 		ld a,-37		;
-		jp nz,throw_a		;   if error then THROW -37
+		jp nz,throw_a		;   if error then throw -37
 		pop de			;   pop new TOS
 		JP_NEXT			;   continue
 .endif
@@ -6962,8 +6961,7 @@ store_state:	ld (state+3),hl		; hl -> STATE
 
 ; ALLOT		n --
 ;		allocate n bytes starting from HERE in the dictionary;
-;		undo the last ALLOT with negative n to reclaim memory,
-;		but beware: don't use negative n when new words were defined;
+;		or undo the last ALLOT with negative n to reclaim memory (an ALLOT without new words);
 ;		may throw -8 "dictionary overflow"
 
 		CODE ALLOT,allot
@@ -7380,11 +7378,10 @@ comma_de:	ld (hl),e		;
 		COLON DEFER,defer
 		.dw code
 		.dw dolit,dodef,cfacomma
-		.dw dolit,undef,comma
+		.dw dolit,1$,comma
 		.dw doret
-undef:		push de			; save TOS
-		ld de,-256		; set new TOS
-		jp throw		; THROW
+1$:		xor a			;
+		jp throw_a		; throw -256
 
 ; DEFER!	xt1 xt2 --
 ;		store xt1 in deferred xt2
@@ -7534,7 +7531,7 @@ undef:		push de			; save TOS
 		.dw doret
 
 ; S"		"ccc<quote>" -- ; -- c-addr u
-;		leave string "ccc" (compiled and interpreted);
+;		save and leave string "ccc" (compiled and interpreted);
 ;		truncates string to 255 characters long when excessive
 ;
 ;    : S" '" PARSE SDUP ; IMMEDIATE
@@ -7546,7 +7543,7 @@ undef:		push de			; save TOS
 .if XTRA
 
 ;+ S\"		"ccc<quote>" -- ; -- c-addr u
-;		leave string "ccc" (compiled and interpreted);
+;		save and leave string "ccc" (compiled and interpreted);
 ;		"ccc" may include \-escape codes translated by the S\>S word;
 ;		truncates string to 255 characters long when excessive
 ;
@@ -7777,7 +7774,7 @@ skip_jp_next:	inc bc		;    7	;
 		jp c,cont	; 10(71|59|53); continue with break check
 1$:		sbc a			; if c then throw -4 "stack underflow"
 		sub 3			; else throw -3 "stack overflow"
-		jp throw_a
+		jp throw_a              ; throw
 .else
 		NEXT			; continue
 .endif
@@ -7908,7 +7905,9 @@ skip_jp_next:	inc bc		;    7	;
 .endif
 		JP_NEXT			; continue
 
-; (?LEAVE)	x --
+.if XTRA|FCBN
+
+;+ (?LEAVE)	x --
 ;		if x is nonzero (not FALSE) then discard the loop parameters and exit the innermost do-loop;
 ;		runtime of the ?LEAVE compile-only word
 
@@ -7918,6 +7917,8 @@ skip_jp_next:	inc bc		;    7	;
 		pop de			; pop new TOS
 		jr nz,doleave		; if x != 0 then LEAVE
 		JP_NEXT			; continue
+
+.endif;XTRA|FCBN
 
 ; (LEAVE)	--
 ;		discard the loop parameters and exit the innermost do-loop;
@@ -7978,7 +7979,9 @@ loop_counter:	ld e,(hl)		;
 		add hl,de		; rp + 6 -> hl
 		jr loop_counter		; execute I with rp+6
 
-; K		-- n
+.if XTRA
+
+;+ K		-- n
 ;		the loop counter value of outer (third) do-loop
 
 		CODE K,k
@@ -7992,6 +7995,8 @@ loop_counter:	ld e,(hl)		;
 		ld de,12		;
 		add hl,de		; rp + 12 -> hl
 		jr loop_counter		; execute I with rp+12
+
+.endif
 
 ;-------------------------------------------------------------------------------
 ;
@@ -8153,7 +8158,9 @@ loop_counter:	ld e,(hl)		;
 		.dw dolit,dounloop,compilecomma
 		.dw doret
 
-; ?LEAVE	x --
+.if XTRA|FCBN
+
+;+ ?LEAVE	x --
 ;		if x is nonzero (not FALSE) then exit the innermost do-loop;
 ;		may throw -14 "interpreting a compile-only word"
 
@@ -8161,6 +8168,8 @@ loop_counter:	ld e,(hl)		;
 		.dw qcomp
 		.dw dolit,doqleave,compilecomma
 		.dw doret
+
+.endif;XTRA|FCBN
 
 ; LEAVE		--
 ;		exit the innermost do-loop;
@@ -8567,16 +8576,18 @@ backslash:	call docol			; expand macro manually
 		.dw twodrop
 		.dw doret
 
-; OK		"ccc<eol>" --
-;		start a comment line;
-;		parse and skip input up to the end of line;
-;		same as \ but not immediate,
+.if XTRA
+
+;+ OK		"ccc<eol>" --
+;		start a comment line, same as \ but not immediate,
 ;		so that screen editing of Forth output before OK is made possible
 ;
 ;    : OK POSTPONE \ ;
 
 		CODE OK,ok
 		jr backslash
+
+.endif
 
 ; .(		"ccc<paren>" --
 ;		emit CR then type "ccc" up to the closing )
@@ -8806,25 +8817,68 @@ backslash:	call docol			; expand macro manually
 
 .if REPL
 
+; (CUT)		addr lfa --
+;		cut dictionary down to addr to set a new HERE;
+;		set LAST in CURRENT and CONTEXT to lfa and its xt as LASTXT;
+;		delete affected definitions and update vocabularies
+;
+;    : (CUT)
+;      DUP CONTEXT !
+;      DEFINITIONS
+;      L>NAME NAME> TO LASTXT
+;      ['] FORTH >BODY  \ -- addr pfa
+;      BEGIN
+;        BEGIN
+;          2DUP @       \ -- addr pfa addr lfa
+;          U> 0= WHILE  \ while addr <= lfa
+;          DUP @ @      \ -- addr pfa lfaprev
+;          OVER !
+;        REPEAT
+;        2+ 2+
+;        2DUP @         \ -- addr pfa+4 addr pfanext
+;        U< IF
+;          DUP @
+;          2+ 2+ @      \ -- addr pfa+4 pfanextnext
+;          OVER !
+;        THEN
+;      @ ?DUP 0= UNTIL
+;      HERE - ALLOT ;
+
+		COLON (CUT),docut
+		.dw dup,context,store
+		.dw definitions
+		.dw ltoname,namefrom,doto,lastxt+3
+		.dw dolit,forth+3
+1$:		.dw   twodup,fetch
+		.dw   umore,zeroequal,doif,2$
+		.dw     dup,fetch,fetch
+		.dw     over,store
+		.dw   doagain,1$
+2$:		.dw   twoplus,twoplus
+		.dw   twodup,fetch
+		.dw   uless,doif,3$
+		.dw     dup,fetch
+		.dw     twoplus,twoplus,fetch
+		.dw     over,store
+3$:		.dw   fetch,qdup,zeroequal
+		.dw dountil,1$
+		.dw here,minus,allot
+		.dw doret
+
 ; MARKER	"<spaces>name<space>" -- ; --
 ;		define a dictionary marker;
 ;		executing the name deletes marker and all definitions made after;
-;		beware of vocabulary definitions crossings
-;		(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
 ;
 ;    : MARKER
 ;      CURRENT
 ;      DUP @
-;      HERE
+;      HERE    	\ -- CURRENT LAST HERE
 ;      CREATE
-;        , 2,
+;        , 2,   \ store HERE LAST CURRENT
 ;      DOES>
-;        DUP CELL+ 2@
+;        DUP @ SWAP CELL+ 2@    \ -- HEREold CURRENTold LASTold
 ;        SWAP TO CONTEXT
-;        DUP CONTEXT !
-;        DEFINITIONS
-;        L>NAME NAME> TO LASTXT
-;        @ HERE - ALLOT ;
+;        (CUT) ;
 
 		COLON MARKER,marker
 		.dw current
@@ -8834,12 +8888,9 @@ backslash:	call docol			; expand macro manually
 		.dw comma,twocomma
 		.dw dosemicolondoes
 marker_does:	call dodoes
-		.dw dup,cellplus,twofetch
+		.dw dup,fetch,swap,cellplus,twofetch
 		.dw swap,doto,context+3
-		.dw dup,context,store
-		.dw definitions
-		.dw ltoname,namefrom,doto,lastxt+3
-		.dw fetch,here,minus,allot
+		.dw docut
 		.dw doret
 
 ; FENCE		-- addr
@@ -8853,8 +8904,12 @@ marker_does:	call dodoes
 ; FORGET	"<spaces>name<space>" --
 ;		delete name and all following definitions;
 ;		may throw -15 "invalid FORGET";
-;		beware of vocabulary definitions crossings
-;		(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
+;
+;    : FORGET
+;      ' DUP FENCE U< IF -15 THROW THEN
+;      >NAME 2- CONTEXT CURRENT UMAX    \ -- lfa max(CONTEXT,CURRENT)
+;      OVER U> IF FORTH THEN            \ FORTH if lfa < max(CONTEXT,CURRENT) destroys a vocabulary
+;      DUP @ (CUT) ;
 
 		COLON FORGET,forget
 		.dw tick
@@ -8863,11 +8918,7 @@ marker_does:	call dodoes
 1$:		.dw toname,twominus,context,current,umax
 		.dw over,umore,doif,2$
 		.dw   forth
-2$:		.dw dup,fetch
-		.dw dup,context,store
-		.dw definitions
-		.dw ltoname,namefrom,doto,lastxt+3
-		.dw here,minus,allot
+2$:		.dw dup,fetch,docut
 		.dw doret
 
 .endif;REPL
@@ -8891,7 +8942,8 @@ marker_does:	call dodoes
 .if REPL
 
 ; CONTEXT	-- addr
-;		leaves address of link of the last vocabulary context definition
+;		leaves address of link to the last vocabulary context definition.
+;		to search words
 ;
 ;    ' FORTH VALUE CONTEXT
 
@@ -8899,7 +8951,8 @@ marker_does:	call dodoes
 		.dw forth+3
 
 ; CURRENT	-- addr
-;		leaves address of link of the last current vocabulary definition
+;		leaves address of link to the last current vocabulary definition,
+;		to define new words
 ;
 ;    ' FORTH VALUE CURRENT
 
@@ -8907,7 +8960,7 @@ marker_does:	call dodoes
 		.dw forth+3
 
 ; DEFINITIONS	--
-;		make CURRENT the CONTEXT vocabulary
+;		set CURRENT to CONTEXT to define new words
 ;
 ;    : DEFINITIONS CONTEXT TO CURRENT ;
 
@@ -8918,13 +8971,22 @@ marker_does:	call dodoes
 ; VOCABULARY	"<spaces>name<space>" --
 ;		define a new vocabulary
 ;
-;    : VOCABULARY CURRENT CREATE , fig_kludge , DOES> TO CONTEXT ;
+;    : VOCABULARY
+;      CURRENT
+;      CREATE
+;        HERE SWAP ,
+;        fig_kludge ,
+;        voc_link @ ,
+;        voc_link !
+;      DOES> TO CONTEXT ;
 
 		COLON VOCABULARY,vocabulary
 		.dw current
 		.dw create
-		.dw comma
+		.dw here,swap,comma
 		.dw dolit,fig_kludge,comma
+		.dw dolit,voc_link,fetch,comma
+		.dw dolit,voc_link,store
 		.dw dosemicolondoes
 vocabulary_does:call dodoes
 		.dw doto,context+3
@@ -8937,8 +8999,9 @@ vocabulary_does:call dodoes
 
 		CODE FORTH,forth
 		call vocabulary_does
-		.dw last_link
-		.dw fig_kludge
+		.dw last_link		; link field, CURRENT CONTEXT point here
+		.dw fig_kludge		; hidden blank name to ignore
+voc_link:	.dw 0			; linked list of vocabularies
 
 .endif;REPL
 

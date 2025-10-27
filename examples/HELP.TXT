@@ -391,7 +391,7 @@ output float in scientific notation with a trailing space
 output float with a trailing space;
 output fixed notation when 1e-1 <= |r| < 1e+7, otherwise output scientific notation;
 beware that non-scientific output cannot be copy-pasted back into input,
-as floating-point literals require an exponent
+since floating-point literals require an exponent
 =DRV ( -- c-addr )
 last used drive letter, the default drive when none is specified explicitly, initially drive A
 =FXB ( -- addr )
@@ -477,14 +477,10 @@ read and interpret Forth source code from file "name"
 read and interpret Forth source code from the file named by the string c-addr u,
 if the file was not already included;
 this also adds file name as a MARKER with a leading '~' to the dictionary;
-beware of vocabulary definitions crossings
-(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
 =REQUIRE ( ... "<spaces>name<space>" -- ... )
 read and interpret Forth source code from file "name",
 if the file was not already included;
 this also adds file name with a leading '~' to the dictionary to assert inclusion;
-beware of vocabulary definitions crossings
-(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
 =ANEW ( ... "<spaces>name<space>" -- ... )
 read and interpret Forth source code from file "name",
 same as REQUIRE,
@@ -559,21 +555,21 @@ code | effect
  127 | DEL delete character
 codes | effect
 ----- | -----------------------------------------------------
-ESC j | clear screen and home
-ESC E | clear screen and home
-ESC K | clear to end of line
-ESC J | clear to end of screen
-ESC l | clear line
-ESC L | insert line
-ESC M | delete line
-ESC Y | set cursor coordinates, follow by row column bytes
 ESC A | cursor up, does not scroll
 ESC B | cursor down, does not scroll
 ESC C | cursor right, wraps if the logical line of text wraps
 ESC D | cursor left, does not wrap
+ESC E | clear screen and home
 ESC H | cursor home
+ESC j | clear screen and home
+ESC J | clear to end of screen
+ESC K | clear to end of line
+ESC l | clear line
+ESC L | insert line
+ESC M | delete line
 ESC x | change cursor, follow by '4' (block) or '5' (disable)
 ESC y | change cursor, follow by '4' (under) or '5' (enable)
+ESC Y | set cursor coordinates, follow by row column bytes
 =PAGE ( -- )
 clear console screen
 =CR ( -- )
@@ -784,8 +780,7 @@ may throw -14 "interpreting a compile-only word";
 may throw -22 "control structure mismatch"
 =ALLOT ( n -- )
 allocate n bytes starting from HERE in the dictionary;
-undo the last ALLOT with negative n to reclaim memory,
-but beware: don't use negative n when new words were defined;
+or undo the last ALLOT with negative n to reclaim memory (an ALLOT without new words);
 may throw -8 "dictionary overflow"
 =COMPILE, ( xt -- )
 append execution token to dictionary;
@@ -904,10 +899,10 @@ type "ccc" (compiled, not interpreted)
 leave counted string "ccc" (compiled, not interpreted);
 may throw -18 "parsed string overflow"
 =S" ( "ccc<quote>" -- ; -- c-addr u )
-leave string "ccc" (compiled and interpreted);
+save and leave string "ccc" (compiled and interpreted);
 truncates string to 255 characters long when excessive
 =S\" ( "ccc<quote>" -- ; -- c-addr u )
-leave string "ccc" (compiled and interpreted);
+save and leave string "ccc" (compiled and interpreted);
 "ccc" may include \-escape codes translated by the S\>S word;
 truncates string to 255 characters long when excessive
 =S\>S ( c-addr u -- c-addr u )
@@ -1097,9 +1092,7 @@ parse and skip input up to the closing )
 start a comment line;
 parse and skip input up to the end of line
 =OK ( "ccc<eol>" -- )
-start a comment line;
-parse and skip input up to the end of line;
-same as \ but not immediate,
+start a comment line, same as \ but not immediate,
 so that screen editing of Forth output before OK is made possible
 =.( ( "ccc<paren>" -- )
 emit CR then type "ccc" up to the closing )
@@ -1121,21 +1114,19 @@ read-evaluate-print loop
 =MARKER ( "<spaces>name<space>" -- ; -- )
 define a dictionary marker;
 executing the name deletes marker and all definitions made after;
-beware of vocabulary definitions crossings
-(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
 =FENCE ( -- addr )
 only permit FORGET past the dictionary FENCE address
 =FORGET ( "<spaces>name<space>" -- )
 delete name and all following definitions;
 may throw -15 "invalid FORGET";
-beware of vocabulary definitions crossings
-(other vocabulary DEFINITIONS after markers also get deleted and corrupt their vocabulary)
 =CONTEXT ( -- addr )
-leaves address of link of the last vocabulary context definition
+leaves address of link to the last vocabulary context definition.
+to search words
 =CURRENT ( -- addr )
-leaves address of link of the last current vocabulary definition
+leaves address of link to the last current vocabulary definition,
+to define new words
 =DEFINITIONS ( -- )
-make CURRENT the CONTEXT vocabulary
+set CURRENT to CONTEXT to define new words
 =VOCABULARY ( "<spaces>name<space>" -- )
 define a new vocabulary
 =FORTH ( -- )

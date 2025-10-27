@@ -102,6 +102,8 @@
 
 - rename `KEY-CLEAR` to `CLKEY`
 
+- improve `FORGET` and `MARKER` to safely delete definitions across vocabularies, updating vocabularies accordingly
+
 ### v1.0
 
 ## TODO
