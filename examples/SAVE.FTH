@@ -7,7 +7,7 @@
 \ clear 100,&h8400
 \ bload "myforth.bin",r
 
-: SAVE          ( "<spaces>name<space>" -- )
+: SAVE		( "<spaces>name<space>" -- )
   PARSE-NAME W/O CREATE-FILE THROW
   \ create MSX BLOAD 7-byte header at HERE
   HERE $FE C, $8400 , , $8400 ,
