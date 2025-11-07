@@ -6,21 +6,7 @@
 require VDP.FTH
 require RAND.FTH
 
-\ rand is rather slow to compute and minstd-rand is a bit faster,
-\ but there are other faster ways to get RN
-
 DECIMAL
-
-\ display 1000 stars
-: stars
-  80 WIDTH
-  $F1 7 VDP!	\ white $F on black $1
-  randomize
-  1001 0 DO
-    rand 3200 MOD VRAM	\ random VRAM address $0000 to $0C7F
-    S" *" >VRAM		\ display *
-  LOOP
-;
 
 \ define four star character bitmaps from dim to bright
 CREATE star
@@ -32,7 +18,7 @@ CREATE star
   %00000000 C,
   %00000000 C,
   %00000000 C,
-  \
+
   %00000000 C,
   %00000000 C,
   %01010000 C,
@@ -41,7 +27,7 @@ CREATE star
   %00000000 C,
   %00000000 C,
   %00000000 C,
-  \
+
   %00000000 C,
   %00000000 C,
   %01110000 C,
@@ -50,7 +36,7 @@ CREATE star
   %00000000 C,
   %00000000 C,
   %00000000 C,
-  \
+
   %00100000 C,
   %10101000 C,
   %01110000 C,
@@ -67,9 +53,9 @@ CREATE star
   $0808 VRAM	\ redefine char 1,2,3,4 in the VRAM pattern table
   star 32 >VRAM
   randomize
-  251 0 DO
+  201 0 DO
     rand 1600 MOD VRAM	\ random VRAM address $0000 to $037F
-    I 3 AND 1+	        \ 1,2,3,4
+    I 3 AND 1+		\ 1,2,3,4
     SP@ 1 >VRAM		\ SP@ is address of TOS
     DROP
   LOOP
