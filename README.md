@@ -51,7 +51,9 @@ Enter `bye` in Forth to exit back to BASIC.  You can return to Forth where you l
 
     defusr0=&h8400:?usr0(0)
 
-You can also save your work as a binary executable image file.  Add `SAVE.FTH` to disk A then `require save.fth` and `save mywork.bin` adds `mywork.bin` to disk A.  To rerun, in BASIC enter `clear100,&h8400` and `bload"mywork.bin",r`.
+You can also save your work as a binary executable image file.  Add `SAVE.FTH` to disk A then `require save.fth` and `save myapp.bin` adds `myapp.bin` to disk A.  To rerun, in BASIC enter `clear100,&h8400` and `bload"myapp.bin",r`.
+
+You can also create a stand-alone headless Forth program for your `myapp.bin` with the ForthMSX [forslice](devtools/forslice).
 
 ## Forth 2012 standard compliance and coverage
 
