@@ -70,10 +70,10 @@ You can also save your work as a binary executable image file.  Add `SAVE.FTH` t
 
 ## Work in progress
 
-Words for MSX graphics and sound will be added in the near future.
+* Words for MSX graphics and sound will be added in the near future.  VDP and VRAM words are defined in examples/VDP.FTH.
 
-Include a complete Forth manual in the near future, similar to the Forth manual I wrote for [Forth500](https://github.com/Robert-van-Engelen/Forth500).
+* Include a complete Forth manual in the near future, similar to the Forth manual I wrote for [Forth500](https://github.com/Robert-van-Engelen/Forth500).
 
-Add a text editor in Forth to edit Forth source code files, like `TED` in Forth500.
+* Add a text editor in Forth to edit Forth source code files, like `TED` in Forth500.
 
-A "headless" ForthMSX can be assembled, which is only half the size.  This is a nice feature for stand-alone application development from which the Forth interpreter can be removed.  This is already possible by (re)setting the `REPL` and `MAIN` flags in the `forth.asm` source to assemble, but it is not ideal to write Forth in low-level code.  Ideal would be to develop and use a new external Forth compiler for "headless" application development.
+* Now done: **forslice** is a headless Forth program slicer to optimize, obfuscate, shrink, and relocate ForthMSX binary programs.  A headless Forth program is a binary with no interactive REPL (read-eval-print-loop) and no dictionary with identifyable Forth words.  Slicing a Forth program removes all unused Forth words from the binary.
