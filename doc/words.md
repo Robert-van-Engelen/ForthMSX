@@ -1296,7 +1296,7 @@ set column x to u1 >= 0 and row y to u2 >= 0
     : AT-XY Y! X! ;
 
 ___
-### `OUTPUT-ID`
+### `FILE-ID`
 _-- 0|fileid_
 
 value with 0 = console output, otherwise fileid to redirect output
@@ -1305,7 +1305,7 @@ ___
 ### `EMIT`
 _char --_
 
-emit char to screen or to OUTPUT-ID when set;
+emit char to screen or to FILE-ID when set;
 list of control codes for console output:
 
 code | effect
@@ -1349,7 +1349,7 @@ _--_
 
 clear console screen
 
-    : PAGE $C EMIT ;
+    : PAGE 12 EMIT ;
 
 ___
 ### `CR`
@@ -1379,7 +1379,7 @@ ___
 ### `TYPE`
 _c-addr u --_
 
-type string to output or to OUTPUT-ID when set;
+type string to output or to FILE-ID when set;
 string may contain control codes, see EMIT
 
     : TYPE
@@ -2297,7 +2297,7 @@ _"&lt;spaces&gt;name&lt;space&gt;" -- ; ... -- ..._
 
 define a deferred name
 
-    : DEFER CODE ['] (DEF) CFA, ['] UNDEF , ;
+    : DEFER CODE ['] (DEF) CFA, ['] (UNDEF) , ;
 
 ___
 ### `DEFER!`
@@ -2333,7 +2333,7 @@ may throw -32 "invalid name argument"
         DEFER!
         EXIT
       THEN
-      #-32 THROW ; IMMEDIATE
+      -32 THROW ; IMMEDIATE
 
 ___
 ### `ACTION-OF`
@@ -2353,7 +2353,7 @@ may throw -32 "invalid name argument"
         DEFER@
         EXIT
       THEN
-      #-32 THROW ; IMMEDIATE
+      -32 THROW ; IMMEDIATE
 
 ___
 ### `LITERAL`
@@ -2645,7 +2645,7 @@ _n --_
 
 display exception n at the offending location in the input;
 n = 0 return without displaying an error message;
-n = -1 ABORT and n = -2 ABORT" also clears the parameter stack
+n = -1 ABORT and n = -2 ABORT" clear the parameter stack
                n = -28 break is displayed as <STOP>
 n = -56 QUIT stays silent;
 other errors n are displayed as <ERR-n> switched to decimal,
@@ -2843,16 +2843,7 @@ _"ccc&lt;eol&gt;" --_
 start a comment line;
 parse and skip input up to the end of line
 
-    : \ $A PARSE 2SROP ;
-
-___
-### `OK`
-_"ccc&lt;eol&gt;" --_
-
-start a comment line, same as \ but not immediate,
-so that screen editing of Forth output before OK is made possible
-
-    : OK POSTPONE \ ;
+    : \ 10 PARSE 2SROP ;
 
 ___
 ### `.(`
@@ -4579,6 +4570,7 @@ word | stack
 [`FCOS`](#FCOS)	|		r1 -- r2
 [`FENCE`](#FENCE)	|		-- addr
 [`FEXP`](#FEXP)	|		r1 -- r2
+[`FILE-ID`](#FILE-ID)	|	-- 0|fileid
 [`FILL`](#FILL)	|		c-addr u char --
 [`FIND-WORD`](#FIND-WORD)	|	c-addr u -- c-addr 0 | xt 1 | xt -1
 [`FIND`](#FIND)	|		c-addr -- c-addr 0 | xt 1 | xt -1
@@ -4645,10 +4637,8 @@ word | stack
 [`NUMBER`](#NUMBER)	|	c-addr u -- n|u|d|ud|r
 [`OFF`](#OFF)	|		addr --
 [`OF`](#OF)	|		x1 x2 -- x1 or x1 x2 -- ; C: n1 -- orig n2
-[`OK`](#OK)	|		"ccc&lt;eol&gt;" --
 [`ON`](#ON)	|		addr --
 [`OR`](#OR)	|		x1 x2 -- x1|x2
-[`OUTPUT-ID`](#OUTPUT-ID)	|	-- 0|fileid
 [`OVER`](#OVER)	|		x1 x2 -- x1 x2 x1
 [`PAD`](#PAD)	|		-- c-addr
 [`PAGE`](#PAGE)	|		--

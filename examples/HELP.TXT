@@ -532,10 +532,10 @@ leave number of screen columns x as u1 and rows y as u2
 fetch cursor column x as u1 >= 0 and row y as u2 >= 0
 =AT-XY ( u1 u2 -- )
 set column x to u1 >= 0 and row y to u2 >= 0
-=OUTPUT-ID ( -- 0|fileid )
+=FILE-ID ( -- 0|fileid )
 value with 0 = console output, otherwise fileid to redirect output
 =EMIT ( char -- )
-emit char to screen or to OUTPUT-ID when set;
+emit char to screen or to FILE-ID when set;
 list of control codes for console output:
 code | effect
 ---- | ---------------------------------------------------------
@@ -579,7 +579,7 @@ emit a space
 =SPACES ( n -- )
 emit n spaces (zero or negative n does nothing)
 =TYPE ( c-addr u -- )
-type string to output or to OUTPUT-ID when set;
+type string to output or to FILE-ID when set;
 string may contain control codes, see EMIT
 =BASE ( -- addr )
 variable with numeric base for conversion
@@ -1011,7 +1011,7 @@ may throw -22 "control structure mismatch"
 =ERROR ( n -- )
 display exception n at the offending location in the input;
 n = 0 return without displaying an error message;
-n = -1 ABORT and n = -2 ABORT" also clears the parameter stack
+n = -1 ABORT and n = -2 ABORT" clear the parameter stack
 n = -56 QUIT stays silent;
 other errors n are displayed as <ERR-n> switched to decimal,
 a line number is included <ERR-n:line> when loading from files
@@ -1091,9 +1091,6 @@ parse and skip input up to the closing )
 =\ ( "ccc<eol>" -- )
 start a comment line;
 parse and skip input up to the end of line
-=OK ( "ccc<eol>" -- )
-start a comment line, same as \ but not immediate,
-so that screen editing of Forth output before OK is made possible
 =.( ( "ccc<paren>" -- )
 emit CR then type "ccc" up to the closing )
 =NUMBER ( c-addr u -- n|u|d|ud|r )

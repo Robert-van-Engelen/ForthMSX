@@ -104,6 +104,8 @@
 
 - improve `FORGET` and `MARKER` to safely delete definitions across vocabularies, updating vocabularies accordingly
 
+- add `(')` to distinguish from `(LIT)` for "slicing" with code analysis
+
 ### v1.0
 
 ## TODO

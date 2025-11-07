@@ -38,9 +38,9 @@
 ;     - text input and editing: INLIN EDLIN
 ;     - vocabulary: VOCABULARY CURRENT CONTEXT
 ;     - dictionary: LASTXT HIDE REVEAL L>NAME >NAME NAME> FIND-WORD
-;     - files: ANEW GET-LINE CLOSE-FILES OUTPUT-ID
+;     - files: ANEW GET-LINE CLOSE-FILES FILE-ID
 ;     - keyboard: INKEY CLKEY
-;     - other: OK BYE
+;     - other: BYE
 ;
 ; Author:
 ;   Dr. Robert van Engelen, Copyright 2025
@@ -137,7 +137,6 @@ MAIN = 0	; include main.asm
 ; - strings: S\" S\>S
 ; - looping: ?LEAVE K
 ; - keyboard: INKEY CLKEY
-; - other: OK
 
 .if 1-REPL	; REPL=0 disables STOP
 STOP = 0
@@ -524,7 +523,7 @@ label:
 
 .macro		SLIT string
 		.nchr len,^|string|
-		.dw doslit
+		.dw doquote
 		.db len
 		.str ^|string|
 .endm
@@ -546,7 +545,8 @@ label:
 ;
 ;-------------------------------------------------------------------------------
 
-boot::		; set hook H.ERRO to intercept Math Pack and MSX-DOS errors
+boot::		; cold boot
+		; set hook H.ERRO to intercept Math Pack and MSX-DOS errors
 		ld a,0xc3		; JP opcode
 		ld hl,bios_throw_e	; bios_throw_e -> hl
 		ld (HERRO),a		; JP -> HERRO hook
@@ -590,16 +590,17 @@ boot::		; set hook H.ERRO to intercept Math Pack and MSX-DOS errors
 .if JPIY
 		ld iy,next		; set next -> iy for jp (iy) in JP_NEXT
 .endif
+warm::		; warm boot
 .if REPL
 		; display FORTH banner and start REPL
 		call docol
 		.dw decimal
 		.dw page
-		    SLIT ^|FORTH|
+		    SLIT ^|FORTH |
 		.dw type
-		.dw unused,dolit,6,udotr
-		    SLIT ^| bytes free\r\n|
-		.dw type
+		.dw unused,udot
+		    SLIT ^|bytes free|
+		.dw type,cr
 		.dw repl
 .else
 .if MAIN
@@ -610,10 +611,10 @@ boot::		; set hook H.ERRO to intercept Math Pack and MSX-DOS errors
 .else
 		; headless do-nothing
 		call docol
-		    SLIT ^|FORTH headless|
+		    SLIT ^|FORTH headless |
 		.dw type
-		.dw unused,dolit,6,udotr
-		    SLIT ^| bytes free\r\n|
+		.dw unused,udot
+		    SLIT ^|bytes free|
 		.dw type
 		.dw bye
 .endif;MAIN
@@ -621,51 +622,7 @@ boot::		; set hook H.ERRO to intercept Math Pack and MSX-DOS errors
 
 ;-------------------------------------------------------------------------------
 ;
-;		INTERPRETER STATE VARIABLES
-;
-;-------------------------------------------------------------------------------
-
-ip:		.dw 0			; saved bc with ip
-rp:		.dw 0			; saved ix with rp
-
-.if UPHI
-
-rp0		.equ HIMEM		; rp0 top of return stack is HIMEM
-sp0:		.dw 0			; sp0 top of parameter stack
-sp1:		.dw 0			; sp1 = -1 - sp0
-sp2:		.dw 0			; sp2 = -(sp0 - s_size + 1) = sp1 + s_size
-buf:		.dw 0			; TMP buffers base
-top:		.dw 0			; max dictionary top
-
-.else
-
-bsp:		.dw 0			; saved BASIC stack pointer
-
-RP0		.equ 0xde3f		; lowest HIMEM (MSX2 Technical Handbook)
-SP0		.equ RP0-r_size		;
-SP1		.equ 0xffff-SP0		;
-SP2		.equ SP1+s_size		;
-BUF		.equ SP0-s_size-2*b_size;
-TOP		.equ BUF-h_size		;
-
-rp0:		.dw RP0			; rp0 top of return stack
-sp0:		.dw SP0			; sp0 top of parameter stack
-sp1:		.dw SP1			; sp1 = -1 - sp0
-sp2:		.dw SP2			; sp2 = -(sp0 - s_size + 1) = sp1 + s_size
-buf:		.dw BUF			; TMP buffers base
-top:		.dw TOP			; max dictionary top
-
-.endif
-
-;-------------------------------------------------------------------------------
-;
 ;		START OF THE DICTIONARY
-;
-;-------------------------------------------------------------------------------
-
-;-------------------------------------------------------------------------------
-;
-;		INTERNAL RUNTIME WORDS OF COMPILE-ONLY WORDS
 ;
 ;-------------------------------------------------------------------------------
 
@@ -689,9 +646,51 @@ break:		ld a,(OLDKEY+7)		; loop
 		and 0x10		;   check MSX OLDKEY row 7 bit 4 for STOP
 		jr z,break		; until STOP released
 		call KILBUF		; MSX KILBUF clear key buffer
-		ld a,-28		;
-		jp throw_a		; throw -28 "user interrupt (BREAK was pressed)"
+		ld a,-28		; throw -28 "user interrupt (BREAK was pressed)"
+throw_a:	push de			; save TOS
+		ld e,a			;
+throw_e:	ld d,-1			; set TOS to negative error code in a
+		jp throw		; THROW
+bios_throw_e:	; restore ix and iy when changed by BIOS/BDOS call that causes an exception
+.if RPIX
+		ld ix,(rp)		; rp -> ix
 .endif
+.if JPIY
+		ld iy,next		; set next -> iy for jp (iy) in JP_NEXT
+.endif
+		jr throw_e		; THROW
+.endif
+
+ip:		.dw 0			; saved bc with ip
+rp:		.dw 0			; saved ix with rp
+
+.if UPHI
+
+rp0		.equ HIMEM		; rp0 top of return stack is HIMEM
+sp0:		.dw 0			; sp0 top of parameter stack
+sp1:		.dw 0			; sp1 = -1 - sp0
+sp2:		.dw 0			; sp2 = -(sp0 - s_size + 1) = sp1 + s_size
+buf:		.dw 0			; TMP buffers base
+top:		.dw 0			; max dictionary top
+
+.else
+
+RP0		.equ 0xde3f		; lowest HIMEM (MSX2 Technical Handbook)
+SP0		.equ RP0-r_size		;
+SP1		.equ 0xffff-SP0		;
+SP2		.equ SP1+s_size		;
+BUF		.equ SP0-s_size-2*b_size;
+TOP		.equ BUF-h_size		;
+bsp:		.dw 0			; saved BASIC stack pointer
+rp0:		.dw RP0			; rp0 top of return stack
+sp0:		.dw SP0			; sp0 top of parameter stack
+sp1:		.dw SP1			; sp1 = -1 - sp0
+sp2:		.dw SP2			; sp2 = -(sp0 - s_size + 1) = sp1 + s_size
+buf:		.dw BUF			; TMP buffers base
+top:		.dw TOP			; max dictionary top
+
+.endif
+
 
 ; (;)		-- ; R: ip --
 ;		return to caller from colon definition;
@@ -802,9 +801,16 @@ twofetch_hl:	ld e,(hl)	;  7	;
 		ld l,a		;  4	; [hl] -> hl with execution token
 jphl:		jp (hl)		;  4(38); execute the execution token
 
+; (')		-- xt
+;		fetch literal execution token;
+;		runtime word compiled by [']
+
+		CODE ('),dotick
+		jr dolit		; same as (LIT)
+
 ; (LIT)		-- x
 ;		fetch literal;
-;		runtime word compiled by EVALUATE, INTERPRET and NUMBER
+;		runtime word compiled by LITERAL
 
 		CODE (LIT),dolit
 		push de			; save TOS
@@ -813,7 +819,7 @@ jphl:		jp (hl)		;  4(38); execute the execution token
 
 ; (2LIT)	-- x1 x2
 ;		fetch double literal;
-;		runtime word compiled by EVALUATE, INTERPRET and NUMBER
+;		runtime word compiled by 2LITERAL
 
 		CODE (2LIT),dotwolit
 		push de			; save TOS
@@ -822,11 +828,11 @@ jphl:		jp (hl)		;  4(38); execute the execution token
 		push hl			; save hl as 2OS
 		NEXT			; continue
 
-; (SLIT)	-- c-addr u
-;		fetch literal string;
+; (")		-- c-addr u
+;		fetch string literal;
 ;		runtime word compiled by S" and ."
 
-		CODE (SLIT),doslit
+		CODE ^|(")|,doquote
 		push de			; save TOS
 		ld a,(bc)		;
 		inc bc			; [ip++] -> a with string length byte
@@ -907,7 +913,7 @@ true_next	.equ mone_next		; alias
 ;    0 CONSTANT FALSE
 
 		CODE FALSE,false_
-		jr zero
+		jr zero			; same as 0
 
 ; TRUE		-- -1
 ;		leave -1
@@ -915,7 +921,7 @@ true_next	.equ mone_next		; alias
 ;    -1 CONSTANT TRUE
 
 		CODE TRUE,true_
-		jr mone
+		jr mone			; same as -1
 
 ; BL		-- 32
 ;		leave constant 32 (space)
@@ -947,9 +953,9 @@ true_next	.equ mone_next		; alias
 		ld a,(hl)		; [1$] -> a with counter 0 or 1
 		xor 1			; a ^ 1 -> a
 		ld (hl),a		; [1$] ^ 1 -> [1$]
-		ld de,(top)		;
+		ld de,(buf)		;
 		add d			;
-		ld d,a			; set [top] + (a << 8) -> de as new TOS
+		ld d,a			; set [buf] + (a << 8) -> de as new TOS
 		JP_NEXT			; continue
 1$:		.db 1			; previous tmp buffer 0 or 1
 
@@ -997,8 +1003,9 @@ true_next	.equ mone_next		; alias
 		CODE ?DUP,qdup
 		ld a,e		;  4	;
 		or d		;  4	; test de = 0
-		jr nz,dup	; 23/7	; if de <> 0 then DUP
-		NEXT			; continue
+		jr z,1$		; 23/7	; if de <> 0 then
+		DUP			; DUP
+1$:		NEXT			; continue
 
 ; SWAP		x1 x2 -- x2 x1
 ;		swap TOS with 2OS
@@ -1538,7 +1545,7 @@ twostore_hl:	ld (hl),e		;
 
 ; (TO)		x --
 ;		store in value;
-;		runtime of the TO compile-only word
+;		runtime of the TO word
 
 		CODE (TO),doto
 		LOAD h,l		; [ip++] -> hl
@@ -1546,7 +1553,7 @@ twostore_hl:	ld (hl),e		;
 
 ; (2TO)		dx --
 ;		store in double value;
-;		runtime of the TO compile-only word
+;		runtime of the TO word
 
 		CODE (2TO),dotwoto
 		LOAD h,l		; [ip++] -> hl
@@ -1592,7 +1599,7 @@ dplusstore_de:	ex de,hl		; 3OS -> de with low order of d, addr -> hl
 
 ; (+TO)		n --
 ;		increment value;
-;		runtime of the +TO compile-only word
+;		runtime of the +TO word
 
 		CODE (+TO),doplusto
 		LOAD h,l		; [ip++] -> hl
@@ -1600,7 +1607,7 @@ dplusstore_de:	ex de,hl		; 3OS -> de with low order of d, addr -> hl
 
 ; (D+TO)	d --
 ;		increment double value;
-;		runtime of the +TO compile-only word
+;		runtime of the +TO word
 
 		CODE (D+TO),dodplusto
 		pop hl			; 2OS -> hl with low order of d
@@ -2551,7 +2558,7 @@ true_if_c_next:	sbc a			; -cf -> a
 
 		CODE ABS,abs
 		bit 7,d			; test if TOS is negative
-		jr nz,negate		; NEGATE if TOS is negative
+		jp nz,negate		; NEGATE if TOS is negative
 		NEXT			; continue
 
 ; DNEGATE	d1 -- d2
@@ -2582,7 +2589,7 @@ true_if_c_next:	sbc a			; -cf -> a
 
 		CODE DABS,dabs
 		bit 7,d			; test if TOS is negative
-		jr nz,dnegate		; DNEGATE if TOS is negative
+		jp nz,dnegate		; DNEGATE if TOS is negative
 		JP_NEXT			; continue
 
 ; LSHIFT	x1 u -- x2
@@ -4595,8 +4602,8 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		.dw dup,zero,dolit,0x10,dodosx,nip	; MSX BDOS 10h
 		.dw over,sourceid,equal,doif,1$
 		.dw   zero,doto,sourceid+3		; if fileid = SOURCE-ID then reset SOURCE-ID to 0
-1$:		.dw over,outputid,equal,doif,2$
-		.dw   zero,doto,outputid+3		; if fileid = OUTPUT-ID then reset OUTPUT-ID to 0
+1$:		.dw over,fileid,equal,doif,2$
+		.dw   zero,doto,fileid+3		; if fileid = FILE-ID then reset FILE-ID to 0
 2$:		.dw swap,off
 		.dw dup,doif,3$
 		.dw   drop,dolit,-197
@@ -4745,7 +4752,7 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 		.dw   rdrop
 		.dw   doexit
 		; SLIT ^|\r\n| crashes the assembler so add manually
-1$:		.dw doslit
+1$:		.dw doquote
 		.db 2,13,10
 		.dw rfrom,writefile
 		.dw doret
@@ -5549,16 +5556,16 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 
 .if FCBN
 
-; OUTPUT-ID	-- 0|fileid
+; FILE-ID	-- 0|fileid
 ;		value with 0 = console output, otherwise fileid to redirect output
 
-		VALUE OUTPUT-ID,outputid
+		VALUE FILE-ID,fileid
 		.dw 0
 
 .endif;FCBN
 
 ; EMIT		char --
-;		emit char to screen or to OUTPUT-ID when set;
+;		emit char to screen or to FILE-ID when set;
 ;		list of control codes for console output:
 ;
 ;		code | effect
@@ -5598,19 +5605,19 @@ PHYDIO		.equ 0xffa7		; PHYDIO hook [PHYDIO] != 0xc9 when Disk BASIC is available
 
 		CODE EMIT,emit
 .if FCBN
-		ld hl,(outputid+3)	; OUTPUT-ID -> hl
+		ld hl,(fileid+3)	; FILE-ID -> hl
 		ld a,l			;
 		or h			;
-		jr z,2$			; if OUTPUT-ID != 0 then
+		jr z,2$			; if FILE-ID != 0 then
 		ld a,e			;
 		ld de,1$		;
 		ld (de),a		;   char -> [emit_chbuf]
 		push bc			;   save bc with ip
 		SVIXIY			;   save ix and iy when necessary
-		push hl			;   save hl with OUTPUT-ID value fileid
+		push hl			;   save hl with FILE-ID value fileid
 		ld c,0x1a		;
 		call BDOS		;   MSX BDOS 1ah set DTA to c-addr
-		pop de			;   pop de with OUTPUT-ID value fileid
+		pop de			;   pop de with FILE-ID value fileid
 		ld hl,1			;   1 -> hl
 		ld c,0x26		;
 		call BDOS		;   MSX BDOS 26h block write (assume record size = 1)
@@ -5631,10 +5638,10 @@ chput_a_next:	call CHPUT		; MSX CHPUT a to the console
 ; PAGE		--
 ;		clear console screen
 ;
-;    : PAGE $C EMIT ;
+;    : PAGE 12 EMIT ;
 
 		CODE PAGE,page
-		ld a,0x0c		;
+		ld a,12			;
 		jr chput_a_next		; clear screen
 
 ; CR		--
@@ -5668,7 +5675,7 @@ chput_a_next:	call CHPUT		; MSX CHPUT a to the console
 2$:		.dw doret
 
 ; TYPE		c-addr u --
-;		type string to output or to OUTPUT-ID when set;
+;		type string to output or to FILE-ID when set;
 ;		string may contain control codes, see EMIT
 ;
 ;    : TYPE
@@ -5679,11 +5686,11 @@ chput_a_next:	call CHPUT		; MSX CHPUT a to the console
 
 		CODE TYPE,type
 .if FCBN
-		ld hl,(outputid+3)	; OUTPUT-ID -> hl
+		ld hl,(fileid+3)	; FILE-ID -> hl
 		ld a,l			;
 		or h			;
-		jr z,1$			; if OUTPUT-ID != 0 then
-		ex (sp),hl		;   2OS <-> hl with OUTPUT-ID value fileid
+		jr z,1$			; if FILE-ID != 0 then
+		ex (sp),hl		;   2OS <-> hl with FILE-ID value fileid
 		push bc			;   save bc with ip
 		SVIXIY			;   save ix and iy when necessary
 		push de			;   save TOS with u
@@ -5692,7 +5699,7 @@ chput_a_next:	call CHPUT		; MSX CHPUT a to the console
 		call BDOS		;   MSX BDOS 1ah set DTA to c-addr
 		pop hl			;   pop hl with u
 		pop bc			;
-		pop de			;   pop de with OUTPUT-ID value fileid
+		pop de			;   pop de with FILE-ID value fileid
 		push bc			;
 		ld c,0x26		;
 		call BDOS		;   MSX BDOS 26h block write (assume record size = 1)
@@ -6771,7 +6778,7 @@ addr'name:	.dw 0
 		.dw       drop
 		.dw       dup			; -- l c-addr u u
 .if FCBN
-		.dw       outputid,zeroequal,doif,3$
+		.dw       fileid,zeroequal,doif,3$
 .endif
 		.dw         key,drop		; wait for key when outputting to console
 3$:		.dw     mrot			; -- l u|n+u+1 c-addr u
@@ -6874,7 +6881,9 @@ store_state:	ld (state+3),hl		; hl -> STATE
 
 		COLON_IMM ['],brackettick
 		.dw qcomp
-		.dw tick,literal
+		.dw tick
+		.dw dolit,dotick,compilecomma
+		.dw comma
 		.dw doret
 
 ; [CHAR]	"<spaces>char" -- ; -- char
@@ -6943,10 +6952,10 @@ store_state:	ld (state+3),hl		; hl -> STATE
 
 		CODE ?COMP,qcomp
 		ld a,(state+3)		;
-		or a			;
-		ld a,-14		; "interpreting a compile-only word"
+		or a			; if state = 0 then
+		ld a,-14		; throw -14 "interpreting a compile-only word"
 		jp z,throw_a		;
-		JP_NEXT			;
+		JP_NEXT			; continue
 
 ; ?SYS		-- ; C: x --
 ;		check if compiled control structure matches x;
@@ -7373,7 +7382,7 @@ comma_de:	ld (hl),e		;
 ; DEFER		"<spaces>name<space>" -- ; ... -- ...
 ;		define a deferred name
 ;
-;    : DEFER CODE ['] (DEF) CFA, ['] UNDEF , ;
+;    : DEFER CODE ['] (DEF) CFA, ['] (UNDEF) , ;
 
 		COLON DEFER,defer
 		.dw code
@@ -7420,7 +7429,7 @@ comma_de:	ld (hl),e		;
 ;        DEFER!
 ;        EXIT
 ;      THEN
-;      #-32 THROW ; IMMEDIATE
+;      -32 THROW ; IMMEDIATE
 
 		COLON_IMM IS,is
 		.dw tick
@@ -7449,7 +7458,7 @@ comma_de:	ld (hl),e		;
 ;        DEFER@
 ;        EXIT
 ;      THEN
-;      #-32 THROW ; IMMEDIATE
+;      -32 THROW ; IMMEDIATE
 
 		COLON_IMM ACTION-OF,actionof
 		.dw tick
@@ -7500,7 +7509,7 @@ comma_de:	ld (hl),e		;
 		.dw qcomp
 		.dw dup,dolit,255,umore,doif,1$
 		.dw   dolit,-18,throw
-1$:		.dw dolit,doslit,compilecomma
+1$:		.dw dolit,doquote,compilecomma
 		.dw dup,ccomma
 		.dw here,over,allot,swap,cmove
 		.dw doret
@@ -7725,31 +7734,31 @@ comma_de:	ld (hl),e		;
 
 ; (UNTIL)	x --
 ;		branch if x = 0;
-;		runtime of the UNTIL compile-only word
+;		runtime of the UNTIL word
 
 		CODE (UNTIL),dountil
 		ld a,e		;  4	;
 		or d		;  4	; test if TOS = 0
 		pop de		; 10	; set new TOS
-		jr z,doagain	; 12/7	; (AGAIN) if TOS = 0
+		jp z,doagain	; 10	; (AGAIN) if TOS = 0
 		jr skip_jp_next 	; skip jump target address and continue
 
 ; (IF)		x --
 ;		branch if x = 0;
-;		runtime of the IF and WHILE compile-only words
+;		runtime of the IF and WHILE words
 
 		CODE (IF),doif
 		ld a,e		;  4	;
 		or d		;  4	; test if TOS = 0
 		pop de		; 10	; set new TOS
-		jr z,doahead	; 12/7 	; (AHEAD) if TOS = 0
+		jp z,doahead	; 10 	; (AHEAD) if TOS = 0
 skip_jp_next:	inc bc		;    7	;
 		inc bc		;    7	; ip + 2 -> ip skip jump target address
 		NEXT			; continue
 
 ; (AGAIN)	--
 ;		branch;
-;		runtime of the AGAIN and REPEAT compile-only words
+;		runtime of the AGAIN and REPEAT words
 
 		CODE (AGAIN),doagain
 		ld l,c		;  4	;
@@ -7781,7 +7790,7 @@ skip_jp_next:	inc bc		;    7	;
 
 ; (AHEAD)	--
 ;		branch;
-;		runtime of the AHEAD, ELSE and ENDOF compile-only words
+;		runtime of the AHEAD, ELSE and ENDOF words
 
 		CODE (AHEAD),doahead
 		ld l,c		;  4	;
@@ -7793,20 +7802,20 @@ skip_jp_next:	inc bc		;    7	;
 
 ; (OF)		x1 x2 -- x1 or x1 x2 --
 ;		branch if x1 <> x2;
-;		runtime of the OF compile-only word
+;		runtime of the OF word
 
 		CODE (OF),doof
 		pop hl			; pop x1 -> hl
 		ex de,hl		; x2 -> hl, x1 -> de
 		or a			; 0 -> cf
 		sbc hl,de		; test x1 = x2
-		jr nz,doahead		; AHEAD if x1 <> x2
+		jp nz,doahead		; AHEAD if x1 <> x2
 		pop de			; pop new TOS
 		jr skip_jp_next 	; skip jump target address and continue
 
 ; (+LOOP)	n --
 ;		increment loop counter by n and repeat loop unless counter crosses the limit;
-;		runtime of the +LOOP compile-only word
+;		runtime of the +LOOP word
 
 		CODE (+LOOP),doplusloop
 .if 1-RPIX
@@ -7820,7 +7829,7 @@ skip_jp_next:	inc bc		;    7	;
 		ld (ix+0),l		;
 		ld (ix+1),h		; hl -> [rp] save updated counter
 		pop de			; pop new TOS
-		jr doagain		; (AGAIN)
+		jp doagain		; (AGAIN)
 1$:		ld de,6			;
 		add ix,de		;
 .if 1-RPIX
@@ -7831,7 +7840,7 @@ skip_jp_next:	inc bc		;    7	;
 
 ; (LOOP)	--
 ;		increment loop counter by 1 and repeat loop unless loop counter crosses the limit;
-;		runtime of the LOOP compile-only word
+;		runtime of the LOOP word
 
 		CODE (LOOP),doloop
 		push de			; save TOS
@@ -7841,14 +7850,14 @@ skip_jp_next:	inc bc		;    7	;
 ; (?DO)		n1|u1 n2|u2 --
 ;		begin loop with limit n1|u1 and initial value n2|u2;
 ;		skip loop when zero trip loop;
-;		runtime of the ?DO compile-only word
+;		runtime of the ?DO word
 
 		CODE (?DO),doqdo
 		pop hl			;
 		push hl			; 2OS -> hl with loop limit
 		or a			; 0 -> cf
 		sbc hl,de		; test de = hl initial equals limit
-		jr nz,dodo		; if de <> hl then (DO)
+		jp nz,dodo		; if de <> hl then (DO)
 		pop hl			; discard 2OS
 		pop de			; set new TOS
 		jr doahead		; AHEAD
@@ -7856,7 +7865,7 @@ skip_jp_next:	inc bc		;    7	;
 ; (DO)		n1|u1 n2|u2 --
 ;		begin loop with limit n1|u1 and initial value n2|u2;
 ;		loop at least once;
-;		runtime of the DO compile-only word
+;		runtime of the DO word
 
 		CODE (DO),dodo
 .if RPIX
@@ -7887,7 +7896,7 @@ skip_jp_next:	inc bc		;    7	;
 
 ; (UNLOOP)	R: ... --
 ;		remove loop parameters;
-;		runtime of the UNLOOP compile-only word
+;		runtime of the UNLOOP word
 
 		CODE (UNLOOP),dounloop
 .if RPIX
@@ -7909,20 +7918,20 @@ skip_jp_next:	inc bc		;    7	;
 
 ;+ (?LEAVE)	x --
 ;		if x is nonzero (not FALSE) then discard the loop parameters and exit the innermost do-loop;
-;		runtime of the ?LEAVE compile-only word
+;		runtime of the ?LEAVE word
 
 		CODE (?LEAVE),doqleave
 		ld a,e			;
 		or d			;
 		pop de			; pop new TOS
-		jr nz,doleave		; if x != 0 then LEAVE
+		jp nz,doleave		; if x != 0 then LEAVE
 		JP_NEXT			; continue
 
 .endif;XTRA|FCBN
 
 ; (LEAVE)	--
 ;		discard the loop parameters and exit the innermost do-loop;
-;		runtime of the LEAVE compile-only word
+;		runtime of the LEAVE word
 
 		CODE (LEAVE),doleave
 .if RPIX
@@ -8240,7 +8249,7 @@ loop_counter:	ld e,(hl)		;
 ; ERROR		n --
 ;		display exception n at the offending location in the input;
 ;		n = 0 return without displaying an error message;
-;		n = -1 ABORT and n = -2 ABORT" also clears the parameter stack
+;		n = -1 ABORT and n = -2 ABORT" clear the parameter stack
 ;               n = -28 break is displayed as <STOP>
 ;		n = -56 QUIT stays silent;
 ;		other errors n are displayed as <ERR-n> switched to decimal,
@@ -8416,8 +8425,8 @@ loop_counter:	ld e,(hl)		;
 		.dw     rfrom
 		.dw     doexit
 1$:		.dw   tor,clear,rfrom
-		.dw   error
 .if REPL
+		.dw   error
 		.dw   repl
 .else
 		.dw   bye
@@ -8433,7 +8442,7 @@ loop_counter:	ld e,(hl)		;
 
 		CODE QUIT,quit
 		ld a,-56		;
-		jr throw_a		; throw -56 "QUIT"
+		jp throw_a		; throw -56 "QUIT"
 
 ; ABORT		... -- ; R: ... --
 ;		throw -1 "ABORT";
@@ -8443,22 +8452,11 @@ loop_counter:	ld e,(hl)		;
 
 		CODE ABORT,abort
 		ld a,-1			;
-throw_a:	push de			; save TOS
-		ld e,a			;
-throw_e:	ld d,-1			; set TOS to negative error code in a
-		jr throw		; THROW
-bios_throw_e:	; restore ix and iy when changed by BIOS/BDOS call that causes an exception
-.if RPIX
-		ld ix,(rp)		; rp -> ix
-.endif
-.if JPIY
-		ld iy,next		; set next -> iy for jp (iy) in JP_NEXT
-.endif
-		jr throw_e		; THROW
+		jp throw_a		; throw -1 "ABORT"
 
 ; (ABORT")	... flag c-addr u -- ; R: ... --
 ;		if flag then abort with string message unless an active catch is present;
-;		runtime of the ABORT" compile-only word;
+;		runtime of the ABORT" word;
 ;		throw -2 "ABORT""
 ;
 ;    : (ABORT")
@@ -8558,7 +8556,7 @@ bios_throw_e:	; restore ix and iy when changed by BIOS/BDOS call that causes an 
 ;		start a comment line;
 ;		parse and skip input up to the end of line
 ;
-;    : \ $A PARSE 2SROP ;
+;    : \ 10 PARSE 2SROP ;
 
 ;		COLON_IMM \134,backslash	; this does not work
 ;		COLON_IMM ^|\134|,backslash	; this neither
@@ -8575,19 +8573,6 @@ backslash:	call docol			; expand macro manually
 		.dw dolit,'\n,parse
 		.dw twodrop
 		.dw doret
-
-.if XTRA
-
-;+ OK		"ccc<eol>" --
-;		start a comment line, same as \ but not immediate,
-;		so that screen editing of Forth output before OK is made possible
-;
-;    : OK POSTPONE \ ;
-
-		CODE OK,ok
-		jr backslash
-
-.endif
 
 ; .(		"ccc<paren>" --
 ;		emit CR then type "ccc" up to the closing )
@@ -8782,7 +8767,7 @@ backslash:	call docol			; expand macro manually
 		.dw dolit,rp0,fetch,rpstore
 		.dw handler,off
 .if FCBN
-		.dw zero,doto,outputid+3
+		.dw zero,doto,fileid+3
 .endif
 		.dw zero,doto,sourceid+3
 		.dw cr
@@ -9001,7 +8986,7 @@ vocabulary_does:call dodoes
 		call vocabulary_does
 		.dw last_link		; link field, CURRENT CONTEXT point here
 		.dw fig_kludge		; hidden blank name to ignore
-voc_link:	.dw 0			; linked list of vocabularies
+voc_link::	.dw 0			; linked list of vocabularies
 
 .endif;REPL
 
