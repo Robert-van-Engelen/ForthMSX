@@ -157,7 +157,7 @@ seed {}
 star {}
 require
 repl
-``
+```
 Adding `REPL` to the words info file is the same as option `-repl`.
 ```
 ./forslice -start 0xc000 -words BUGSTARS.INF STARS.BIN NEWSTARS.BIN
