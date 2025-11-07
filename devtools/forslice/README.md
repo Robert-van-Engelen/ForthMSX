@@ -29,11 +29,11 @@ words info file with option -words.
 
 The options are:
 
-`-repl`              include REPL interpreter and dictionary (not headless)
-`-break`             disable (CTRL-)STOP break
-`-main <name>`       run `<name>` as the main program, default name is MAIN
-`-start <addr>`      new binary start address to bload the program slice
-`-words <file.inf>`  use words info file to assist slicing and relocation
+* `-repl`              include REPL interpreter and dictionary (not headless)
+* `-break`             disable (CTRL-)STOP break
+* `-main <name>`       run `<name>` as the main program, default name is MAIN
+* `-start <addr>`      new binary start address to bload the program slice
+* `-words <file.inf>`  use words info file to assist slicing and relocation
 
 If MAIN or the word specified by `-main` is missing, then REPL will be run.
 
