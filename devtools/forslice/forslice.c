@@ -8,7 +8,7 @@
 
  DESCRIPTION
      Slice ForthMSX saved-state binary INFILE.BIN by removing unused words to
-     create a headless slice saved to OUTFILE.BIN or to SLICE.BIN when
+     create a headless program slice saved to OUTFILE.BIN or to SLICE.BIN when
      OUTFILE.BIN is not specified.  Unused words are those that cannot be
      reached on any execution path from MAIN or from the word specified with
      option -main instead of MAIN.  Forslice saves a log file forslice.log in
@@ -40,20 +40,22 @@
      An info field of the form {...} is used for VAR, VAL and 2VAL words and
      for words defined with CREATE DOES>.  The info field must not contain
      spacing and specifies a list of offsets into the data of those words where
-     Forth addresses and pointers are located that must be relocated properly
-     for the program slice to run reliably.
+     Forth addresses (pointers to data) are located that must be relocated
+     properly for the program slice to run reliably.
 
      For example, words created by MARKER and VOCABULARY have pointers in their
      data at certain byte-aligned offsets from their pfa (parameter field
-     address given by >BODY) into their data:
+     address given by >BODY):
 
      MARKER {0,2,4}
      VOCABULARY {0,4}
 
-     This is required to properly slice and relocate all MARKER-defined words
-     and VOCABULARY-defined words in the sliced saved state, when these are
-     used in the slice.  This is not necessary When none are used in the slice.
-     Check the saved forslice.log for details.
+     These pointers at the specified offsets must remain valid after program
+     relocation.  Therefore, these two lines are required to properly slice and
+     relocate all `MARKER`-defined words and `VOCABULARY`-defined words in the
+     sliced saved state, when these are used in the slice.  This is not
+     necessary When none are used in the slice.  Check the saved forslice.log
+     for details.
 
  ******************************************************************************
 
@@ -1605,7 +1607,7 @@ SYNOPSIS\n\
 \n\
 DESCRIPTION\n\
      Slice ForthMSX saved-state binary INFILE.BIN by removing unused words to\n\
-     create a headless slice saved to OUTFILE.BIN or to SLICE.BIN when\n\
+     create a headless program slice saved to OUTFILE.BIN or to SLICE.BIN when\n\
      OUTFILE.BIN is not specified.  Unused words are those that cannot be\n\
      reached on any execution path from MAIN or from the word specified with\n\
      option -main instead of MAIN.  Forslice saves a log file forslice.log in\n\
@@ -1637,8 +1639,8 @@ OPTIONS\n\
      An info field of the form {...} is used for VAR, VAL and 2VAL words and\n\
      for words defined with CREATE DOES>.  The info field must not contain\n\
      spacing and specifies a list of offsets into the data of those words where\n\
-     Forth addresses and pointers are located that must be relocated properly\n\
-     for the program slice to run reliably.\n\
+     Forth addresses (pointers to data) are located that must be relocated\n\
+     properly for the program slice to run reliably.\n\
 \n\
      For example, words created by MARKER and VOCABULARY have pointers in their\n\
      data at certain byte-aligned offsets from their pfa (parameter field\n\
@@ -1647,10 +1649,12 @@ OPTIONS\n\
      MARKER {0,2,4}\n\
      VOCABULARY {0,4}\n\
 \n\
-     This is required to properly slice and relocate all MARKER-defined words\n\
-     and VOCABULARY-defined words in the sliced saved state, when these are\n\
-     used in the slice.  This is not necessary When none are used in the slice.\n\
-     Check the saved forslice.log for details.\n\
+     These pointers at the specified offsets must remain valid after program\n\
+     relocation.  Therefore, these two lines are required to properly slice and\n\
+     relocate all `MARKER`-defined words and `VOCABULARY`-defined words in the\n\
+     sliced saved state, when these are used in the slice.  This is not\n\
+     necessary When none are used in the slice.  Check the saved forslice.log\n\
+     for details.\n\
 ");
 }
 
