@@ -208,4 +208,10 @@ words created with `VARIABLE`,  `2VARIABLE` and `CREATE` without `DOES>` that co
 words created with `CREATE` with `DOES>` that contain pointers to or into Forth words | only for the first cell | `VOCABULARY project` | add an entry to the words info file for the *creating word*, i.e. the word that executes `CREATE ... DOES>`. e.g. `MARKER` and `VOCABULARY` are creating words so the entries `MARKER {0,2,4}` and `VROCABULARY {0,4}` should be added to the words info file
 evaluated literals in word definitions that are pointers | yes | `: foo [ ' bar ] LITERAL CATCH ERROR ;` | use `[']` instead, e.g. `: foo ['] bar CATCH ERROR ;`
 
-Machine `CODE` words should not use jumps or calls to other Forth words.  However, for the ForthMSX assembly code internals the situation is different, because the forth.rel file has all of the necessary relocation information about absolute jumps and calls to relocate; in addition, forslice also supports a final last unconditional relative jump `jr` to another Forth word that will be analyzed and adjusted during relocation.
+Machine `CODE` words should not use `jp` jumps or `call` calls to other Forth
+words.  However, for the ForthMSX assembly code internals the situation is
+different, because the assembler's forth.rel file has all of the necessary
+relocation information about absolute jumps and calls to relocate; in addition,
+forslice also supports a final last unconditional `jr` relative jump to another
+Forth word that will be analyzed and adjusted during relocation.
+
