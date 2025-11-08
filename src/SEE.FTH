@@ -20,8 +20,8 @@ DECIMAL
 \ display the address of a jump word and increment ip by 2
 : .JUMP		( ip -- ip ) CELL+ DUP @ ."  -> " HEX U. DECIMAL ;
 
-\ display a cell value in hex and decimal, and as a word if the value matches an execution token
-: .CELL		( x -- ) DUP . ['] >NAME CATCH IF DROP ELSE ." ( ['] " NAME>STRING TYPE ."  ) " THEN ;
+\ display a tick literal as a word
+: .WORD		( x -- ) ['] >NAME CATCH IF . ELSE ." ['] " NAME>STRING TYPE THEN ;
 
 \ display the body of a colon definition starting at address ip
 : .DEF		( ip -- )
@@ -30,9 +30,10 @@ DECIMAL
     DUP @ CASE
       ['] (;)      OF DROP '; EMIT IMM IF ."  IMMEDIATE" THEN EXIT ENDOF
       ['] (;DOES)  OF ." DOES>" >BODY   ENDOF
-      ['] (LIT)    OF CELL+ DUP @ .CELL ENDOF
+      ['] (')      OF CELL+ DUP .WORD   ENDOF
+      ['] (LIT)    OF CELL+ DUP ?       ENDOF
       ['] (2LIT)   OF CELL+ DUP 2@ 0 D.R '. EMIT CELL+ ENDOF
-      ['] (SLIT)   OF 'S EMIT '" EMIT SPACE CELL+ DUP COUNT TYPE '" EMIT DUP C@ + 1- ENDOF
+      ['] (")      OF 'S EMIT '" EMIT SPACE CELL+ DUP COUNT TYPE '" EMIT DUP C@ + 1- ENDOF
       ['] (TO)     OF ." TO"    .TO     ENDOF
       ['] (2TO)    OF ." TO"    .TO     ENDOF
       ['] (+TO)    OF ." +TO"   .TO     ENDOF
