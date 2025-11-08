@@ -4,7 +4,7 @@ The goal of this ongoing project is to implement a "wicked fast" [Forth 2012 sta
 
 Why do I believe this is useful? There is [Kuma Forth](https://www.jupiter-ace.co.uk/downloads/books/KumaForthManual%20.pdf) for MSX after all, published in 1984.  While KForth is historically important, it is limited and outdated.  It neither does justice to the Forth programming language nor to the capabilities of MSX.
 
-See the [ForthMSX words](doc/words.md) that are built-in.  Additional word definitions can be loaded and compiled.
+See the [ForthMSX words](doc/words.md) that are built-in.  Additional word definitions can be loaded and compiled interactively.
 
 If you don't have an MSX machine or just want to try out ForthMSX, then visit [WebMSX](http://webmsx.org).  To run ForthMSX in WebMSX, click the WebMSX floppy drive icon on the bottom-left, then "Import Files to Disk":
 

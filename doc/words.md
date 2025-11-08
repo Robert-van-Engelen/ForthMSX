@@ -12,7 +12,7 @@ out from regular English.
 
 Forth words operate on the parameter stack, the return stack, and may parse
 delimited sequences of characters from the input buffer.  The parameter stack
-updates performed by a word are indicated by _before_ `--` _after_:
+updates that are performed by a word are indicated by _before_ `--` _after_:
 
 **ROT**
 <br>
