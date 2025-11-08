@@ -58,17 +58,17 @@ _ior_        | a single-cell 16-bit I/O return (zero is success, nonzero is an e
 A _char_ literal is an ASCII numeric code 0 to 255 or a quoted symbol `'s`,
 such as `'A` for the ASCII letter A with code 65.  This is a ForthMSX feature.
 
-A single-cell integer literal is a number _n_ between -32768 and 32767 or
-unsigned _u_ between 0 and 65535.
+A single-cell integer is a number _n_ between -32768 and 32767 or unsigned _u_
+between 0 and 65535.
 
-A double-cell integer literal _d_ takes two cells on the stack where the upper
+A double-cell integer _d_ takes two cells on the stack where the upper
 half is the TOS and lower half is the 2OS.  It is a number between -2147483648.
 and 2147483647. or unsigned _ud_ between 0 and 4294967295.. The syntax of
 a literal double constant must include the point `.` character somewhere in the
 string of digits (a legacy Forth decision).
 
-The base of a literal number parsed or output can be specific with a leading
-`#` for decimal or leading `$` for hexadecimal or a `%` for binary.  For
+The base of a literal number parsed or output can be specified with a leading
+`#` for decimal. or leading `$` for hexadecimal. or a `%` for binary.  For
 example, `%1010` is 10 in decimal.  Otherwise, the default base is `BASE` which
 is changed to decimal with `DECIMAL` and to hex with `HEX`.
 
