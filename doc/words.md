@@ -61,27 +61,30 @@ such as `'A` for the ASCII letter A with code 65.  This is a ForthMSX feature.
 A single-cell integer literal is a number _n_ between -32768 and 32767 or
 unsigned _u_ between 0 and 65535.
 
-A double-cell integer literal _d_ is a number between -2147483648. and
-2147483647.  or unsigned _ud_ between 0 and 4294967295., where the literal must
-include the point `.` character somewhere in the string of digits, which is
-classic Forth
+A double-cell integer literal _d_ takes two cells on the stack where the upper
+half is the TOS and lower half is the 2OS.  It is a number between -2147483648.
+and 2147483647. or unsigned _ud_ between 0 and 4294967295.. The syntax of
+a literal double constant must include the point `.` character somewhere in the
+string of digits (a legacy Forth decision).
 
-The base of a literal number can be specific with a leading `#` for decimal or
-leading `$` for hexadecimal or a `%` for binary.  For example, `%1010` is 10 in
-decimal.  Otherwise, the default base is `BASE` which is changed to decimal
-with `DECIMAL` and to hex with `HEX`.
+The base of a literal number parsed or output can be specific with a leading
+`#` for decimal or leading `$` for hexadecimal or a `%` for binary.  For
+example, `%1010` is 10 in decimal.  Otherwise, the default base is `BASE` which
+is changed to decimal with `DECIMAL` and to hex with `HEX`.
 
-a floating-point literal _r_ is specified in scientific notation with an
-exponent, even when the exponent is zero.  For example, `1E0` is floating-point
-1, but also `1e` without exponent digits following the lower-case `e`.  Because
-MSX BASIC floating-point values may be specified with a trailing `!` or `#`,
-ForthMSX supports this notation also, e.g. `1#` is floating-point 1.  Likewise,
- `1d` is floating-point 1, and perhaps strangely, `&h1` also.
+A floating-point literal constant _r_ is specified in scientific notation with
+an exponent, even when the exponent is zero.  For example, `1E0` is
+floating-point 1, but also `1e` without exponent digits following the
+lower-case `e`.  Because MSX BASIC floating-point values may be specified with
+a trailing `!` or `#`, ForthMSX supports this notation also, e.g. `1#` is
+floating-point 1.  Likewise, `1d` is floating-point 1, and perhaps strangely,
+`&h1` also.
 
 A string in Forth consists of a _c-addr u_ pair on the paramater stack with
-character string address _c-addr_ and length _u_.  A literal string is
+character string address _c-addr_ and length _u_.  A literal string constant is
 specified with `S" ...text."` with a space after `S"` because `S"` is a word to
-execute.
+execute.  To include `\`-escape character conventions in the literal string
+constant, use `S" ...text."`.
 
 Parsed input is represented as _"parsed-input"_ on the left side of `--` with
 the following abbreviations:
