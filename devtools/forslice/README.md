@@ -1,10 +1,10 @@
 # Headless Forth program slicer
 
 **forslice** is a headless Forth program slicer to optimize, obfuscate, shrink,
-and relocate Forth compiled binary programs.  A headless Forth program is a
+and relocate Forth compiled binary programs.  Slicing a Forth program removes
+all unused Forth words from the binary.  A headless Forth program slice is a
 binary with no interactive REPL (no read-eval-print-loop) and no dictionary
-with identifyable Forth words.  Slicing a Forth program removes all unused
-Forth words from the binary.
+with identifyable Forth words.  
 
 ## Build
 
@@ -73,45 +73,49 @@ When none are used in the slice.  Check the saved forslice.log for details.
 
 ## Example
 
-In [WebMSX](http://webmsx.org) load and run FORTH.BIN in Drive A from BASIC:
+When using [WebMSX](http://webmsx.org), load and run FORTH.BIN in Drive A from
+BASIC as follows:
 
 ```
 clear 100,&h8400
 bload "forth.bin",r
 ```
 
-Then add `examples/STARS.FTH` to Disk A and load the `STARS.FTH` example:
+Add `examples/STARS.FTH` to Disk A and load the `STARS.FTH` example:
 
 ```
 require stars.fth
 ```
 
-Save the program as a stand-alone binary `STARS.BIN` saved state to Drive A:
+Save the program state as a binary `STARS.BIN` to Drive A:
+
 
 ```
 require save.fth
 save stars.bin
 ```
 
-Click WebMSX Save Disk Image of Drive A to save the A disk as a .dsk image to
-your computer and rename to Disk.dsk.  Extract `STARS.BIN` using `dsktool`
-(conveniently located in devtools/dsktool) as follows:
+When using WebMSX, click Save Disk Image of Drive A to save the A disk as a
+.dsk image to your computer and rename to Disk.dsk.  Extract `STARS.BIN` using
+`dsktool` (conveniently located in devtools/dsktool):
 
 ```
 ./dsktool e Disk.dsk STARS.BIN
 ```
 
-Slice the `STARS.BIN` program to run `twinkle` as the main program:
+Slice the `STARS.BIN` saved state to run `twinkle` as the main program:
 
 ```
 ./forslice -main twinkle STARS.BIN NEWSTARS.BIN
 ```
 
-The `NEWSTARS.BIN` is a headless self-contained small binary that runs
-`twinkle`.  It is loaded with `bload "newstars.bin",r` and run at address
-`&H8400` which was allocated with `clear 100,&h8400`.  Because it is so small,
-we may want to move it up to a higher address to run it there.  Typical is to
-use `&Hc000` as the start address:
+The `NEWSTARS.BIN` binary file is a headless self-contained small binary that
+runs `twinkle`.  It is loaded with `bload "newstars.bin",r` and run at address
+`&H8400`.  Space to run it should be allocated with `clear 100,&h8400`.
+Because it is so small with only about 1200 bytes of code and needing only 1K
+memory on top of that for the stacks and buffers, we may want to move it up to
+a higher address to run it there.  Typical is to use `&Hc000` as the start
+address:
 
 ```
 ./forslice -start 0xc000 -main twinkle STARS.BIN NEWSTARS.BIN
@@ -190,3 +194,18 @@ Adding `REPL` to the words info file is the same as option `-repl`.
 ```
 ./forslice -start 0xc000 -words BUGSTARS.INF STARS.BIN NEWSTARS.BIN
 ```
+
+## Limitations
+
+The following limitations should be taken into account when writing ForthMSX
+programs to slice:
+
+problem | warning? | example | solution
+------- | -------- | ------- | --------
+words created with `CONSTANT` and `2CONSTANT` cannot contain pointers to or into Forth words | no | `HERE CONSTANT top` | use `VALUE` and `2VALUE` instead, then add an entry to the words info file, e.g. `top {0}`
+words created with `VALUE` and `2VALUE` that contain pointers to or into Forth words | yes | `HERE VALUE top` | add an entry to the words info file, e.g. `top {0}` means that `top` has a pointer at offset 0 in its body, whereas `top {}` means that it has not
+words created with `VARIABLE`,  `2VARIABLE` and `CREATE` without `DOES>` that contain pointers to or into Forth words | only for the first cell | add an entry to the words info file, e.g. `data {0,4}` means that when `CREATE data` is populated with values it has pointers at offsets 0 and 4 in its body, whereas `data {}` means it has no pointers
+words created with `CREATE` with `DOES>` that contain pointers to or into Forth words | only for the first cell | add an entry to the words info file for the *creating word*, i.e. the word that executes `CREATE ... DOES>`. e.g. `MARKER` and `VOCABULARY` are creating words so the entries `MARKER {0,2,4}` and `VROCABULARY {0,4}` should be added to the words info file
+evaluated literals in word definitions that are pointers | yes | `: foo [ ' bar ] LITERAL CATCH ERROR ;' | use `[']` instead, e.g. `: foo ['] bar CATCH ERROR ;`
+
+Machine `CODE` words should not use jumps or calls to other Forth words.  However, for the ForthMSX assembly code internals the situation is different, because the forth.rel file has all of the necessary relocation information about absolute jumps and calls to relocate; in addition, forslice also supports a final last unconditional relative jump `jr` to another Forth word that will be analyzed and adjusted during relocation.

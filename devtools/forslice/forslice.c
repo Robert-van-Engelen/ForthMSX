@@ -7,7 +7,7 @@
      forslice [options] INFILE.BIN [OUTFILE.BIN]
 
  DESCRIPTION
-     Slice ForthMSX saved-state binary INFILE.BIN by removing unused words to
+     Slices ForthMSX saved-state binary INFILE.BIN by removing unused words to
      create a headless program slice saved to OUTFILE.BIN or to SLICE.BIN when
      OUTFILE.BIN is not specified.  Unused words are those that cannot be
      reached on any execution path from MAIN or from the word specified with
