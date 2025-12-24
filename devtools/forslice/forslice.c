@@ -107,6 +107,7 @@ int flag_start = 0;
 const char *flag_main = "MAIN"; // default word to run when present
 
 typedef uint8_t Byte;
+typedef uint16_t Cell;
 typedef uint16_t Addr;
 
 struct Binary {
@@ -165,7 +166,9 @@ struct Words {
   Addr dosemicolondoes;
   Addr repl;
   Addr error;
+  Addr base;
   Addr handler;
+  Addr maxnumfcb;
   Addr throw;
   Addr bye;
   Addr main;
@@ -276,11 +279,17 @@ void bin_set_byte(struct Binary *bin, Addr addr, Byte x)
   bin->data[addr - bin->base] = x;
 }
 
+// store cell in the binary file at addr
+void bin_set_cell(struct Binary *bin, Addr addr, Cell cell)
+{
+  bin->data[addr - bin->base + 0] = cell & 0xff;
+  bin->data[addr - bin->base + 1] = cell >> 8;
+}
+
 // store address dest in the binary file at addr
 void bin_set_addr(struct Binary *bin, Addr addr, Addr dest)
 {
-  bin->data[addr - bin->base + 0] = dest & 0xff;
-  bin->data[addr - bin->base + 1] = dest >> 8;
+  bin_set_cell(bin, addr, dest);
 }
 
 // fetch relocation info byte for addr (0=none, 1=LSB, 2=MSB, 3=address, 4=jr)
@@ -718,7 +727,9 @@ void slice(struct Binary *bin, struct Reloc *rel, struct Words *wds)
   wds->dosemicolondoes = 0;
   wds->repl = 0;
   wds->error = 0;
+  wds->base = 0;
   wds->handler = 0;
+  wds->maxnumfcb = 0;
   wds->throw = 0;
   wds->bye = 0;
   wds->main = 0;
@@ -784,8 +795,12 @@ void slice(struct Binary *bin, struct Reloc *rel, struct Words *wds)
       wds->repl = cfa;
     else if (bin_name(bin, nfa, "ERROR"))
       wds->error = cfa;
+    else if (bin_name(bin, nfa, "BASE"))
+      wds->base = cfa;
     else if (bin_name(bin, nfa, "HANDLER"))
       wds->handler = cfa;
+    else if (bin_name(bin, nfa, "#FCB"))
+      wds->maxnumfcb = cfa;
     else if (bin_name(bin, nfa, "THROW"))
       wds->throw = cfa;
     else if (bin_name(bin, nfa, "BYE"))
@@ -935,9 +950,19 @@ void slice(struct Binary *bin, struct Reloc *rel, struct Words *wds)
     fprintf(stderr, "ERROR not found\n");
     ++errs;
   }
+  if (wds->base == 0)
+  {
+    fprintf(stderr, "BASE not found\n");
+    ++errs;
+  }
   if (wds->handler == 0)
   {
     fprintf(stderr, "HANDLER not found\n");
+    ++errs;
+  }
+  if (wds->maxnumfcb == 0)
+  {
+    fprintf(stderr, "#FCB not found\n");
     ++errs;
   }
   if (wds->throw == 0)
@@ -1108,13 +1133,25 @@ void slice(struct Binary *bin, struct Reloc *rel, struct Words *wds)
         Addr pfa = cfa + 3;
         Addr lit;
         int test = test_addr(bin, rel, pfa);
-        // reset HANDLER when set
-        if (cfa == wds->handler)
-          bin_set_addr(bin, pfa, 0);
         fprintf(fp, "   VAR ");
         print_nt(fp, bin, nfa);
         lit = bin_addr(bin, pfa);
-        if (wds_info(bin, rel, wds, lfa, pfa, end) == 2)
+        if (cfa == wds->base)
+        {
+          bin_set_cell(bin, pfa, 10);
+          fprintf(fp, " reset to 10 (DECIMAL)");
+        }
+        else if (cfa == wds->handler)
+        {
+          bin_set_addr(bin, pfa, 0);
+          fprintf(fp, " reset (remove stale handler)");
+        }
+        else if (cfa == wds->maxnumfcb)
+        {
+          bin_set_byte(bin, pfa + 1, 0);
+          fprintf(fp, " reset (no files currently open, %u max files)", bin_byte(bin, pfa));
+        }
+        else if (wds_info(bin, rel, wds, lfa, pfa, end) == 2)
         {
           Addr addr;
           fprintf(fp, " {");

@@ -1,9 +1,9 @@
 # tools
 
-ASM=asz80
+ASM=./asz80
 ASMFLAGS=-lops
 
-LNK=aslink
+LNK=./aslink
 LNKFLAGS=-imwu
 
 IHX2BIN=ihx/ihx2bin -g
@@ -26,7 +26,7 @@ $(BIN): $(HEX)
 $(HEX): $(REL)
 	$(LNK) $(LNKFLAGS) $(REL)
 
-%.rel: %.asm math.asm mathr.asm main.asm
+%.rel: %.asm math.asm mathr.asm vram.asm main.asm
 	$(ASM) $(ASMFLAGS) $<
 
 clean:

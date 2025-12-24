@@ -104,16 +104,22 @@
 
 - improve `FORGET` and `MARKER` to safely delete definitions across vocabularies, updating vocabularies accordingly
 
-- add `(')` to distinguish from `(LIT)` for "slicing" with code analysis
+- add `(')` to distinguish from `(LIT)` to support slicing with forslice code analysis
+
+- improve file FCB and FIB memory management by only allocating FCB+FIB (297 bytes) on demand per file opened when multiple files are opened, closing a file releases the FCB+FIB back into the pool
+
+- improve `VDP.FTH` with new words `VPEEK`, `VPOKE`, `VFILL`, `VREAD`, `VWRITE`, `VMODE`, `VCOLOR`, `VEMIT`, `VTYPE` written in assembly (Z80 source in `vram.asm`); update `STARS.FTH` example accordingly
+
+- improve `forslice` ForthMSX program slicer
+
+- improve open file handling, allocating FCBs and associated IO buffers (FIBs) on demand for up to 4 concurrent open files (i.e. FCBN=4); new words `FCB` and `#FCB`
 
 ### v1.0
 
 ## TODO
 
-- `READ-LINE` on "CON" device can't work with `READ-FILE` byte-by-byte, because MSX-DOS apparently refuses to cooperate and produce a byte stream; plan use CP/M "console input" 01h instead and do the same for "AUX" input 03h
+- `READ-LINE` on "CON" device can't work with `READ-FILE` byte-by-byte, because MSX-DOS apparently refuses to produce a byte stream; plan use CP/M "console input" 01h instead and do the same for "AUX" input 03h
 
-- add words for MSX VDP graphics
+- add words for MSX graphics and sprites
 
-- add words for MSX PSG sound
-
-
+- add words for MSX sound

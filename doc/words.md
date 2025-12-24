@@ -3058,17 +3058,22 @@ File-access words
 
 ___
 ### `DRV`
-_-- c-addr_
+_-- char_
 
-last used drive letter, the default drive when none is specified explicitly, initially drive A
+last used drive letter, the default drive when none is specified, initially drive A
 
 ___
-### `FXB`
+### `FCB`
+_n -- fileid_
+
+get n'th fileid (addr of n'th FCB with FIB)
+
+___
+### `#FCB`
 _-- addr_
 
-array of FCB+FIB per open file
-
-    CREATE FXB 37 4 + #IB + FCBN * ALLOT
+leave address of a pair of FCB byte-size counters, where LSB = max FCB and MSB = number of FCB in use
+may change LSB only to a value larger or equal to MSB
 
 ___
 ### `S>FCB`
